@@ -150,8 +150,7 @@ export function fixed(size) {
       }
     }
   };
-  Object.setPrototypeOf(fixed, buffer(size));
-  return fixed;
+  return Object.setPrototypeOf(fixed, buffer(size));
 }
 
 // A buffer implementation that drops newly added items when the buffer is full.
@@ -173,8 +172,7 @@ export function dropping(size) {
       }
     }
   };
-  Object.setPrototypeOf(dropping, buffer(size));
-  return dropping;
+  return Object.setPrototypeOf(dropping, buffer(size));
 }
 
 // A buffer implementation that drops the oldest item when an item is added to a full buffer.
@@ -198,6 +196,5 @@ export function sliding(size) {
       }
     }
   };
-  Object.setPrototypeOf(sliding, buffer(size));
-  return sliding;
+  return Object.setPrototypeOf(sliding, buffer(size));
 }
