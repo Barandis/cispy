@@ -147,7 +147,9 @@ export function fixed(size) {
     }
   }), {
     add(...items) {
-      items.forEach((item) => this.queue.enqueue(item));
+      for (const item of items) {
+        this.queue.enqueue(item);
+      }
     }
   });
 }
@@ -164,11 +166,11 @@ export function dropping(size) {
     }
   }), {
     add(...items) {
-      items.forEach((item) => {
+      for (const item of items) {
         if (this.queue.count < this.size) {
           this.queue.enqueue(item);
         }
-      });
+      }
     }
   });
 }
@@ -186,12 +188,12 @@ export function sliding(size) {
     }
   }), {
     add(...items) {
-      items.forEach((item) => {
+      for (const item of items) {
         if (this.queue.count === this.size) {
           this.queue.dequeue();
         }
         this.queue.enqueue(item);
-      });
+      }
     }
   });
 }
