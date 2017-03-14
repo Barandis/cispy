@@ -111,7 +111,7 @@ export function queue() {
 // remove: removes an item from the buffer (and returns it).
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function base(size) {
+function buffer(size) {
   const q = queue();
 
   return {
@@ -139,17 +139,19 @@ function base(size) {
 // stored. `full` returns `true` any time that the size is reached or exceeded, so it's entirely possible to call 
 // `remove` on a full buffer and have it still be full.
 export function fixed(size) {
-  return Object.assign(Object.create(base(size), {
-    full: {
-      get() {
-        return this.queue.count >= this.size;
+  const fixed = {
+    get full() {
+      return this.queue.count >= this.size;
+    },
+
+    add(...items) {
+      for (const item of items) {
+        this.queue.enqueue(item);
       }
     }
-  }), {
-    add(...items) {
-      items.forEach((item) => this.queue.enqueue(item));
-    }
-  });
+  };
+  Object.setPrototypeOf(fixed, buffer(size));
+  return fixed;
 }
 
 // A buffer implementation that drops newly added items when the buffer is full.
@@ -158,19 +160,21 @@ export function fixed(size) {
 // `full` because it can always be added to without exceeding the size, even if that `adding` doesn't result in a new
 // item actually appearing in the buffer.
 export function dropping(size) {
-  return Object.assign(Object.create(base(size), {
-    full: {
-      value: false
-    }
-  }), {
+  const dropping = {
+    get full() {
+      return false;
+    },
+
     add(...items) {
-      items.forEach((item) => {
+      for (const item of items) {
         if (this.queue.count < this.size) {
           this.queue.enqueue(item);
         }
-      });
+      }
     }
-  });
+  };
+  Object.setPrototypeOf(dropping, buffer(size));
+  return dropping;
 }
 
 // A buffer implementation that drops the oldest item when an item is added to a full buffer.
@@ -180,18 +184,20 @@ export function dropping(size) {
 // the size, the oldest item in the buffer is silently dropped if the buffer is full when added to. `full` is always 
 // `false`.
 export function sliding(size) {
-  return Object.assign(Object.create(base(size), {
-    full: {
-      value: false
-    }
-  }), {
+  const sliding = {
+    get full() {
+      return false;
+    },
+
     add(...items) {
-      items.forEach((item) => {
+      for (const item of items) {
         if (this.queue.count === this.size) {
           this.queue.dequeue();
         }
         this.queue.enqueue(item);
-      });
+      }
     }
-  });
+  };
+  Object.setPrototypeOf(sliding, buffer(size));
+  return sliding;
 }
