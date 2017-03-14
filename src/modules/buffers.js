@@ -162,7 +162,9 @@ export function fixed(size) {
 export function dropping(size) {
   return Object.assign(Object.create(base(size), {
     full: {
-      get: () => false
+      get() {
+        return false;
+      }
     }
   }), {
     add(...items) {
@@ -184,7 +186,9 @@ export function dropping(size) {
 export function sliding(size) {
   return Object.assign(Object.create(base(size), {
     full: {
-      get: () => false
+      get() {
+        return false;
+      }
     }
   }), {
     add(...items) {
