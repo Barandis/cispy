@@ -1,0 +1,9 @@
+{
+  "reporter": [
+    "html",
+    "text"
+  ],
+  "require": [
+    "babel-core/register"
+  ]
+}

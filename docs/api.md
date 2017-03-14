@@ -1,0 +1,41 @@
+# API
+
+### [Core Functions and Objects](api/core.md)
+
+[`alts`](api/core.md#alts)
+[`chan`](api/core.md#chan)
+[`config`](api/core.md#config)
+[`go`](api/core.md#go)
+[`put`](api/core.md#put)
+[`putAsync`](api/core.md#put-async)
+[`raise`](api/core.md#raise)
+[`sleep`](api/core.md#sleep)
+[`spawn`](api/core.md#spawn)
+[`take`](api/core.md#take)
+[`takeAsync`](api/core.md#take-async)
+[`timeout`](api/core.md#timeout)
+[`CLOSED`](api/core.md#closed)
+[`DEFAULT`](api/core.md#default)
+[`EMPTY`](api/core.md#empty)
+
+### [Buffers](api/buffers.md)
+
+[`dropping`](api/buffers.md#dropping)
+[`fixed`](api/buffers.md#fixed)
+[`sliding`](api/buffers.md#sliding)
+
+### [Channel Operations](api/ops.md)
+
+[`debounce`](api/ops.md#debounce)
+[`into`](api/ops.md#into)
+[`map`](api/ops.md#map)
+[`merge`](api/ops.md#merge)
+[`onto`](api/ops.md#onto)
+[`partition`](api/ops.md#partition)
+[`pipe`](api/ops.md#pipe)
+[`reduce`](api/ops.md#reduce)
+[`split`](api/ops.md#split)
+[`tap`](api/ops.md#tap)
+[`throttle`](api/ops.md#throttle)
+[`untap`](api/ops.md#untap)
+[`untapAll`](api/ops.md#untap-all)
