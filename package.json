@@ -11,7 +11,8 @@
     "lint": "eslint ./src",
     "test": "mocha --compilers js:babel-core/register --recursive",
     "test:cover": "nyc mocha --recursive",
-    "test:watch": "npm run test -- --watch"
+    "test:cover:upload": "npm run test:cover -s && cat ./coverage/lcov.info | coveralls",
+    "test:watch": "npm run test:raw -- --watch"
   },
   "keywords": [],
   "author": "Thomas Otterson <tjotterson@gmail.com>",
@@ -28,6 +29,7 @@
     "babel-preset-stage-0": "^6.22.0",
     "babel-runtime": "^6.23.0",
     "chai": "^3.5.0",
+    "coveralls": "^2.12.0",
     "eslint": "^3.17.0",
     "eslint-plugin-no-class": "^0.1.0",
     "mocha": "^3.2.0",
