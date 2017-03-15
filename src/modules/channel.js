@@ -215,7 +215,7 @@ function put(value, handler) {
   // of an ALTS instruction) are periodically purged.
   if (this.dirtyPuts > options.maxDirtyOps) {
     this.puts.filter((putter) => putter.handler.active);
-    this.ditryPuts = 0;
+    this.dirtyPuts = 0;
   }
   else {
     this.dirtyPuts++;
