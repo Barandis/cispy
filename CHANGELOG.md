@@ -2,7 +2,7 @@
 
 All notable changes to the library will be documented in this file.
 
-## [Unreleased]
+## [0.8.1] 2017-03-15
 ### Added
 - An unminified version of the library (`cispy.js`) to go along with the minified version (`cispy.min.js`, formerly `cispy.js`). This simply makes it like it was pre-0.8.0.
 - Support for Travis CI and Coveralls.
