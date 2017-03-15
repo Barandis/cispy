@@ -1,6 +1,6 @@
 {
   "name": "cispy",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Communicating sequential processes library for JavaScript",
   "main": "lib/cispy.js",
   "scripts": {
