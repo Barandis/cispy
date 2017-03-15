@@ -147,7 +147,9 @@ export function fixed(size) {
     }
   }), {
     add(...items) {
-      items.forEach((item) => this.queue.enqueue(item));
+      for (const item of items) {
+        this.queue.enqueue(item);
+      }
     }
   });
 }
@@ -160,15 +162,17 @@ export function fixed(size) {
 export function dropping(size) {
   return Object.assign(Object.create(base(size), {
     full: {
-      value: false
+      get() {
+        return false;
+      }
     }
   }), {
     add(...items) {
-      items.forEach((item) => {
+      for (const item of items) {
         if (this.queue.count < this.size) {
           this.queue.enqueue(item);
         }
-      });
+      }
     }
   });
 }
@@ -182,16 +186,18 @@ export function dropping(size) {
 export function sliding(size) {
   return Object.assign(Object.create(base(size), {
     full: {
-      value: false
+      get() {
+        return false;
+      }
     }
   }), {
     add(...items) {
-      items.forEach((item) => {
+      for (const item of items) {
         if (this.queue.count === this.size) {
           this.queue.dequeue();
         }
         this.queue.enqueue(item);
-      });
+      }
     }
   });
 }

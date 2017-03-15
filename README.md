@@ -2,9 +2,12 @@
 
 An implementation of Communicating Sequential Processes, inspired by Go and Clojure, for JavaScript
 
+[![Build Status](https://travis-ci.org/Barandis/cispy.svg?branch=master)](https://travis-ci.org/Barandis/cispy)
+[![Coverage Status](https://coveralls.io/repos/github/Barandis/cispy/badge.svg)](https://coveralls.io/github/Barandis/cispy)
+
 ## Installation
 
-In node.js (or using browserify, etc.):
+In node.js (or using Browserify, Webpack, etc.):
 ```
 npm install cispy
 ```
