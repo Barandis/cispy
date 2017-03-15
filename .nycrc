@@ -1,7 +1,7 @@
 {
   "reporter": [
-    "html",
-    "text"
+    "text",
+    "lcov"
   ],
   "require": [
     "babel-core/register"
