@@ -5,7 +5,9 @@
   "main": "lib/cispy.js",
   "scripts": {
     "clean": "rimraf lib",
-    "build": "npm run clean && webpack",
+    "build:dev": "webpack",
+    "build:prod": "webpack --config=webpack.min.config.js",
+    "build": "npm run clean && npm run build:dev && npm run build:prod",
     "lint": "eslint ./src",
     "test": "mocha --compilers js:babel-core/register --recursive",
     "test:cover": "nyc mocha --recursive",
