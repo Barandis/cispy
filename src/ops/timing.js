@@ -56,12 +56,18 @@ function isNumber(x) {
 // Another option, { maxDelay: <number> }, limits how long a debounce operation can last. Regularly, it can go on
 // indefinitely as long as input regularly comes before the delay expires. Setting a maxDelay will cause the delay to
 // forcefully end after there has been no output in that number of milliseconds.
+//
+// A channel can be provided to the `cancel` option. If it is, then putting -anything- onto that channel will cause
+// the debouncing to immediately cease, the output channel to be closed, and any remaining values that had been waiting
+// to be output after the debounce timer to instead be discarded.
 export function debounce(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
-  const opts = Object.assign({leading: false, trailing: true, maxDelay: 0}, (isNumber(delay) ? options : delay) || {});
+  const opts = Object.assign({leading: false, trailing: true, maxDelay: 0, cancel: chan()}, 
+                             (isNumber(delay) ? options : delay) || {});
 
   const dest = chan(buf);
+  const {leading, trailing, maxDelay, cancel} = opts;
 
   go(function* () {
     let timer = chan();
@@ -69,8 +75,12 @@ export function debounce(src, buffer, delay, options) {
     let current = CLOSED;
 
     for (;;) {
-      const {value, channel} = yield alts([src, timer, max]);
+      const {value, channel} = yield alts([src, timer, max, cancel]);
 
+      if (channel === cancel) {
+        dest.close();
+        break;
+      }
       if (channel === src) {
         if (value === CLOSED) {
           dest.close();
@@ -80,11 +90,11 @@ export function debounce(src, buffer, delay, options) {
         const timing = timer.timeout;
         timer = timeout(del);
 
-        if (!timing && opts.maxDelay > 0) {
-          max = timeout(opts.maxDelay);
+        if (!timing && maxDelay > 0) {
+          max = timeout(maxDelay);
         }
 
-        if (opts.leading) {
+        if (leading) {
           if (!timing) {
             yield put(dest, value);
           }
@@ -92,14 +102,14 @@ export function debounce(src, buffer, delay, options) {
             current = value;
           }
         }
-        else if (opts.trailing) {
+        else if (trailing) {
           current = value;
         }
       }
       else {
         timer = chan();
         max = chan();
-        if (opts.trailing && current !== CLOSED) {
+        if (trailing && current !== CLOSED) {
           yield put(dest, current);
           current = CLOSED;
         }
@@ -128,21 +138,31 @@ export function debounce(src, buffer, delay, options) {
 // By setting the `trailing` option to `false`, no value will be put onto the output channel when the timer elapses.
 // Any value that had been put onto the input channel during that delay will be silently dropped. After the delay
 // elapses, the next input value will appear on the output channel, and so on.
+//
+// A channel can be provided to the `cancel` option. If it is, then putting -anything- onto that channel will cause
+// the throttling to immediately cease, the output channel to be closed, and all remaining throttled values that had
+// not yet been put onto the channel to be discarded.
 export function throttle(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
-  const opts = Object.assign({leading: true, trailing: true}, (isNumber(delay) ? options : delay) || {});
+  const opts = Object.assign({leading: true, trailing: true, cancel: chan()}, 
+                             (isNumber(delay) ? options : delay) || {});
 
   const dest = chan(buf);
+  const {leading, trailing, cancel} = opts;
 
   go(function* () {
     let timer = chan();
     let current = CLOSED;
 
     for (;;) {
-      const {value, channel} = yield alts([src, timer]);
+      const {value, channel} = yield alts([src, timer, cancel]);
 
-      if (channel === src) {
+      if (channel === cancel) {
+        dest.close();
+        break;
+      }
+      else if (channel === src) {
         if (value === CLOSED) {
           dest.close();
           break;
@@ -153,20 +173,20 @@ export function throttle(src, buffer, delay, options) {
           timer = timeout(del);
         }
 
-        if (opts.leading) {
+        if (leading) {
           if (!timing) {
             yield put(dest, value);
           }
-          else if (opts.trailing) {
+          else if (trailing) {
             current = value;
           }
         }
-        else if (opts.trailing) {
+        else if (trailing) {
           current = value;
         }
       }
       else {
-        if (opts.trailing && current !== CLOSED) {
+        if (trailing && current !== CLOSED) {
           timer = timeout(del);
           yield put(dest, current);
           current = CLOSED;
