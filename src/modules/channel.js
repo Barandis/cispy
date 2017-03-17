@@ -52,15 +52,11 @@ import { options } from './options';
 
 // This is a unique value used to indicate for certain that an object is indeed a box. Since there is no access to this
 // object outside of the library, there is no way to emulate a box in a value that might be on a channel.
-const BOX = {};
+const BOX = Symbol();
 
-// A unique object returned when a take is attempted in a closed channel. This is the only value that is not legal to 
-// be put onto a channel.
-export const CLOSED = {
-  toString() {
-    return '[object CLOSED]';
-  }
-};
+// A symbol returned when a take is attempted in a closed channel. This is the only value that is not legal to be put 
+// onto a channel.
+export const CLOSED = Symbol('CLOSED');
 
 // Determines whether an object is reduced. This is done using the transducer protocol; an object with the protocol-
 // specified `reduced` property is assumed to be reduced. If a result of a transformation is reduced, it means that the 

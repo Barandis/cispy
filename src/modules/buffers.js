@@ -25,13 +25,8 @@
 // Provides several types of buffers usable for buffered channels. These are all built on a small, efficient queue 
 // (also provided) which is in turn backed by a JavaScript array.
 
-// A singleton object returned whenever an attempt is made to get an item from an empty buffer. This is exported for 
-// the rest of the library's use, but there's no need for it to be exposed publicly.
-export const EMPTY = {
-  toString() {
-    return '[object EMPTY]';
-  }
-};
+// A symbol returned whenever an attempt is made to get an item from an empty buffer.
+export const EMPTY = Symbol('EMPTY');
 
 // A general purpose, highly efficient JavaScript queue. It is backed by a JavaScript array, but it does not use 
 // unshift to take elements off the array because unshift causes elements to be copied down every time it's used. 

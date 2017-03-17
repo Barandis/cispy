@@ -6,6 +6,9 @@ All notable changes to the library will be documented in this file.
 ### Added
 - a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
 
+### Changed
+- the special values of CLOSED, DEFAULT, and EMPTY are now symbols instead of objects.
+
 ## [0.8.1] 2017-03-15
 ### Added
 - an unminified version of the library (`cispy.js`) to go along with the minified version (`cispy.min.js`, formerly `cispy.js`). This simply makes it like it was pre-0.8.0.
