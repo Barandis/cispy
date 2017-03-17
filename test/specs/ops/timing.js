@@ -350,6 +350,34 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
     });
+
+    describe('with cancel option', () => {
+      let input, output, cancel;
+
+      beforeEach(() => {
+        input = chan();
+        cancel = chan();
+        output = debounce(input, 100, {cancel});
+      });
+
+      it('cancels debouncing and closes the output channel if something is put onto the cancel channel', (done) => {
+        go(function* () {
+          expect(yield take(output)).to.equal(1729);
+          expect(yield take(output)).to.equal(CLOSED);
+          done();
+        });
+
+        go(function* () {
+          yield put(input, 1729);
+          clock.tick(125);
+          yield put(input, 1723);
+          clock.tick(50); // not long enough for the 1723 to pass the debounce timer
+          yield put(cancel);
+        });
+
+        clock.tick(1);
+      });
+    });
   });
 
   describe('throttle', () => {
@@ -635,6 +663,34 @@ describe('Channel timing functions', () => {
           expect(spy).to.be.calledOnce;
 
           done();
+        });
+
+        clock.tick(1);
+      });
+    });
+
+    describe('with cancel option', () => {
+      let input, output, cancel;
+
+      beforeEach(() => {
+        input = chan();
+        cancel = chan();
+        output = throttle(input, 100, {cancel});
+      });
+
+      it('cancels throttling and closes the output channel if something is put onto the cancel channel', (done) => {
+
+        go(function* () {
+          expect(yield take(output)).to.equal(1729);
+          expect(yield take(output)).to.equal(CLOSED);
+          done();
+        });
+
+        go(function* () {
+          yield put(input, 1729);
+          yield put(input, 1723);
+          clock.tick(50); // not long enough for the 1723 to pass the throttle timer
+          yield put(cancel);
         });
 
         clock.tick(1);

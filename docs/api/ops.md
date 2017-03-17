@@ -229,11 +229,12 @@ This function does this by controlling which values that have been put onto the 
 
 The `delay` parameter determines the debounce threshold. Once the first value is put onto the source channel, debouncing is in effect until the number of milliseconds in `delay` passes without any other value being put onto that channel. In other words, the delay will be refreshed if another value is put onto the source channel before the delay elapses. After a full delay interval passes without a value being placed on the source channel, the last value put becomes available on the destination channel.
 
-This behavior can be modified through three options.
+This behavior can be modified through four options.
 
 - `leading` (default: `false`): instead of making a value available on the destination channel after the delay passes, the first value put onto the source channel is made available *before* the delay begins. No value is available on the destination channel after the delay has elapsed (unless `trailing` is also `true`).
 - `trailing` (default: `true`): the default behavior, where a value is not made available on the destination channel until the entire delay passes without a new value being put on the source channel.
 - `maxDelay` (default: `0`): debouncing can, in theory, go on forever as long as new input values continue to be put onto the source channel before the delay expires. Setting this option to a positive number sets the maximum number of milliseconds that debouncing can go on before it's forced to end, even if in the middle of a debouncing delay. Having debouncing end through the max delay operates exactly as if it had ended because of lack of input; the last input is made available on the destination channel (if `trailing` is `true`), and the next input will trigger another debounce operation.
+- `cancel`: if this is present, it must be a channel. Any value put onto this channel will cancel the current debouncing operation, closing the output channel and discarding any values that were waiting for the debounce threshold timer to be sent to the output.
 
 If both `leading` and `trailing` are `true`, values will not be duplicated. The first value put onto the source channel will be put onto the destination channel immediately (per `leading`) and the delay will begin, but a value will only be made available on the destination channel at the end of the delay (per `trailing`) if *another* input value was put onto the source channel before the delay expired.
 
@@ -258,10 +259,11 @@ Throttling is effected by creating a new channel as a throttled destination for 
 
 The `delay` parameter controls how often a value can become available on the destination channel. When the first value is put onto the source channel, it is immediately put onto the destination channel as well and the delay begins. Any further values put onto the source channel during that delay are *not* passed through; only when the delay expires is the last input value made available on the destination channel. The delay then begins again, so that further inputs are squelched until *that* delay passes. Throttling continues, only allowing one value through per interval, until an entire interval passes without input.
 
-This behavior can be modified by two options.
+This behavior can be modified by three options.
 
 - `leading` (default: `true`): makes the value that triggered the throttling immediately available on the destination channel before beginning the delay. If this is `false`, the first value will not be put onto the destination channel until a full delay interval passes.
 - `trailing` (default: `true`): makes the last value put onto the source channel available on the destination channel when the delay expires. If this is `false`, any inputs that come in during the delay are ignored, and the next value is not put onto the destination channel until the first input *after* the delay expires.
+- `cancel`: if this is present, it must be a channel. Any value put onto this channel will cancel the current throttling operation, closing the output channel and discarding any values that were waiting for the throttle threshold timer to be sent to the output.
 
 If both `leading` and `trailing` are `true`, values will not be duplicated. The first value put onto the source channel will be put onto the destination channel immediately (per `leading`) and the delay will begin, but a value will only be made available on the destination channel at the end of the delay (per `trailing`) if *another* input value was put onto the source channel before the delay expired.
 

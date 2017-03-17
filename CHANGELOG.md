@@ -2,13 +2,17 @@
 
 All notable changes to the library will be documented in this file.
 
+## [Unreleased]
+### Added
+- a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
+
 ## [0.8.1] 2017-03-15
 ### Added
-- An unminified version of the library (`cispy.js`) to go along with the minified version (`cispy.min.js`, formerly `cispy.js`). This simply makes it like it was pre-0.8.0.
-- Support for Travis CI and Coveralls.
+- an unminified version of the library (`cispy.js`) to go along with the minified version (`cispy.min.js`, formerly `cispy.js`). This simply makes it like it was pre-0.8.0.
+- support for Travis CI and Coveralls.
 
 ### Fixed
-- Fixed a typo in channel puts that might have made things less efficient if a lot of puts are executed without a lot of takes being executed.
+- fixed a typo in channel puts that might have made things less efficient if a lot of puts are executed without a lot of takes being executed.
 
 ## [0.8.0] 2017-03-14
 ### Added
