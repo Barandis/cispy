@@ -14,8 +14,7 @@ import {
   buffers,
   config,
   CLOSED,
-  DEFAULT,
-  EMPTY 
+  DEFAULT
 } from '../../src/api';
 
 import { process } from '../../src/modules/process';
@@ -586,26 +585,6 @@ describe('Core CSP', () => {
 
       const proc = process(gen(), onFinish);
       proc.run();
-    });
-  });
-
-  describe('special objects', () => {
-    describe('CLOSED', () => {
-      it('is a unique object with its own toString', () => {
-        expect(CLOSED.toString()).to.equal('[object CLOSED]');
-      });
-    });
-
-    describe('DEFAULT', () => {
-      it('is a unique object with its own toString', () => {
-        expect(DEFAULT.toString()).to.equal('[object DEFAULT]');
-      });
-    });
-
-    describe('EMPTY', () => {
-      it('is a unique object with its own toString', () => {
-        expect(EMPTY.toString()).to.equal('[object EMPTY]');
-      });
     });
   });
 });

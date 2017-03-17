@@ -9,12 +9,6 @@ import {
 } from '../../src/modules/buffers';
 
 describe('Buffers', () => {
-  context('EMPTY', () => {
-    it('has a callable toString', () => {
-      expect(EMPTY.toString()).to.equal('[object EMPTY]');
-    });
-  });
-
   context('queue', () => {
     let q;
 

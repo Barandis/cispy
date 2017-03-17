@@ -45,17 +45,13 @@ const RAISE = 'raise';
 
 // A unique value used to tag an object as an instruction. Since there's no access to this value outside of this module,
 // there's no way to emulate (accidentally or on purpose) an instruction in the process queue.
-const INSTRUCTION = {};
+const INSTRUCTION = Symbol();
 
 // Used to represent the default channel in an alts call where a default is provided. If that default is returned, the 
 // default value is returned as the value of the `value` property while this is returned as the value of the `channel` 
 // property.
 
-export const DEFAULT = {
-  toString() {
-    return '[object DEFAULT]';
-  }
-};
+export const DEFAULT = Symbol('DEFAULT');
 
 // These two handlers are used by channels to track execution of instructions (put, take, and alts). They provide two 
 // pieces of information: the function to call when a put or take unblocks (because a value sent to put has been taken, 
