@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2017 Thomas Otterson
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -19,13 +19,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // timing.js
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // A series of functions meant to operate on the channels that the rest of this library creates and manages.
 //
-// All of the functions that are here cannot be done with transducers because of the limitations on transducers 
-// themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers. 
+// All of the functions that are here cannot be done with transducers because of the limitations on transducers
+// themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
 // (You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)
 //
 // These functions change the timing of inputs being put onto the input channel.
@@ -45,7 +45,7 @@ function isNumber(x) {
 
 // Ensures that only one value is put onto the input channel in a given delay interval.
 //
-// By default, the value will not appear on the output channel until the delay expires. If a new value is put onto the 
+// By default, the value will not appear on the output channel until the delay expires. If a new value is put onto the
 // input channel before that delay expires, the delay timer will restart, and that new value will be put onto the output
 // channel after the delay timer expires. There will be no output until no input has happened in
 // the delay time.
@@ -63,7 +63,7 @@ function isNumber(x) {
 export function debounce(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
-  const opts = Object.assign({leading: false, trailing: true, maxDelay: 0, cancel: chan()}, 
+  const opts = Object.assign({leading: false, trailing: true, maxDelay: 0, cancel: chan()},
                              (isNumber(delay) ? options : delay) || {});
 
   const dest = chan(buf);
@@ -97,16 +97,13 @@ export function debounce(src, buffer, delay, options) {
         if (leading) {
           if (!timing) {
             yield put(dest, value);
-          }
-          else {
+          } else {
             current = value;
           }
-        }
-        else if (trailing) {
+        } else if (trailing) {
           current = value;
         }
-      }
-      else {
+      } else {
         timer = chan();
         max = chan();
         if (trailing && current !== CLOSED) {
@@ -145,7 +142,7 @@ export function debounce(src, buffer, delay, options) {
 export function throttle(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
-  const opts = Object.assign({leading: true, trailing: true, cancel: chan()}, 
+  const opts = Object.assign({leading: true, trailing: true, cancel: chan()},
                              (isNumber(delay) ? options : delay) || {});
 
   const dest = chan(buf);
@@ -161,8 +158,7 @@ export function throttle(src, buffer, delay, options) {
       if (channel === cancel) {
         dest.close();
         break;
-      }
-      else if (channel === src) {
+      } else if (channel === src) {
         if (value === CLOSED) {
           dest.close();
           break;
@@ -176,24 +172,18 @@ export function throttle(src, buffer, delay, options) {
         if (leading) {
           if (!timing) {
             yield put(dest, value);
-          }
-          else if (trailing) {
+          } else if (trailing) {
             current = value;
           }
-        }
-        else if (trailing) {
+        } else if (trailing) {
           current = value;
         }
-      }
-      else {
-        if (trailing && current !== CLOSED) {
-          timer = timeout(del);
-          yield put(dest, current);
-          current = CLOSED;
-        }
-        else {
-          timer = chan();
-        }
+      } else if (trailing && current !== CLOSED) {
+        timer = timeout(del);
+        yield put(dest, current);
+        current = CLOSED;
+      } else {
+        timer = chan();
       }
     }
   });
