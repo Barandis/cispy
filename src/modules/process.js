@@ -41,7 +41,6 @@ const TAKE  = 'take';
 const PUT   = 'put';
 const ALTS  = 'alts';
 const SLEEP = 'sleep';
-const RAISE = 'raise';
 
 // A unique value used to tag an object as an instruction. Since there's no access to this value outside of this module,
 // there's no way to emulate (accidentally or on purpose) an instruction in the process queue.
@@ -227,9 +226,10 @@ function processAlts(ops, callback, options) {
 //
 // Each invocation of the wrapped generator - whether from the initial run or continuing after handling a `yield`
 // expression (special or not) - will be scheduled by the dispatcher to run as a separate message in the message queue.
-export function process(gen, onFinish) {
+export function process(gen, exh, onFinish) {
   return {
     gen,
+    exh,
     onFinish,
     finished: false,
 
@@ -283,9 +283,19 @@ export function process(gen, onFinish) {
         return;
       }
 
-      // The response is an Instruction if this run was invoked by an error handling routine. In that case, skip `next`
-      // because it's already been run (by this.gen.throw) and we already have the next value.
-      const iter = isInstruction(response) ? { value: response } : this.gen.next(response);
+      let iter;
+      try {
+        iter = this.gen.next(response);
+      } catch (ex) {
+        // If there is an uncaught exception and the process is aborted, and if an exception handler has been provided
+        // for this process, call that handler. Its return value becomes the value on the process's return channel.
+        if (typeof this.exh === 'function') {
+          const value = this.exh(ex);
+          this.done(value);
+          return;
+        }
+        throw ex;
+      }
       if (iter.done) {
         this.done(iter.value);
         return;
@@ -323,15 +333,6 @@ export function process(gen, onFinish) {
               setTimeout(() => ch.close(), delay);
               takeAsync(ch, (value) => this.continue(value));
             }
-            break;
-          }
-
-          case RAISE: {
-            let {error} = item.data;
-            if (typeof error === 'string') {
-              error = Error(error);
-            }
-            dispatch(this.error.bind(this, {error}));
             break;
           }
         }
@@ -409,18 +410,4 @@ export function alts(ops, options = {}) {
 // then restarted automatically.
 export function sleep(delay = 0) {
   return instruction(SLEEP, {delay});
-}
-
-// Injects an error back into the process, though with the ability to handle it with a default error handler. If the
-// raised error is caught inside the process, handling happens normally (through whatever code is written in the catch
-// and/or finally blocks). However, if the error is not caught, it will be automatically caught by the default handler.
-//
-// A regular error is free to be raised inside a process. However, using `yield raise` is what enables the ability to
-// have it handled by this default handler. There are future plans to add more functionality to this error handling, so
-// it would be best to throw errors through `yield raise` even if nothing special is happening.
-//
-// The return value of this function is a TIMEOUT instruction. This doesn't have any value except that, when returned
-// via `yield`, it will allow for the default handling mechanism.
-export function raise(error) {
-  return instruction(RAISE, {error});
 }

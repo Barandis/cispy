@@ -449,7 +449,7 @@ describe('Core CSP', () => {
       });
     });
 
-    it('returns a channel that receives the return value from the process and then closes when the value is taken', 
+    it('returns a channel that receives the return value from the process and then closes when the value is taken',
         (done) => {
       const ch = go(function* () { return 1729; });
 
@@ -583,7 +583,7 @@ describe('Core CSP', () => {
         done();
       };
 
-      const proc = process(gen(), onFinish);
+      const proc = process(gen(), null, onFinish);
       proc.run();
     });
   });
