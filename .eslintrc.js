@@ -120,7 +120,9 @@ module.exports = {
     }],
     'operator-linebreak': [ERROR],
     'padded-blocks': [ERROR, 'never'],
-    'quotes': [ERROR, 'single'],
+    'quotes': [ERROR, 'single', {
+      'avoidEscape': true
+    }],
     'semi': [ERROR],
     'semi-spacing': [ERROR],
     'space-before-blocks': [ERROR],
