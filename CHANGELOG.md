@@ -5,6 +5,10 @@ All notable changes to the library will be documented in this file.
 ## [Unreleased]
 ### Added
 - a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
+- a `goSafe` function to create processes that carry a handler to deal with errors that are thrown from the process itself.
+
+### Removed
+- The `raise` function. Exceptions are now going to be dealt differently, without the need of an explicit function to feed the errors back into the process.
 
 ### Changed
 - the special values of CLOSED, DEFAULT, and EMPTY are now symbols instead of objects.
@@ -24,11 +28,11 @@ All notable changes to the library will be documented in this file.
 ### Changed
 - the `util` package has been renamed to `ops`. These really aren't utility functions. They're operations based on the channels and processes provided by the rest of the library.
 - The entire library has been rewritten in ES2015 and transpiled into a browser-ready ES5 package. There just doesn't seem to be any reason to not write in ES2015 anymore. There have been some changes to coding philosophy - accepting that JavaScript doesn't have classes and stopping trying to pretend that it does, for instance - but aside from the change from `util` to `ops`, the API remains exactly the same.
-- A new build process is in place. Gulp is gone because, while it's an excellent tool, it's like using a sledgehammer to kill a fly in a project this small (the number of dependencies. Yarn is now in place just to try it out a little bit, so far with good results. Coverage is now being done with nyc to run istanbul. Browserify was replaced with Webpack. Babel was added for transpiling. The end result is that, despite the additional transpiling step necessary with the switch to ES2015, the number of dev dependencies has been halved. 
+- A new build process is in place. Gulp is gone because, while it's an excellent tool, it's like using a sledgehammer to kill a fly in a project this small (the number of dependencies. Yarn is now in place just to try it out a little bit, so far with good results. Coverage is now being done with nyc to run istanbul. Browserify was replaced with Webpack. Babel was added for transpiling. The end result is that, despite the additional transpiling step necessary with the switch to ES2015, the number of dev dependencies has been halved.
 - Since the code has changed drastically and since the library isn't to version 1.0 yet anyway, it seemed best to delete the old Github project and create a new one for this release.
 
 ## [0.7.0] 2016-07-09
-### Added 
+### Added
 - a `timeout` function to create channels that close after a certain time
 - the `timeout` property to channels, to indicate whether the channel is created by `timeout`
 - the `buffered` property to channels, to indicate whether a channel is buffered or unbuffered
