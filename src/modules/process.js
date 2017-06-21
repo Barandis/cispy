@@ -237,7 +237,7 @@ export function process(gen, onFinish) {
     // `yield` expression inside the process) and running the code as a different JS task. If the response results from
     // a `yield raise`, the error handling code (which invokes the default handler, if required) will be run instead.
     continue(response) {
-      dispatch(() => this.run(response));
+      dispatch(this.run.bind(this, response));
     },
 
     // Called with an arbitrary value when the process exits. This runs the onFinish callback (passing the value) as a
@@ -245,8 +245,9 @@ export function process(gen, onFinish) {
     done(value) {
       if (!this.finished) {
         this.finished = true;
-        if (typeof this.onFinish === 'function') {
-          dispatch(() => this.onFinish(value));
+        const finish = this.onFinish;
+        if (typeof finish === 'function') {
+          dispatch(finish.bind(this, value));
         }
       }
     },
@@ -330,7 +331,7 @@ export function process(gen, onFinish) {
             if (typeof error === 'string') {
               error = Error(error);
             }
-            dispatch(() => this.error({error}));
+            dispatch(this.error.bind(this, {error}));
             break;
           }
         }
