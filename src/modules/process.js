@@ -31,7 +31,6 @@
 
 import { chan, box, isBox } from './channel';
 import { run as dispatch } from './dispatcher';
-import { options as opts } from './options';
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
 // explicitly supported by the Process object itself. Other instructions like putAsync and takeAsync are handled
@@ -236,8 +235,12 @@ export function process(gen, exh, onFinish) {
     // Continues a process that has been paused by passing back the response (the value which will be assigned to the
     // `yield` expression inside the process) and running the code as a different JS task. If the response results from
     // a `yield raise`, the error handling code (which invokes the default handler, if required) will be run instead.
-    continue(response) {
-      dispatch(this.run.bind(this, response));
+    continue(response, except = false) {
+      if (Error.prototype.isPrototypeOf(response) && except) {
+        this.error(response);
+      } else {
+        dispatch(this.run.bind(this, response));
+      }
     },
 
     // Called with an arbitrary value when the process exits. This runs the onFinish callback (passing the value) as a
@@ -252,27 +255,16 @@ export function process(gen, exh, onFinish) {
       }
     },
 
-    // Called if an error is passed out of the process via `yield raise`. If a default handler is set and the error
-    // isn't caught by the process code itself, the default handler will handle the error instead before the process
-    // continues.
+    // Called if an error object is passed out of the process via `takeOrThrow`. The error object is thrown back into
+    // the process. If it's caught, then the process continues as normal. Otherwise the error is thrown as though it
+    // was generated in the process itself (i.e., it can be caught with an event handler if the process was created
+    // with `goSafe`).
     error(response) {
-      const throwIntoGenerator = (response) => {
-        const result = this.gen.throw(response.error);
-        if (result.done) {
-          this.done(result.value);
-        } else {
-          this.continue(result.value);
-        }
-      };
-
-      if (opts.defaultHandler) {
-        try {
-          throwIntoGenerator(response);
-        } catch (ex) {
-          opts.defaultHandler(response);
-        }
+      const result = this.gen.throw(response);
+      if (result.done) {
+        this.done(result.value);
       } else {
-        throwIntoGenerator(response);
+        this.continue(result.value);
       }
     },
 
@@ -313,8 +305,8 @@ export function process(gen, exh, onFinish) {
           }
 
           case TAKE: {
-            const {channel} = item.data;
-            takeAsync(channel, (value) => this.continue(value));
+            const {channel, except} = item.data;
+            takeAsync(channel, (value) => this.continue(value, except));
             break;
           }
 
@@ -354,7 +346,13 @@ export function process(gen, exh, onFinish) {
 // restarted, with the returned value from the channel becoming the value of the `yield` expression. If the unblocking
 // was the result of the channel closing, then the value of that `yield` expression will be CLOSED.
 export function take(channel) {
-  return instruction(TAKE, {channel});
+  return instruction(TAKE, {channel, except: false});
+}
+
+// Works exactly like `take`, except that if the value that is taken off the channel is an `Error` object, that error
+// is thrown back into the process. At that point it acts exactly like any other thrown error.
+export function takeOrThrow(channel) {
+  return instruction(TAKE, {channel, except: true});
 }
 
 // Puts the value onto the specified channel. If there is no process ready to take this value, this function will block

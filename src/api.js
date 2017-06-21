@@ -43,6 +43,7 @@ export {
 
   put,
   take,
+  takeOrThrow,
   alts,
   sleep,
   putAsync,
