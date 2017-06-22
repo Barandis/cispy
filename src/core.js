@@ -76,6 +76,19 @@ export function chan(buffer, xform, handler) {
   return channel.chan(b, xform, handler);
 }
 
+// Closes a channel. After a channel is closed, no further values can be put on it (`put` will return `false` and no
+// new value will be in the channel). If the channel is buffered, the values that are already there when the channel is
+// closed remain there, ready to be taken. If the channel is unbuffered or if it is buffered but empty, each `take`
+// will result in `CLOSED`. If there are pending takes on the channel when it is closed, those takes will immediately
+// return with `CLOSED`.
+//
+// Channels are perfectly capable of being closed with `channel.close()` without this function at all. However, that is
+// the only function that is regularly called on the channel object, and it is more consistent to do `close` the same
+// way we do `put`, `take`, etc.
+export function close(channel) {
+  channel.close();
+}
+
 // Creates an unbuffered channel that closes after a certain delay (in milliseconds). This isn't terribly different
 // from the channel created in the `yield sleep` instruction, except that this one is available to be used while it's
 // delaying. A good use case for this is in preventing an `alts` call from waiting too long, as if one of these

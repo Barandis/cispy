@@ -39,6 +39,7 @@ export {
   go,
   goSafe,
   chan,
+  close,
   timeout,
 
   put,
