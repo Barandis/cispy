@@ -237,7 +237,7 @@ export function process(gen, exh, onFinish) {
     // a `yield raise`, the error handling code (which invokes the default handler, if required) will be run instead.
     continue(response, except = false) {
       if (Error.prototype.isPrototypeOf(response) && except) {
-        this.error(response);
+        this.injectError(response);
       } else {
         dispatch(this.run.bind(this, response));
       }
@@ -259,12 +259,30 @@ export function process(gen, exh, onFinish) {
     // the process. If it's caught, then the process continues as normal. Otherwise the error is thrown as though it
     // was generated in the process itself (i.e., it can be caught with an event handler if the process was created
     // with `goSafe`).
-    error(response) {
-      const result = this.gen.throw(response);
+    injectError(response) {
+      let result;
+      try {
+        result = this.gen.throw(response);
+      } catch (ex) {
+        this.handleProcessError(ex);
+        return;
+      }
       if (result.done) {
         this.done(result.value);
       } else {
         this.continue(result.value);
+      }
+    },
+
+    // Deals with errors that happen inside a running process. Calls that restart a process (`next` or `throw`) should
+    // be wrapped in a `try` with a call to this function in the `catch` block. This simply runs the error handler
+    // function for the process if it exists, passing the resulting value into the process's return channel and ending
+    // the process. If there is no error handler, the error is simply thrown.
+    handleProcessError(ex) {
+      if (typeof this.exh === 'function') {
+        this.done(this.exh(ex));
+      } else {
+        throw ex;
       }
     },
 
@@ -279,14 +297,8 @@ export function process(gen, exh, onFinish) {
       try {
         iter = this.gen.next(response);
       } catch (ex) {
-        // If there is an uncaught exception and the process is aborted, and if an exception handler has been provided
-        // for this process, call that handler. Its return value becomes the value on the process's return channel.
-        if (typeof this.exh === 'function') {
-          const value = this.exh(ex);
-          this.done(value);
-          return;
-        }
-        throw ex;
+        this.handleProcessError(ex);
+        return;
       }
       if (iter.done) {
         this.done(iter.value);

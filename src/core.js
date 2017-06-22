@@ -93,7 +93,7 @@ const b = {
 };
 export { b as buffers };
 
-export { put, take, alts, sleep, putAsync, takeAsync, DEFAULT } from './modules/process';
+export { put, take, alts, sleep, putAsync, takeAsync, takeOrThrow, DEFAULT } from './modules/process';
 export { CLOSED } from './modules/channel';
 export { EMPTY } from './modules/buffers';
 export { config } from './modules/options';
