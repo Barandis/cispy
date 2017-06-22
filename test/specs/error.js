@@ -6,10 +6,15 @@ import {
   goSafe,
   chan,
   put,
-  take
+  putAsync,
+  take,
+  takeOrThrow
 } from '../../src/api';
 
 describe('An error thrown from the process itself', () => {
+  // This ONLY works if the error is thrown before the first yield
+  // After the function is yielded once, it's running asynchronously and the try/catch block will have
+  // exited already
   it('can be caught by the code that creates the process', () => {
     expect(() => {
       /* eslint-disable require-yield */
@@ -97,6 +102,103 @@ describe('Process created with goSafe', () => {
 
     go(function* () {
       expect(yield take(proc)).to.equal('test error');
+      done();
+    });
+  });
+});
+
+describe('takeOrThrow', () => {
+  it('acts like a take if no error object is taken from the channel', (done) => {
+    const ch = chan();
+
+    go(function* () {
+      expect(yield takeOrThrow(ch)).to.equal(1729);
+      done();
+    });
+
+    go(function* () {
+      yield put(ch, 1729);
+    });
+  });
+
+  it('throws the error back into the process if an error object is taken from the channel', (done) => {
+    // We have to use a handler to catch errors that come after the first yield
+    // Hence making goSafe in the first place
+    const ch = chan();
+    const ctrl = chan();
+    const spy = sinon.spy();
+    const err = Error('test error');
+
+    const exh = (ex) => {
+      expect(ex).to.equal(err);
+      spy();
+      putAsync(ctrl);
+    };
+
+    goSafe(function* () {
+      yield takeOrThrow(ch);
+    }, exh);
+
+    go(function* () {
+      yield put(ch, err);
+    });
+
+    go(function* () {
+      yield take(ctrl);
+      expect(spy).to.be.calledOnce;
+      done();
+    });
+  });
+
+  it('lets the process continue running if the process catches the error', (done) => {
+    const ch = chan();
+    const spy = sinon.spy();
+    const err = Error('test error');
+
+    const proc = go(function* () {
+      try {
+        yield takeOrThrow(ch);
+      } catch (ex) {
+        expect(ex.message).to.equal('test error');
+        spy();
+      }
+      return 1729;
+    });
+
+    go(function* () {
+      yield put(ch, err);
+    });
+
+    go(function* () {
+      expect(yield take(proc)).to.equal(1729);
+      expect(spy).to.be.calledOnce;
+      done();
+    });
+  });
+
+  it('allows the process to make further yields if it catches the error', (done) => {
+    const ch = chan();
+    const spy = sinon.spy();
+    const err = Error('test error');
+
+    const proc = go(function* () {
+      try {
+        yield takeOrThrow(ch);
+      } catch (ex) {
+        expect(ex.message).to.equal('test error');
+        spy();
+      }
+      expect(yield take(ch)).to.equal(1729);
+    });
+
+    go(function* () {
+      yield put(ch, err);
+      yield put(ch, 1729);
+    });
+
+    go(function* () {
+      yield take(proc);
+      expect(spy).to.be.calledOnce;
       done();
     });
   });

@@ -122,6 +122,20 @@ describe('Core CSP', () => {
       });
     });
 
+    it('returns the value even if it is an error object', (done) => {
+      const ch = chan();
+      const obj = Error('test error');
+
+      go(function* () {
+        expect(yield take(ch)).to.equal(obj);
+        done();
+      });
+
+      go(function* () {
+        yield put(ch, obj);
+      });
+    });
+
     it('returns a value that was putAsync onto a channel', (done) => {
       const ch = chan();
 
