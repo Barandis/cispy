@@ -31,7 +31,6 @@
 
 import { chan, box, isBox } from './channel';
 import { run as dispatch } from './dispatcher';
-import { options as opts } from './options';
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
 // explicitly supported by the Process object itself. Other instructions like putAsync and takeAsync are handled
@@ -41,7 +40,6 @@ const TAKE  = 'take';
 const PUT   = 'put';
 const ALTS  = 'alts';
 const SLEEP = 'sleep';
-const RAISE = 'raise';
 
 // A unique value used to tag an object as an instruction. Since there's no access to this value outside of this module,
 // there's no way to emulate (accidentally or on purpose) an instruction in the process queue.
@@ -227,17 +225,22 @@ function processAlts(ops, callback, options) {
 //
 // Each invocation of the wrapped generator - whether from the initial run or continuing after handling a `yield`
 // expression (special or not) - will be scheduled by the dispatcher to run as a separate message in the message queue.
-export function process(gen, onFinish) {
+export function process(gen, exh, onFinish) {
   return {
     gen,
+    exh,
     onFinish,
     finished: false,
 
     // Continues a process that has been paused by passing back the response (the value which will be assigned to the
     // `yield` expression inside the process) and running the code as a different JS task. If the response results from
     // a `yield raise`, the error handling code (which invokes the default handler, if required) will be run instead.
-    continue(response) {
-      dispatch(() => this.run(response));
+    continue(response, except = false) {
+      if (Error.prototype.isPrototypeOf(response) && except) {
+        this.injectError(response);
+      } else {
+        dispatch(this.run.bind(this, response));
+      }
     },
 
     // Called with an arbitrary value when the process exits. This runs the onFinish callback (passing the value) as a
@@ -245,33 +248,41 @@ export function process(gen, onFinish) {
     done(value) {
       if (!this.finished) {
         this.finished = true;
-        if (typeof this.onFinish === 'function') {
-          dispatch(() => this.onFinish(value));
+        const finish = this.onFinish;
+        if (typeof finish === 'function') {
+          dispatch(finish.bind(this, value));
         }
       }
     },
 
-    // Called if an error is passed out of the process via `yield raise`. If a default handler is set and the error
-    // isn't caught by the process code itself, the default handler will handle the error instead before the process
-    // continues.
-    error(response) {
-      const throwIntoGenerator = (response) => {
-        const result = this.gen.throw(response.error);
-        if (result.done) {
-          this.done(result.value);
-        } else {
-          this.continue(result.value);
-        }
-      };
-
-      if (opts.defaultHandler) {
-        try {
-          throwIntoGenerator(response);
-        } catch (ex) {
-          opts.defaultHandler(response);
-        }
+    // Called if an error object is passed out of the process via `takeOrThrow`. The error object is thrown back into
+    // the process. If it's caught, then the process continues as normal. Otherwise the error is thrown as though it
+    // was generated in the process itself (i.e., it can be caught with an event handler if the process was created
+    // with `goSafe`).
+    injectError(response) {
+      let result;
+      try {
+        result = this.gen.throw(response);
+      } catch (ex) {
+        this.handleProcessError(ex);
+        return;
+      }
+      if (result.done) {
+        this.done(result.value);
       } else {
-        throwIntoGenerator(response);
+        this.run(result.value);
+      }
+    },
+
+    // Deals with errors that happen inside a running process. Calls that restart a process (`next` or `throw`) should
+    // be wrapped in a `try` with a call to this function in the `catch` block. This simply runs the error handler
+    // function for the process if it exists, passing the resulting value into the process's return channel and ending
+    // the process. If there is no error handler, the error is simply thrown.
+    handleProcessError(ex) {
+      if (typeof this.exh === 'function') {
+        this.done(this.exh(ex));
+      } else {
+        throw ex;
       }
     },
 
@@ -282,15 +293,25 @@ export function process(gen, onFinish) {
         return;
       }
 
-      // The response is an Instruction if this run was invoked by an error handling routine. In that case, skip `next`
-      // because it's already been run (by this.gen.throw) and we already have the next value.
-      const iter = isInstruction(response) ? { value: response } : this.gen.next(response);
-      if (iter.done) {
-        this.done(iter.value);
-        return;
+      let item;
+      if (isInstruction(response)) {
+        // If this function was called by `injectError`, then `this.gen.throw()` was already called so we already
+        // have an instruction as the result, no need to call `this.gen.next()`
+        item = response;
+      } else {
+        let iter;
+        try {
+          iter = this.gen.next(response);
+        } catch (ex) {
+          this.handleProcessError(ex);
+          return;
+        }
+        if (iter.done) {
+          this.done(iter.value);
+          return;
+        }
+        item = iter.value;
       }
-
-      const item = iter.value;
 
       if (isInstruction(item)) {
         // Handle any of the instructions, which are the only meaningful yield outputs inside a process.
@@ -302,8 +323,8 @@ export function process(gen, onFinish) {
           }
 
           case TAKE: {
-            const {channel} = item.data;
-            takeAsync(channel, (value) => this.continue(value));
+            const {channel, except} = item.data;
+            takeAsync(channel, (value) => this.continue(value, except));
             break;
           }
 
@@ -322,15 +343,6 @@ export function process(gen, onFinish) {
               setTimeout(() => ch.close(), delay);
               takeAsync(ch, (value) => this.continue(value));
             }
-            break;
-          }
-
-          case RAISE: {
-            let {error} = item.data;
-            if (typeof error === 'string') {
-              error = Error(error);
-            }
-            dispatch(() => this.error({error}));
             break;
           }
         }
@@ -352,7 +364,13 @@ export function process(gen, onFinish) {
 // restarted, with the returned value from the channel becoming the value of the `yield` expression. If the unblocking
 // was the result of the channel closing, then the value of that `yield` expression will be CLOSED.
 export function take(channel) {
-  return instruction(TAKE, {channel});
+  return instruction(TAKE, {channel, except: false});
+}
+
+// Works exactly like `take`, except that if the value that is taken off the channel is an `Error` object, that error
+// is thrown back into the process. At that point it acts exactly like any other thrown error.
+export function takeOrThrow(channel) {
+  return instruction(TAKE, {channel, except: true});
 }
 
 // Puts the value onto the specified channel. If there is no process ready to take this value, this function will block
@@ -408,18 +426,4 @@ export function alts(ops, options = {}) {
 // then restarted automatically.
 export function sleep(delay = 0) {
   return instruction(SLEEP, {delay});
-}
-
-// Injects an error back into the process, though with the ability to handle it with a default error handler. If the
-// raised error is caught inside the process, handling happens normally (through whatever code is written in the catch
-// and/or finally blocks). However, if the error is not caught, it will be automatically caught by the default handler.
-//
-// A regular error is free to be raised inside a process. However, using `yield raise` is what enables the ability to
-// have it handled by this default handler. There are future plans to add more functionality to this error handling, so
-// it would be best to throw errors through `yield raise` even if nothing special is happening.
-//
-// The return value of this function is a TIMEOUT instruction. This doesn't have any value except that, when returned
-// via `yield`, it will allow for the default handling mechanism.
-export function raise(error) {
-  return instruction(RAISE, {error});
 }

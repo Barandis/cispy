@@ -4,13 +4,14 @@
 [`chan`](#chan)
 [`config`](#config)
 [`go`](#go)
+[`goSafe`](#go)
 [`put`](#put)
 [`putAsync`](#put-async)
-[`raise`](#raise)
 [`sleep`](#sleep)
 [`spawn`](#spawn)
 [`take`](#take)
 [`takeAsync`](#take-async)
+[`takeOrThrow`](#take-or-throw)
 [`timeout`](#timeout)
 [`CLOSED`](#closed)
 [`DEFAULT`](#default)
@@ -26,7 +27,7 @@ Core functions are the functions involved in the creation of processes and chann
 
 **Creates a new process from a generator function.**
 
-The generator function (expressed literally as `function*() { ... }`) is run in a separate process under the control of the CSP engine, and any `yield` expressions within the generator function followed by the five process instructions ([`put`](#put), [`take`](#take), [`alts`](#alts), [`timeout`](#timeout), [`raise`](#raise)) are given their special meanings.
+The generator function (expressed literally as `function*() { ... }`) is run in a separate process under the control of the CSP engine, and any `yield` expressions within the generator function followed by the four process instructions ([`put`](#put), [`take`](#take), [`alts`](#alts), [`timeout`](#timeout)) are given their special meanings.
 
 Really, this is a convenience function, but one that's convenient enough that it's used almost universally over its alternative. [`spawn`](#spawn) does the actual work, but it takes a generator instead of a generator function, and since there is no generator literal, `go` is easier to use. The generator function is invoked to create a generator for [`spawn`](#spawn), and when that happens, the remaining `go` parameters are applied to that generator function.
 
@@ -38,6 +39,24 @@ Really, this is a convenience function, but one that's convenient enough that it
 *Returns*
 
 - A channel. This channel is given a single value when the process completes, and that is the return value of the generator function. This channel automatically closes when that value is taken from it.
+
+### <a name="go-safe"></a> `goSafe(fn, handler, params...)`
+
+**Creates a new process that can handle internal errors.**
+
+This works just like [`go`](#go) except that it allows the specification of an error handler. If the handler exists and is a function, then it is called any time that an uncaught error is thrown from inside a process. The function receives the thrown error object as its single parameter.
+
+After the handler is run, the process will end. The return value of the process (i.e., the single value that will be in the channel that `goSafe` returns) will be whatever value is returned from the handler.
+
+*Parameters*
+
+- `fn` (*generator function*): a generator function to be run in a separate process.
+- `handler` (*function*): a function that will be called if an error is thrown inside the process.
+- `params` (*any*): zero or more parameters that are sent to the generator function when it's invoked to create the process.
+
+*Returns*
+
+- A channel. This channel is given a single value when the process completes, and that is the return value of the generator function (if no uncaught error is thrown) or the return value of the handler function (if an uncaught error is thrown and passed to the handler). This channel automatically closes when that value is taken from it.
 
 ### <a name="spawn"></a> `spawn(gen)`
 
@@ -126,6 +145,22 @@ When `take` is completed and its process unblocks, its `yield` expression evalua
 
 - The function itself returns an instruction object that guides the process in running the take. This is why `take` must be run in a process; the instruction object is meaningless otherwise. After the process unblocks, the `yield take` expression returns the value taken from the channel, or [`CLOSED`](special.md#closed) if the target channel has closed and no more values are available to be taken.
 
+### <a name="take-or-throw"></a> `takeOrThrow(channel)`
+
+**Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the channel closes with no more values on it to be taken). If the taken value is an error object, that error is thrown at that point within the process.**
+
+This function *must* be called from within a process and as part of a `yield` expression.
+
+It functions in every way like [`take`](#take) **except** in the case that the value on the channel is an object that has `Error.prototype` in its prototype chain (any built-in error, any properly-constructed custom error). If that happens, the error is thrown at that point in the process. This throw is like any other throw; i.e., it can be caught, the custom handler from [`goSafe`](#go-safe) can deal with it, etc.
+
+*Parameters*
+
+- `channel` (*channel*): the channel that the process is taking a value from.
+
+*Returns*
+
+- The function itself returns an instruction object that guides the process in running the take. This is why `takeOrThrow` must be run in a process; the instruction object is meaningless otherwise. After the process unblocks, the `yield takeOrThrow` expression returns the value taken from the channel, or [`CLOSED`](special.md#closed) if the target channel has closed and no more values are available to be taken.
+
 ### <a name="alts"></a> `alts(operations, options?)`
 
 **Completes the first operation among the provided operations that comes available, blocking the process until then.**
@@ -166,26 +201,6 @@ When this function completes and its process unblocks, the `yield` expression do
 *Returns*
 
 - The function itself returns an instruction object that guides the process in blocking for the right amount of time. This is why `timeout` must be run in a process; the instruction object is meaningless otherwise. After the process unblocks, the `yield timeout` expression doesn't take on any value (it's in fact set to `undefined`).
-
-### <a name="raise"></a> `raise(error)`
-
-**Signals an error inside a process, which can then be specially handled by the process.**
-
-At this point, this is implemented to provide the option for a default error handler, in case there is no `try`/`catch` code inside the process.
-
-This function *must* be called from within a process and as part of a `yield` expression.
-
-Thus function does not cause the process to block. Instead, it injects the error back into the process, except that if there is a default handler set via [`config`](#config), it will be run on an uncaught error.
-
-The reason for having this available is largely for future expansion. Right now it enables the ability to have a default handler for all processes, but later there may be more functions added to the error handling scheme.
-
-*Parameters*
-
-- `error` (*string or error*): the error to be injected back into the process. If this is a string, a new Error object is created with that string as a message.
-
-*Returns*
-
-- The function itself returns an instruction object that guides the process in handling an error. This is why `raise` must be run in a process; the instruction object is meaningless otherwise. The `yield raise` expression in the process doesn't take on any value (it's in fact set to `undefined`).
 
 ## Out-of-Channel Instructions
 
@@ -231,7 +246,7 @@ There are currently four options available to be configured.
 - `maxDirtyOps` (*number, defaults to 64*): The maximum number of operations (puts or takes) that can be queued in a channel buffer before running a cleanup operation to make sure no inactive operations are in the queue.
 - `maxQueuedOps` (*number, defaults to 1024*): The maximum number of puts or takes that can be queued on a channel at the same time.
 - `taskBatchSize` (*number, defaults to 1024*): The maximum number of tasks that the dispatcher will run in a single batch. If the number of pending tasks exceeds this, the remaining are not discarded. They're simply run as part of another batch after the current batch completes.
-- `defaultHandler` (*function, defaults to null*): The default process error handler. If this is set and an uncaught `yield raise` happens in the process, this error handler is used to manage the error. It's a function that takes one parameter, which is an object containing an `error` property which is the actual error.
+- `dispatchMethod` (*string, defaults to `'setImmediate'`*): The method used to dispatch a process into a separate line of execution. Possible values are `setImmediate`, `MessageChannel`, or `setTimeout`.
 
 If any of these options are specified in the options object passed to `config`, then the option is set to the value sent in. Properties that aren't any of these four options are ignored, and any of these options that do not appear in the passed object are left with their current values.
 

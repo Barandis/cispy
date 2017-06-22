@@ -37,14 +37,15 @@ import * as timing from './ops/timing';
 export {
   spawn,
   go,
+  goSafe,
   chan,
   timeout,
 
   put,
   take,
+  takeOrThrow,
   alts,
   sleep,
-  raise,
   putAsync,
   takeAsync,
 

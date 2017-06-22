@@ -122,6 +122,20 @@ describe('Core CSP', () => {
       });
     });
 
+    it('returns the value even if it is an error object', (done) => {
+      const ch = chan();
+      const obj = Error('test error');
+
+      go(function* () {
+        expect(yield take(ch)).to.equal(obj);
+        done();
+      });
+
+      go(function* () {
+        yield put(ch, obj);
+      });
+    });
+
     it('returns a value that was putAsync onto a channel', (done) => {
       const ch = chan();
 
@@ -449,7 +463,7 @@ describe('Core CSP', () => {
       });
     });
 
-    it('returns a channel that receives the return value from the process and then closes when the value is taken', 
+    it('returns a channel that receives the return value from the process and then closes when the value is taken',
         (done) => {
       const ch = go(function* () { return 1729; });
 
@@ -583,7 +597,7 @@ describe('Core CSP', () => {
         done();
       };
 
-      const proc = process(gen(), onFinish);
+      const proc = process(gen(), null, onFinish);
       proc.run();
     });
   });

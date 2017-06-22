@@ -1,192 +1,204 @@
 import { expect } from '../helper';
-import * as t from 'xduce';
+import sinon from 'sinon';
 
 import {
   go,
+  goSafe,
   chan,
   put,
+  putAsync,
   take,
-  raise,
-  config,
-  CLOSED
+  takeOrThrow
 } from '../../src/api';
 
-describe('Raise function', () => {
-  it('raises an error from a string which is fed back into the process', (done) => {
-    go(function* () {
-      try {
-        yield raise('Test error');
-        expect.fail();
-      }
-      catch (ex) {
-        expect(ex.message).to.equal('Test error');
-      }
-      finally {
-        done();
-      }
-    });
+describe('An error thrown from the process itself', () => {
+  // This ONLY works if the error is thrown before the first yield
+  // After the function is yielded once, it's running asynchronously and the try/catch block will have
+  // exited already
+  it('can be caught by the code that creates the process', () => {
+    expect(() => {
+      /* eslint-disable require-yield */
+      go(function* () {
+        throw Error('test error');
+      });
+      /* eslint-enable require-yield */
+    }).to.throw('test error');
+  });
+});
+
+describe('Process created with goSafe', () => {
+  it('handles errors with an exception handling function', () => {
+    const spy = sinon.spy();
+    const exh = (ex) => {
+      spy();
+      expect(ex.message).to.equal('test error');
+    };
+    /* eslint-disable require-yield */
+    const proc = function* () {
+      throw Error('test error');
+    };
+    /* eslint-enable require-yield */
+
+    expect(() => goSafe(proc, exh)).not.to.throw();
+    expect(spy).to.be.calledOnce;
   });
 
-  it('raises an error from an Error object which is fed back into the process', (done) => {
-    go(function* () {
-      try {
-        yield raise(Error('Test error'));
-        expect.fail();
-      }
-      catch (ex) {
-        expect(ex.message).to.equal('Test error');
-      }
-      finally {
-        done();
-      }
-    });
+  it('still throws like a go-produced process if the exception handler is not a function', () => {
+    expect(() => {
+      /* eslint-disable require-yield */
+      goSafe(function* () {
+        throw Error('test error');
+      }, 42);
+      /* eslint-enable require-yield */
+    }).to.throw('test error');
   });
 
-  it('treats the channel returned from go/spawn normally after the catch', (done) => {
-    const ch = go(function* () {
-      try {
-        yield raise('Test error');
-      }
-      catch (ex) {}
-      return 1729;
-    });
+  it("still returns a channel which will close with the exception handler's return value on it", (done) => {
+    const exh = (ex) => ex.message;
+
+    /* eslint-disable require-yield */
+    const proc = goSafe(function* () {
+      throw Error('test error');
+    }, exh);
+    /* eslint-enable require-yield */
 
     go(function* () {
-      expect(yield take(ch)).to.equal(1729);
-      expect(ch.closed).to.be.true;
+      expect(yield take(proc)).to.equal('test error');
       done();
     });
   });
 
-  it('runs the next yield normally if the error was caught', (done) => {
+  it('catches exceptions thrown even after a yield', (done) => {
     const ch = chan();
+    const exh = (ex) => ex.message;
 
-    go(function* () {
-      try {
-        yield raise('Test error');
-      }
-      catch (ex) {}
+    const proc = goSafe(function* () {
       yield put(ch, 1729);
-    });
+      throw Error('test error');
+    }, exh);
 
     go(function* () {
       expect(yield take(ch)).to.equal(1729);
+    });
+
+    go(function* () {
+      expect(yield take(proc)).to.equal('test error');
       done();
     });
   });
 
-  context('with a default handler', () => {
-    afterEach(() => config({defaultHandler: null}));
+  it('can have arguments just like regular go', (done) => {
+    const ch = chan();
+    const exh = (ex) => ex.message;
 
-    it('runs the default handler if the error isn\'t caught', (done) => {
-      config({defaultHandler: (response) => {
-        expect(response.error.message).to.equal('Test error');
-        done();
-      }});
+    const proc = goSafe(function* (arg) {
+      yield put(ch, arg);
+      throw Error('test error');
+    }, exh, 1729);
 
-      go(function* () { yield raise('Test error'); });
+    go(function* () {
+      expect(yield take(ch)).to.equal(1729);
     });
 
-    it('ignores the default handler if the error is caught', (done) => {
-      config({defaultHandler: () => expect.fail()});
-
-      go(function* () {
-        try {
-          yield raise('Test error');
-        }
-        catch (ex) {
-          expect(ex.message).to.equal('Test error');
-        }
-        finally {
-          done();
-        }
-      });
-    });
-
-    it('runs the next yield normally if the error is caught', (done) => {
-      config({default: () => expect.fail()});
-      const ch = chan();
-
-      go(function* () {
-        try {
-          yield raise('Test error');
-        }
-        catch (ex) {}
-        yield put(ch, 1729);
-      });
-
-      go(function* () {
-        expect(yield take(ch)).to.equal(1729);
-        done();
-      });
+    go(function* () {
+      expect(yield take(proc)).to.equal('test error');
+      done();
     });
   });
 });
 
-describe('Transducer error handler', () => {
-  it('handles errors in the step function', (done) => {
-    const handler = (error) => {
-      expect(error.message).to.equal('Transducer error');
-      return 1729;
-    };
-
-    function raisingTransformer(xform) {
-      return {
-        [t.protocols.init]() {
-          return xform[t.protocols.init]();
-        },
-
-        [t.protocols.step](acc, input) {
-          throw Error('Transducer error');
-        },
-
-        [t.protocols.result](value) {
-          return xform[t.protocols.result](value);
-        }
-      };
-    }
-
-    const xform = (xf) => raisingTransformer(xf);
-    const ch = chan(5, xform, handler);
-
-    go(function* () { yield put(ch, 1); });
+describe('takeOrThrow', () => {
+  it('acts like a take if no error object is taken from the channel', (done) => {
+    const ch = chan();
 
     go(function* () {
-      expect(yield take(ch)).to.equal(1729);
+      expect(yield takeOrThrow(ch)).to.equal(1729);
+      done();
+    });
+
+    go(function* () {
+      yield put(ch, 1729);
+    });
+  });
+
+  it('throws the error back into the process if an error object is taken from the channel', (done) => {
+    // We have to use a handler to catch errors that come after the first yield
+    // Hence making goSafe in the first place
+    const ch = chan();
+    const ctrl = chan();
+    const spy = sinon.spy();
+    const err = Error('test error');
+
+    const exh = (ex) => {
+      expect(ex).to.equal(err);
+      spy();
+      putAsync(ctrl);
+    };
+
+    goSafe(function* () {
+      yield takeOrThrow(ch);
+    }, exh);
+
+    go(function* () {
+      yield put(ch, err);
+    });
+
+    go(function* () {
+      yield take(ctrl);
+      expect(spy).to.be.calledOnce;
       done();
     });
   });
 
-  it('handles errors in the result function', (done) => {
-    const handler = (error) => {
-      expect(error.message).to.equal('Transducer error');
+  it('lets the process continue running if the process catches the error', (done) => {
+    const ch = chan();
+    const spy = sinon.spy();
+    const err = Error('test error');
+
+    const proc = go(function* () {
+      try {
+        yield takeOrThrow(ch);
+      } catch (ex) {
+        expect(ex.message).to.equal('test error');
+        spy();
+      }
       return 1729;
-    };
-
-    function raisingTransformer(xform) {
-      return {
-        [t.protocols.init]() {
-          return xform[t.protocols.init]();
-        },
-
-        [t.protocols.step](acc, input) {
-          return t.util.ensureReduced(xform[t.protocols.step](acc, input));
-        },
-
-        [t.protocols.result](value) {
-          throw Error('Transducer error');
-        }
-      };
-    }
-
-    const xform = (xf) => raisingTransformer(xf);
-    const ch = chan(5, xform, handler);
-
-    go(function* () { yield put(ch, 1); });
+    });
 
     go(function* () {
-      expect(yield take(ch)).to.equal(1);
+      yield put(ch, err);
+    });
+
+    go(function* () {
+      expect(yield take(proc)).to.equal(1729);
+      expect(spy).to.be.calledOnce;
+      done();
+    });
+  });
+
+  it('allows the process to make further yields if it catches the error', (done) => {
+    const ch = chan();
+    const spy = sinon.spy();
+    const err = Error('test error');
+
+    const proc = go(function* () {
+      try {
+        yield takeOrThrow(ch);
+      } catch (ex) {
+        expect(ex.message).to.equal('test error');
+        spy();
+      }
       expect(yield take(ch)).to.equal(1729);
+    });
+
+    go(function* () {
+      yield put(ch, err);
+      yield put(ch, 1729);
+    });
+
+    go(function* () {
+      yield take(proc);
+      expect(spy).to.be.calledOnce;
       done();
     });
   });

@@ -41,13 +41,6 @@ export const options = {
   // handler is used to manage the error. It's a function that takes one parameter, which is an object containing an
   // `error` property which is the actual error. (This is to allow future expansion of the library's error-handling
   // capabilities.)
-  defaultHandler: null,
-  // The method used for dispatch. Possible values are 'setImmediate', 'MessageChannel', and 'setTimeout'. This option
-  // specifies the internal method used for dispatch of asynchronous tasks. If the chosen method isn't available, then
-  // the first one further down the chain (setImmediate -> MessageChannel -> setTimeout) that is available is used.
-  //
-  // There should be little reason to change this option. The only possibility is in an environment where one of the
-  // methods is available but doesn't work quite right; then another one further down the chain can be chosen instead.
   dispatchMethod: 'setImmediate'
 };
 

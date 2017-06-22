@@ -35,10 +35,13 @@ import * as process from './modules/process';
 // devices until it returns. This function creates and returns a channel, though that channel can only ever have one
 // value: the return value of the generator (the channel closes after this value is taken).
 //
+// If a second argument is passed and it's a function, then that function will be called when an exception is thrown
+// within the process code itself. The handler receives the error object as an argument.
+//
 // Since this requires a generator and not a generator function, it isn't used nearly as much as `go`.
-export function spawn(gen) {
+export function spawn(gen, exh) {
   const ch = channel.chan(buffers.fixed(1));
-  process.process(gen, (value) => {
+  process.process(gen, exh, (value) => {
     if (value === channel.CLOSED) {
       ch.close();
     } else {
@@ -50,10 +53,18 @@ export function spawn(gen) {
 
 // Creates a process from a generator function (not a generator) and runs it. What this really does is create a
 // generator from the generator function and its optional arguments, and then pass that off to `spawn`. But since
-// generator functions have a literal form (function*()) while generators themselves do not, this is going to be the
+// generator functions have a literal form (`function* ()`) while generators themselves do not, this is going to be the
 // much more commonly used function of the two.
 export function go(fn, ...args) {
   return spawn(fn(...args));
+}
+
+// Creates a process from a generator function just like `go`, except this one also accepts an exception handling
+// function. This function is called any time an error is caught within the process itself. It receives the error object
+// as an argument. The process is then considered finished, and the value placed into its return channel is the value
+// returned from the exception handler.
+export function goSafe(fn, exh, ...args) {
+  return spawn(fn(...args), exh);
 }
 
 // Creates a new channel. By default (all parameters are optional), this is an unbuffered channel without any
@@ -82,7 +93,7 @@ const b = {
 };
 export { b as buffers };
 
-export { put, take, alts, sleep, raise, putAsync, takeAsync, DEFAULT } from './modules/process';
+export { put, take, alts, sleep, putAsync, takeAsync, takeOrThrow, DEFAULT } from './modules/process';
 export { CLOSED } from './modules/channel';
 export { EMPTY } from './modules/buffers';
 export { config } from './modules/options';
