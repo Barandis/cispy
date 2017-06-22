@@ -5,10 +5,12 @@ All notable changes to the library will be documented in this file.
 ## [Unreleased]
 ### Added
 - a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
-- a `goSafe` function to create processes that carry a handler to deal with errors that are thrown from the process itself.
+- a `goSafe` function to create processes that carry a handler to deal with errors that are thrown from the process itself, even if the process has no `try`/`catch` to deal with them.
+- a `takeOrThrow` function as an alternative to `take`. If `takeOrThrow` takes an error object off a channel, then it will throw that error rather than pass it to the matching `put`. How that error is handled depends on whether it's caught within the process and/or whether the process was created with `goSafe`.
 
 ### Removed
 - The `raise` function. Exceptions are now going to be dealt differently, without the need of an explicit function to feed the errors back into the process.
+- The `defaultHandler` config option. Error handlers are now passed in explicitly through `goSafe`, avoiding the need for a global default.
 
 ### Changed
 - the special values of CLOSED, DEFAULT, and EMPTY are now symbols instead of objects.
