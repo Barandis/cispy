@@ -30,7 +30,7 @@
 // instruction objects), the process can control when and how the generator is restarted.
 
 import { chan, box, isBox } from './channel';
-import { run as dispatch } from './dispatcher';
+import { dispatch } from './dispatcher';
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
 // explicitly supported by the Process object itself. Other instructions like putAsync and takeAsync are handled

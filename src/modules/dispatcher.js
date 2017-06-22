@@ -52,7 +52,7 @@ const SET_IMMEDIATE = 0;
 const MESSAGE_CHANNEL = 1;
 const SET_TIMEOUT = 2;
 
-let dispatch = createDispatcher();
+let dispatcher = createDispatcher();
 
 let running = false;
 let queued  = false;
@@ -121,7 +121,7 @@ function createDispatcher() {
 }
 
 export function setDispatcher() {
-  dispatch = createDispatcher();
+  dispatcher = createDispatcher();
 }
 
 // Processes a batch of tasks one at a time. The reason for limiting this function to a batch size is because we need
@@ -149,11 +149,11 @@ function processTasks() {
 
   running = false;
   if (queue.length) {
-    dispatch();
+    dispatcher();
   }
 }
 
-export function run(task) {
+export function dispatch(task) {
   queue.enqueue(task);
-  dispatch();
+  dispatcher();
 }

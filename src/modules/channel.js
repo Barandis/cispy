@@ -46,7 +46,7 @@
 // buffer. This avoids both of the problems noted above.
 
 import { queue, EMPTY } from './buffers';
-import { run as dispatch } from './dispatcher';
+import { dispatch } from './dispatcher';
 import { protocols as p } from './protocol';
 import { options } from './options';
 
