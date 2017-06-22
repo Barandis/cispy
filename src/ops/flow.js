@@ -43,6 +43,7 @@ import {
   alts,
   putAsync,
   takeAsync,
+  close,
   CLOSED
 } from '../core';
 
@@ -89,8 +90,8 @@ export function partition(fn, src, tBuffer = 0, fBuffer = 0) {
     for (;;) {
       const value = yield take(src);
       if (value === CLOSED) {
-        tDest.close();
-        fDest.close();
+        close(tDest);
+        close(fDest);
         break;
       }
       yield put(fn(value) ? tDest : fDest, value);
@@ -120,7 +121,7 @@ export function merge(srcs, buffer = 0) {
       }
       yield put(dest, value);
     }
-    dest.close();
+    close(dest);
   });
   return dest;
 }
@@ -157,7 +158,7 @@ export function split(src, ...buffers) {
       const value = yield take(src);
       if (value === CLOSED) {
         for (const dest of dests) {
-          dest.close();
+          close(dest);
         }
         break;
       }
@@ -285,7 +286,7 @@ export function map(fn, srcs, buffer = 0) {
       const values = yield take(temp);
       for (const value of values) {
         if (value === CLOSED) {
-          dest.close();
+          close(dest);
           return;
         }
       }
