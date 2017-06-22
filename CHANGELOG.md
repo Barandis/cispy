@@ -14,6 +14,7 @@ All notable changes to the library will be documented in this file.
 
 ### Changed
 - the special values of CLOSED, DEFAULT, and EMPTY are now symbols instead of objects.
+- Babel's stage-0 preset was replaced with stage-3. Stage-3 features are very likely to be in ES2017, while some stage-0 features are quite unlikely. This just seems more correct. (The only changes were the replacement of two `::`s with `call`.)
 
 ## [0.8.1] 2017-03-15
 ### Added

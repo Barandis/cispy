@@ -50,10 +50,8 @@ const protocols = {
   taps: '@@multitap/taps'
 };
 
-const toString = Object.prototype.toString;
-
 function isNumber(x) {
-  return x::toString() === '[object Number]' && isFinite(x);
+  return Object.prototype.toString.call(x) === '[object Number]' && isFinite(x);
 }
 
 // Takes the values off one channel and, in the same order, puts them onto a different channel. Both channels must be

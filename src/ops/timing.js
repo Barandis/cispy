@@ -40,7 +40,7 @@ import {
 } from '../core';
 
 function isNumber(x) {
-  return x::toString() === '[object Number]' && isFinite(x);
+  return Object.prototype.toString.call(x) === '[object Number]' && isFinite(x);
 }
 
 // Ensures that only one value is put onto the input channel in a given delay interval.
