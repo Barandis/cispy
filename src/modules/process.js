@@ -270,7 +270,7 @@ export function process(gen, exh, onFinish) {
       if (result.done) {
         this.done(result.value);
       } else {
-        this.continue(result.value);
+        this.run(result.value);
       }
     },
 
@@ -293,19 +293,25 @@ export function process(gen, exh, onFinish) {
         return;
       }
 
-      let iter;
-      try {
-        iter = this.gen.next(response);
-      } catch (ex) {
-        this.handleProcessError(ex);
-        return;
+      let item;
+      if (isInstruction(response)) {
+        // If this function was called by `injectError`, then `this.gen.throw()` was already called so we already
+        // have an instruction as the result, no need to call `this.gen.next()`
+        item = response;
+      } else {
+        let iter;
+        try {
+          iter = this.gen.next(response);
+        } catch (ex) {
+          this.handleProcessError(ex);
+          return;
+        }
+        if (iter.done) {
+          this.done(iter.value);
+          return;
+        }
+        item = iter.value;
       }
-      if (iter.done) {
-        this.done(iter.value);
-        return;
-      }
-
-      const item = iter.value;
 
       if (isInstruction(item)) {
         // Handle any of the instructions, which are the only meaningful yield outputs inside a process.
