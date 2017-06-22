@@ -2,6 +2,7 @@
 
 [`alts`](#alts)
 [`chan`](#chan)
+[`close`](#close)
 [`config`](#config)
 [`go`](#go)
 [`goSafe`](#go)
@@ -234,6 +235,20 @@ The callback is a function of one parameter, and the value supplied for that par
 
 - `channel` (*channel*): the channel that the function is taking a value from.
 - `callback` (*function*): a function that gets invoked when a value is made available to be taken (this value may be [`CLOSED`](special.md#closed) if the channel closes with no available value). The function can take one parameter, which is the value that is taken from the channel.
+
+### <a name="close"></a> `close(channel)`
+
+**Closes a channel.**
+
+Marks a particular channel as closed. A closed channel cannot accept any new puts ([`put`](#put) will return `false` if an attempt is made, and no new value will be on the channel). If it's buffered, it will still provide the values that are already on the channel until all of them are taken, after which any [`take`](#take) will return [`CLOSED`](#closed).
+
+If there are pending takes on a channel when it's closed, then all takes will immediately return with [`CLOSED`](#closed).
+
+This is the same as calling the object property `close` on the channel object (i.e., `ch.close()` means exactly the same thing as `close(ch)`). However, all other channel interaction functions are not object properties ([`put`](#put), [`take`](#take), [`alts`](#alts), etc.) so a non-property function for closing a channel is also provided as an option.
+
+*Parameters*
+
+- `channel` (*channel*): the channel to be closed.
 
 ## Configuration
 

@@ -8,6 +8,7 @@ import {
   take,
   buffers,
   config,
+  close,
   CLOSED
 } from '../../src/api';
 
@@ -162,7 +163,7 @@ describe('CSP channel', () => {
         yield put(ch, 3);
         // This one is just dropped
         yield put(ch, 4);
-        ch.close();
+        close(ch);
       });
 
       go(function* () {
@@ -189,7 +190,7 @@ describe('CSP channel', () => {
         yield put (ch, 3);
         // This one causes the first value to be dropped
         yield put (ch, 4);
-        ch.close();
+        close(ch);
       });
 
       go(function* () {
@@ -228,7 +229,7 @@ describe('CSP channel', () => {
       go(function* () {
         yield put(ch, 1);
         yield put(ch, 2);
-        ch.close();
+        close(ch);
       });
 
       go(function* () {

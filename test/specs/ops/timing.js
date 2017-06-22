@@ -9,6 +9,7 @@ import {
   sleep,
   buffers,
   config,
+  close,
   CLOSED
 } from '../../../src/core';
 
@@ -64,7 +65,7 @@ describe('Channel timing functions', () => {
         done();
       });
 
-      go(function* () { input.close(); });
+      go(function* () { close(input); });
 
       clock.tick(1);
     });
@@ -418,7 +419,7 @@ describe('Channel timing functions', () => {
         done();
       });
 
-      go(function* () { input.close(); });
+      go(function* () { close(input); });
 
       clock.tick(1);
     });

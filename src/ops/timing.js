@@ -36,6 +36,7 @@ import {
   put,
   alts,
   timeout,
+  close,
   CLOSED
 } from '../core';
 
@@ -78,12 +79,12 @@ export function debounce(src, buffer, delay, options) {
       const {value, channel} = yield alts([src, timer, max, cancel]);
 
       if (channel === cancel) {
-        dest.close();
+        close(dest);
         break;
       }
       if (channel === src) {
         if (value === CLOSED) {
-          dest.close();
+          close(dest);
           break;
         }
 
@@ -156,11 +157,11 @@ export function throttle(src, buffer, delay, options) {
       const {value, channel} = yield alts([src, timer, cancel]);
 
       if (channel === cancel) {
-        dest.close();
+        close(dest);
         break;
       } else if (channel === src) {
         if (value === CLOSED) {
-          dest.close();
+          close(dest);
           break;
         }
 

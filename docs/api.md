@@ -4,6 +4,7 @@
 
 [`alts`](api/core.md#alts)
 [`chan`](api/core.md#chan)
+[`close`](api/core.md#close)
 [`config`](api/core.md#config)
 [`go`](api/core.md#go)
 [`goSafe`](api/core.md#go-safe)

@@ -35,6 +35,7 @@ import {
   go,
   put,
   take,
+  close,
   CLOSED
 } from '../core';
 
@@ -68,7 +69,7 @@ export function onto(ch, array) {
     for (const item of arr) {
       yield put(chnl, item);
     }
-    chnl.close();
+    close(chnl);
   });
   return chnl;
 }

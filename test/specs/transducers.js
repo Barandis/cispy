@@ -5,6 +5,7 @@ import {
   chan,
   put,
   take,
+  close,
   CLOSED
 } from '../../src/api';
 
@@ -20,24 +21,24 @@ function magComp(a, b) {
   return magnitude(a) === magnitude(b);
 }
 
-function fillChannel(channel, count, close) {
+function fillChannel(channel, count, cl) {
   go(function* () {
     for (let i = 1; i <= count; ++i) {
       yield put(channel, i);
     }
-    if (close) {
-      channel.close();
+    if (cl) {
+      close(channel);
     }
   });
 }
 
-function fillChannelWith(channel, array, close) {
+function fillChannelWith(channel, array, cl) {
   go(function* () {
     for (let i of array) {
       yield put(channel, i);
     }
-    if (close) {
-      channel.close();
+    if (cl) {
+      close(channel);
     }
   });
 }
