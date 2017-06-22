@@ -5,7 +5,8 @@ import {
   go,
   put,
   take,
-  takeAsync
+  takeAsync,
+  close
 } from '../../../src/core';
 
 import {
@@ -14,13 +15,13 @@ import {
   into
 } from '../../../src/ops/conversion';
 
-function fillChannel(channel, count, close) {
+function fillChannel(channel, count, cl) {
   go(function* () {
     for (let i = 1; i <= count; ++i) {
       yield put(channel, i);
     }
-    if (close) {
-      channel.close();
+    if (cl) {
+      close(channel);
     }
   });
 }
@@ -97,7 +98,7 @@ describe('Channel conversion functions', () => {
       go(function* () {
         yield put(input, 6);
         yield put(input, 7);
-        input.close();
+        close(input);
       });
 
       go(function* () {
@@ -114,7 +115,7 @@ describe('Channel conversion functions', () => {
       go(function* () {
         yield put(input, 6);
         yield put(input, 7);
-        input.close();
+        close(input);
       });
 
       go(function* () {

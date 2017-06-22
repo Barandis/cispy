@@ -13,6 +13,7 @@ import {
   takeAsync,
   buffers,
   config,
+  close,
   CLOSED,
   DEFAULT
 } from '../../src/api';
@@ -180,7 +181,7 @@ describe('Core CSP', () => {
       go(function* () {
         yield sleep();
         expect(spy).not.to.be.called;
-        ch.close();
+        close(ch);
         // necessary because closing a channel doesn't block
         yield sleep();
         expect(spy).to.be.called;
@@ -247,7 +248,7 @@ describe('Core CSP', () => {
       const ch = chan();
 
       go(function* () {
-        ch.close();
+        close(ch);
         expect(yield put(ch, 1729)).to.be.false;
         done();
       });
@@ -487,9 +488,9 @@ describe('Core CSP', () => {
   describe('close', () => {
     it('does nothing if the channel is already closed', () => {
       const ch = chan();
-      ch.close();
+      close(ch);
       expect(ch.closed).to.be.true;
-      ch.close();
+      close(ch);
       expect(ch.closed).to.be.true;
     });
 
@@ -506,7 +507,7 @@ describe('Core CSP', () => {
 
       go(function* () {
         yield sleep();
-        ch.close();
+        close(ch);
       });
     });
 
@@ -525,7 +526,7 @@ describe('Core CSP', () => {
 
       go(function* () {
         yield sleep();
-        ch.close();
+        close(ch);
       });
     });
 
@@ -542,7 +543,7 @@ describe('Core CSP', () => {
 
       go(function* () {
         yield sleep();
-        ch.close();
+        close(ch);
       });
     });
 
@@ -563,7 +564,7 @@ describe('Core CSP', () => {
 
       go(function* () {
         yield put(ch, 1729);
-        ch.close();
+        close(ch);
         yield put(ctrl);
       });
     });

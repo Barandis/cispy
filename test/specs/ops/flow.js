@@ -7,6 +7,7 @@ import {
   take,
   sleep,
   buffers,
+  close,
   CLOSED
 } from '../../../src/core';
 
@@ -28,24 +29,24 @@ const TAPS = '@@multitap/taps';
 const even = (x) => x % 2 === 0;
 const sum3 = (a, b, c) => a + b + c;
 
-function fillChannel(channel, count, close) {
+function fillChannel(channel, count, cl) {
   go(function* () {
     for (let i = 1; i <= count; ++i) {
       yield put(channel, i);
     }
-    if (close) {
-      channel.close();
+    if (cl) {
+      close(channel);
     }
   });
 }
 
-function fillChannelWith(channel, array, close) {
+function fillChannelWith(channel, array, cl) {
   go(function* () {
     for (let i of array) {
       yield put(channel, i);
     }
-    if (close) {
-      channel.close();
+    if (cl) {
+      close(channel);
     }
   });
 }
@@ -97,7 +98,7 @@ describe('Flow control functions', () => {
         done();
       });
 
-      go(function* () { input.close(); });
+      go(function* () { close(input); });
     });
 
     it('keeps the outpuyt channel open with keeoOpen', (done) => {
@@ -111,7 +112,7 @@ describe('Flow control functions', () => {
       });
 
       go(function* () {
-        input.close();
+        close(input);
         yield sleep();
         yield put(output, 1729);
       });
@@ -136,7 +137,7 @@ describe('Flow control functions', () => {
       go(function* () {
         yield take(start);
         // Close the output, break the pipe
-        output.close();
+        close(output);
         // Signal the third process to take input
         yield put(finished);
       });
@@ -200,7 +201,7 @@ describe('Flow control functions', () => {
       });
 
       go(function* () {
-        input.close();
+        close(input);
         yield take(end);
         yield take(end);
         done();
@@ -252,7 +253,7 @@ describe('Flow control functions', () => {
 
       go(function* () {
         for (let ch of inputs) {
-          ch.close();
+          close(ch);
         }
       });
 
@@ -322,7 +323,7 @@ describe('Flow control functions', () => {
       const outputs = split(input, 3);
 
       go(function* () {
-        input.close();
+        close(input);
         yield sleep();
         yield sleep();
         for (let i = 0, count = outputs.length; i < count; ++i) {
@@ -377,7 +378,7 @@ describe('Flow control functions', () => {
         const outputs = [tap(input), tap(input)];
 
         go(function* () {
-          input.close();
+          close(input);
           yield sleep();
           expect(outputs[0].closed).to.be.false;
           expect(outputs[1].closed).to.be.false;
@@ -522,7 +523,7 @@ describe('Flow control functions', () => {
         for (let i = 1; i <= 3; ++i) {
           yield put(inputs[1], i);
         }
-        inputs[1].close();
+        close(inputs[1]);
       });
 
       go(function* () {
