@@ -26,10 +26,11 @@
 // represent lines of execution that may be run concurrently with other lines of execution.
 //
 // Processes are implemented as generators that have some extra functionality based on the values fed out of the
-// generator by its `yield` expressions. By  passing special values out of those expressions (in the form of
+// generator by its `yield` expressions. By passing special values out of those expressions (in the form of
 // instruction objects), the process can control when and how the generator is restarted.
 
-import { chan, box, isBox } from './channel';
+import { chan } from './channel';
+import { putRaw, takeRaw, processAlts } from './operations';
 import { dispatch } from './dispatcher';
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
@@ -45,58 +46,6 @@ const SLEEP = 'sleep';
 // there's no way to emulate (accidentally or on purpose) an instruction in the process queue.
 const INSTRUCTION = Symbol();
 
-// Used to represent the default channel in an alts call where a default is provided. If that default is returned, the
-// default value is returned as the value of the `value` property while this is returned as the value of the `channel`
-// property.
-
-export const DEFAULT = Symbol('DEFAULT');
-
-// These two handlers are used by channels to track execution of instructions (put, take, and alts). They provide two
-// pieces of information: the function to call when a put or take unblocks (because a value sent to put has been taken,
-// or a take has accepted a value that has been put) and whether or not the handler is still active.
-//
-// The function is a callback that actually defines the difference between put/take and putRaw/takeRaw: while the
-// async calls use the callback passed to the function, put and take simply continue the process where it left off.
-// (This is why put and take only work inside go functions, because otherwise there's no process to continue.) The alts
-// instruction always continues the process upon completion; there is no async version of alts.
-//
-// This function is provided as the return value of the commit method. Calling commit has no extra effect with put and
-// take instructions, but for alts, it also marks the handler as no longer being active. This means that only one of
-// the operations passed to alts can be completed, because after the first one, the handler is no longer active and
-// will not be allowed to process a second operation.
-//
-// If a put or take (or equivalent alts operation) cannot be immediately completed because there isn't a corresponding
-// pending take or put, the handler is queued to be run when a new take or put becomes available.
-function opHandler(fn) {
-  return {
-    fn,
-
-    get active() {
-      return true;
-    },
-
-    commit() {
-      return this.fn;
-    }
-  };
-}
-
-function altsHandler(active, fn) {
-  return {
-    a: active,
-    fn,
-
-    get active() {
-      return this.a.value;
-    },
-
-    commit() {
-      this.a.value = false;
-      return this.fn;
-    }
-  };
-}
-
 // A simple object basically used as a wrapper to associate some data with a  particular instruction. The op property
 // is the string name of the instruction (from the five choices in the constants above), while the data property
 // contains whatever data is necessary to process that instruction.
@@ -111,148 +60,6 @@ function instruction(op, data) {
 // Determines whether an object is an instruction.
 function isInstruction(value) {
   return value && value.instruction === INSTRUCTION;
-}
-
-// Puts a value of any onto a channel. When the value is successfully taken off the channel by another process or when
-// the channel closes, the callback fires if it exists.
-export function putRaw(channel, value, callback) {
-  const result = channel.put(value, opHandler(callback));
-  if (result && callback) {
-    callback(result.value);
-  }
-}
-
-// Takes a value off a channel. When the value becomes available, it is passed to the callback.
-export function takeRaw(channel, callback) {
-  const result = channel.take(opHandler(callback));
-  if (result && callback) {
-    callback(result.value);
-  }
-}
-
-export function putPromise(channel, value) {
-  return new Promise((resolve) => {
-    putRaw(channel, value, resolve);
-  });
-}
-
-export function takePromise(channel) {
-  return new Promise((resolve) => {
-    takeRaw(channel, resolve);
-  });
-}
-
-export function takeOrThrowPromise(channel) {
-  return new Promise((resolve, reject) => {
-    takeRaw(channel, (result) => {
-      if (Error.prototype.isPrototypeOf(result)) {
-        reject(result);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-}
-
-export function altsPromise(ops, options = {}) {
-  return new Promise((resolve) => {
-    processAlts(ops, resolve, options);
-  });
-}
-
-export function sleepPromise(delay = 0) {
-  return new Promise((resolve) => {
-    if (delay === 0) {
-      setTimeout(resolve, 0);
-    } else {
-      const ch = chan();
-      setTimeout(() => ch.close(), delay);
-      takeRaw(ch, resolve);
-    }
-  });
-}
-
-// Creates an array of values from 0 to n - 1, shuffled randomly. Used to randomly determine the priority of operations
-// in an alts call.
-function randomArray(n) {
-  const a = [];
-  for (let k = 0; k < n; ++k) {
-    a.push(k);
-  }
-  for (let j = n - 1; j > 0; --j) {
-    const i = Math.floor(Math.random() * (j + 1));
-    const temp = a[j];
-    a[j] = a[i];
-    a[i] = temp;
-  }
-  return a;
-}
-
-// Processes the operations in an alts function call. This works in the same way as `takeRaw` and `putRaw` except
-// that each operation (each of which can be either a put or a take on any channel) is queued in a random order onto
-// its channel and only the first to complete returns a value (the other ones become invalidated then and are
-// discarded).
-//
-// The callback receives an object instead of a value. This object has two properties: `value` is the value that was
-// returned from the channel, and `channel` is the channel onto which the successful operation was queued.
-//
-// The `options` parameter is the same as the options parameter in `alts`, discussed below.
-function processAlts(ops, callback, options) {
-  const count = ops.length;
-  if (count === 0) {
-    throw Error('Alts called with no operations');
-  }
-
-  const priority = !!options.priority;
-  const indices = priority ? [] : randomArray(count);
-
-  const active = box(true);
-
-  function createAltsHandler(channel) {
-    return altsHandler(active, (value) => {
-      callback({ value, channel });
-    });
-  }
-
-  let result;
-
-  for (let i = 0; i < count; ++i) {
-    // Choose an operation randomly (or not randomly if priority is specified)
-    const op = ops[priority ? i : indices[i]];
-    let channel, value;
-
-    // Put every operation onto its channel, one at a time
-    if (Array.isArray(op)) {
-      [channel, value] = op;
-      result = channel.put(value, createAltsHandler(channel));
-    } else {
-      channel = op;
-      result = channel.take(createAltsHandler(channel));
-    }
-
-    // We check for Box here because a box from a channel indicates that the value is immediately available (i.e., that
-    // there was no need to block to get the value). If this happens, we can call our callback immediately with that
-    // value and channel and stop queueing other operations.
-    if (isBox(result)) {
-      callback({
-        value: result.value,
-        channel
-      });
-      break;
-    }
-  }
-
-  // If none of the operations immediately returned values (i.e., they all blocked), and we have set a default option,
-  // then return the value of the default option rather than waiting for the queued operations to complete.
-  if (!isBox(result) && options.hasOwnProperty('default')) {
-    if (active.value) {
-      active.value = false;
-      callback({
-        value: options.default,
-        channel: DEFAULT
-      });
-    }
-  }
 }
 
 // An actual process that is being run in a separate line of execution. This is one of the two key objects from this

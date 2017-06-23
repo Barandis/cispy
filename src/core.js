@@ -30,6 +30,7 @@
 import * as buffers from './modules/buffers';
 import * as channel from './modules/channel';
 import * as process from './modules/process';
+import * as operations from './modules/operations';
 
 // Creates a process from a generator (not a generator function) and runs it. The process is then left to its own
 // devices until it returns. This function creates and returns a channel, though that channel can only ever have one
@@ -45,7 +46,7 @@ export function spawn(gen, exh) {
     if (value === channel.CLOSED) {
       ch.close();
     } else {
-      process.putRaw(ch, value, () => ch.close());
+      operations.putRaw(ch, value, () => ch.close());
     }
   }).run();
   return ch;
@@ -111,16 +112,20 @@ export {
   take,
   takeOrThrow,
   alts,
-  sleep,
+  sleep } from './modules/process';
+
+export {
   putRaw,
   takeRaw,
-  DEFAULT } from './modules/process';
+  DEFAULT
+} from './modules/operations';
+
 export const promise = {
-  put: process.putPromise,
-  take: process.takePromise,
-  takeOrThrow: process.takeOrThrowPromise,
-  alts: process.altsPromise,
-  sleep: process.sleepPromise
+  put: operations.put,
+  take: operations.take,
+  takeOrThrow: operations.takeOrThrow,
+  alts: operations.alts,
+  sleep: operations.sleep
 };
 export { CLOSED } from './modules/channel';
 export { EMPTY } from './modules/buffers';
