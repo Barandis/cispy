@@ -62,7 +62,7 @@
     function listen(el, type, ch) {
       ch = ch || chan();
       el.addEventListener(type, function (event) {
-        putAsync(ch, event);
+        putRaw(ch, event);
       });
       return ch;
     }
@@ -70,12 +70,12 @@
 
   <p>
   This function takes a DOM element and a type of event (in our case, since we're looking for click events, that type
-  is <code>'click'</code>). It then either uses the channel we pass in as the third parameter or, if there is no third 
-  parameter, creates a new channel. Every time the specified event occurs on the specified DOM element, the event 
+  is <code>'click'</code>). It then either uses the channel we pass in as the third parameter or, if there is no third
+  parameter, creates a new channel. Every time the specified event occurs on the specified DOM element, the event
   object will be put onto this channel.
   </p>
   <p>
-  Thing is, we're not really interested in anything about this event object. We're only interested in knowing which 
+  Thing is, we're not really interested in anything about this event object. We're only interested in knowing which
   button was clicked. There are a few ways to do this. We could check the <code>target</code>property of the event
   object. We could use the <code>channel</code> property of the object returned by <code>alts</code> to figure out
   which channel unblocked the process, knowing that each channel is assigned to one button. Or we could actually
@@ -84,9 +84,9 @@
   </p>
   <p>
   We don't want to change our code in <code>listen</code>, because it's a generic and highly useful function that we can
-  use over and over again (it was used twice in the three intro examples, for instance). Instead, we'll use the ability 
-  of cispy channels to use the transformer functions that come out of a transducer library (there are a few good ones, 
-  but you may want to go with <a href="https://github.com/Barandis/xduce">xduce</a>). We'll use the <code>map</code> 
+  use over and over again (it was used twice in the three intro examples, for instance). Instead, we'll use the ability
+  of cispy channels to use the transformer functions that come out of a transducer library (there are a few good ones,
+  but you may want to go with <a href="https://github.com/Barandis/xduce">xduce</a>). We'll use the <code>map</code>
   transformer to turn that event object into something we can use better. This is exactly what we did in the third
   intro example, except this time we don't want coordinates. We want an identifier for the button.
   </p>
@@ -97,7 +97,7 @@
     var C = Object.create(null);
 
     function constantly(x) {
-      return function () { return x; }; 
+      return function () { return x; };
     }
 
     var chA = listen(byId('button-a'), 'click', chan(1, map(constantly(A))));
@@ -120,7 +120,7 @@
   yet widespread, so we'll do it this way instead.
   </p>
   <p>
-  The second section is the <code>constantly</code> function. This function creates another function that always 
+  The second section is the <code>constantly</code> function. This function creates another function that always
   returns the same value, using the same trick as with <code>location</code> in the third intro example (generating
   functions based on a parameter rather than having to write different functions for each value of that parameter we
   need). The upshot is that if we use one of these functions in <code>map</code>, every value taken from the channel
@@ -135,8 +135,8 @@
   </p>
   <p><em>
   (A quick note: <code>button-a</code>, etc. are the ID's of the three buttons in the combination example, and
-  <code>byId</code> is just a utility function that gets the DOM element with that ID. So <code>byId('button-a')</code> 
-  just returns the DOM element for the first button. See <a href="js/combination.js">the source code</a> if you're 
+  <code>byId</code> is just a utility function that gets the DOM element with that ID. So <code>byId('button-a')</code>
+  just returns the DOM element for the first button. See <a href="js/combination.js">the source code</a> if you're
   interested.)
   </em></p>
 
@@ -226,14 +226,14 @@
   <p>
   Far more interesting is what happens if this was <em>not</em> the last button (fewer buttons have been clicked than
   the length of the combination). Most of the time, we just update the div with all of the buttons that have been
-  clicked so far, and let the <code>while</code> loop continue. But if the <code>timeout</code> property of 
+  clicked so far, and let the <code>while</code> loop continue. But if the <code>timeout</code> property of
   <code>chZ</code> is false, we reassign <code>chZ</code> to something we have not seen before - a timeout channel.
   </p>
   <p>
   The <code>timeout</code> function is offered by cispy, and it creates a new unbuffered channel, just like
   <code>chan()</code>. The difference is that this channel will automatically close after a delay, specified in
-  milliseconds in the <code>timeout</code> call itself. So now our private, local channel Z turns 
-  out to have something to do after all - it can sit around and then close after 5 seconds (5000 milliseconds, the 
+  milliseconds in the <code>timeout</code> call itself. So now our private, local channel Z turns
+  out to have something to do after all - it can sit around and then close after 5 seconds (5000 milliseconds, the
   value of <code>MAX_TIME</code>).
   </p>
   <p>

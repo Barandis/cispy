@@ -6,7 +6,7 @@ var chan = cispy.chan
   , take = cispy.take
   , alts = cispy.alts
   , sleep = cispy.sleep
-  , putAsync = cispy.putAsync
+  , putRaw = cispy.putRaw
   , debounce = cispy.ops.debounce
   , throttle = cispy.ops.throttle
   ;
@@ -62,7 +62,7 @@ go(function* () {
 function listen(el, type, ch) {
   ch = ch || chan();
   el.addEventListener(type, function (event) {
-    putAsync(ch, event);
+    putRaw(ch, event);
   });
   return ch;
 }
