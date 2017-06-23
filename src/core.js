@@ -106,7 +106,22 @@ const b = {
 };
 export { b as buffers };
 
-export { put, take, alts, sleep, putRaw, takeRaw, takeOrThrow, DEFAULT } from './modules/process';
+export {
+  put,
+  take,
+  takeOrThrow,
+  alts,
+  sleep,
+  putRaw,
+  takeRaw,
+  DEFAULT } from './modules/process';
+export const promise = {
+  put: process.putPromise,
+  take: process.takePromise,
+  takeOrThrow: process.takeOrThrowPromise,
+  alts: process.altsPromise,
+  sleep: process.sleepPromise
+};
 export { CLOSED } from './modules/channel';
 export { EMPTY } from './modules/buffers';
 export { config } from './modules/options';

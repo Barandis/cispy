@@ -32,8 +32,6 @@ import * as flow from './ops/flow';
 import * as conversion from './ops/conversion';
 import * as timing from './ops/timing';
 
-// export * from './core' should work fine here, but there's apparently a bug in Webpack that prevents it from
-// working properly, which makes this a tiny bit more verbose
 export {
   spawn,
   go,
@@ -50,6 +48,7 @@ export {
   putRaw,
   takeRaw,
 
+  promise,
   buffers,
   config,
 

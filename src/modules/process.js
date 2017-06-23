@@ -130,6 +130,48 @@ export function takeRaw(channel, callback) {
   }
 }
 
+export function putPromise(channel, value) {
+  return new Promise((resolve) => {
+    putRaw(channel, value, resolve);
+  });
+}
+
+export function takePromise(channel) {
+  return new Promise((resolve) => {
+    takeRaw(channel, resolve);
+  });
+}
+
+export function takeOrThrowPromise(channel) {
+  return new Promise((resolve, reject) => {
+    takeRaw(channel, (result) => {
+      if (Error.prototype.isPrototypeOf(result)) {
+        reject(result);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
+export function altsPromise(ops, options = {}) {
+  return new Promise((resolve) => {
+    processAlts(ops, resolve, options);
+  });
+}
+
+export function sleepPromise(delay = 0) {
+  return new Promise((resolve) => {
+    if (delay === 0) {
+      setTimeout(resolve, 0);
+    } else {
+      const ch = chan();
+      setTimeout(() => ch.close(), delay);
+      takeRaw(ch, resolve);
+    }
+  });
+}
+
 // Creates an array of values from 0 to n - 1, shuffled randomly. Used to randomly determine the priority of operations
 // in an alts call.
 function randomArray(n) {
