@@ -6,7 +6,7 @@ var go = cispy.go
   , chan = cispy.chan
   , timeout = cispy.timeout
   , alts = cispy.alts
-  , putAsync = cispy.putAsync
+  , putRaw = cispy.putRaw
   ;
 
 var map = xduce.map;
@@ -24,14 +24,14 @@ function setHtml(id, html) {
 function listen(el, type, ch) {
   ch = ch || chan();
   el.addEventListener(type, function (event) {
-    putAsync(ch, event);
+    putRaw(ch, event);
   });
   return ch;
 }
 
 // Returns a function that always returns x
 function constantly(x) {
-  return function () { return x; }; 
+  return function () { return x; };
 }
 
 // unique values for each of the entries

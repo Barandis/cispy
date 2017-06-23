@@ -7,14 +7,15 @@ All notable changes to the library will be documented in this file.
 - a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
 - a `goSafe` function to create processes that carry a handler to deal with errors that are thrown from the process itself, even if the process has no `try`/`catch` to deal with them.
 - a `takeOrThrow` function as an alternative to `take`. If `takeOrThrow` takes an error object off a channel, then it will throw that error rather than pass it to the matching `put`. How that error is handled depends on whether it's caught within the process and/or whether the process was created with `goSafe`.
-- a `close` function to close channels. There has always been a `close` function on the channel object, but I felt like there was some inconsistency with calling a function for `take(ch)` etc. but calling a function property for `ch.close()`. The function property is still available, but now you can also use `close(ch)`.
+- a `close` function to close channels. There has always been a `close` function on the channel object, but I felt like there was some inconsistency with calling a function for `take(ch)` etc. but calling a function property for `ch.close()`. The function property is still available, but now you can also use `close(ch)`. (I would make them all available as function properties, but that wouldn't make sense for `alts`.)
 
 ### Removed
-- The `raise` function. Exceptions are now going to be dealt differently, without the need of an explicit function to feed the errors back into the process.
+- The `raise` function. Exceptions are now going to be dealt differently, without the need of an explicit function to feed the errors back into the process. Besides, `raise` never really did anything in the end. It was the genesis of an idea that was never finished and is no longer necessary.
 - The `defaultHandler` config option. Error handlers are now passed in explicitly through `goSafe`, avoiding the need for a global default.
 
 ### Changed
-- the special values of CLOSED, DEFAULT, and EMPTY are now symbols instead of objects.
+- **Breaking change:** `putAsync` and `takeAsync` have been changed to `putRaw` and `takeRaw`. The `-Async` suffixes came directly from ublonton and jlongster, not from Clojure's core.async (where they were given names with no letters, unlike `go` and `chan`) and were probably meant to mirror node.js `-Sync` suffixes. `-Raw` more accurately describes what they do - they put and take without going through the process machinery. I'm also now looking at functions to convert CSP puts and takes into promises, which will be intended for use in `async` functions. Leaving the raw functions with the `-Async` names would be confusing at that point.
+- the special values of `CLOSED`, `DEFAULT`, and `EMPTY` are now symbols instead of objects.
 - Babel's stage-0 preset was replaced with stage-3. Stage-3 features are very likely to be in ES2017, while some stage-0 features are quite unlikely. This just seems more correct. (The only changes were the replacement of two `::`s with `call`.)
 
 ## [0.8.1] 2017-03-15

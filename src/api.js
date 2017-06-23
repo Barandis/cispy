@@ -47,8 +47,8 @@ export {
   takeOrThrow,
   alts,
   sleep,
-  putAsync,
-  takeAsync,
+  putRaw,
+  takeRaw,
 
   buffers,
   config,

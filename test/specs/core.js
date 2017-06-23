@@ -9,9 +9,8 @@ import {
   put,
   take,
   alts,
-  putAsync,
-  takeAsync,
-  buffers,
+  putRaw,
+  takeRaw,
   config,
   close,
   CLOSED,
@@ -137,7 +136,7 @@ describe('Core CSP', () => {
       });
     });
 
-    it('returns a value that was putAsync onto a channel', (done) => {
+    it('returns a value that was putRaw onto a channel', (done) => {
       const ch = chan();
 
       go(function* () {
@@ -145,7 +144,7 @@ describe('Core CSP', () => {
         done();
       });
 
-      putAsync(ch, 1729);
+      putRaw(ch, 1729);
     });
 
     it('blocks until there is a value on the channel', (done) => {
@@ -204,14 +203,14 @@ describe('Core CSP', () => {
       });
     });
 
-    it('puts a value onto a channel for takeAsync', (done) => {
+    it('puts a value onto a channel for takeRaw', (done) => {
       const ch = chan();
 
       go(function* () {
         yield put(ch, 1729);
       });
 
-      takeAsync(ch, (value) => {
+      takeRaw(ch, (value) => {
         expect(value).to.equal(1729);
         done();
       });

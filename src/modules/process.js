@@ -33,7 +33,7 @@ import { chan, box, isBox } from './channel';
 import { dispatch } from './dispatcher';
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
-// explicitly supported by the Process object itself. Other instructions like putAsync and takeAsync are handled
+// explicitly supported by the Process object itself. Other instructions like putRaw and takeRaw are handled
 // outside of the process and do not have process instructions.
 
 const TAKE  = 'take';
@@ -55,7 +55,7 @@ export const DEFAULT = Symbol('DEFAULT');
 // pieces of information: the function to call when a put or take unblocks (because a value sent to put has been taken,
 // or a take has accepted a value that has been put) and whether or not the handler is still active.
 //
-// The function is a callback that actually defines the difference between put/take and putAsync/takeAsync: while the
+// The function is a callback that actually defines the difference between put/take and putRaw/takeRaw: while the
 // async calls use the callback passed to the function, put and take simply continue the process where it left off.
 // (This is why put and take only work inside go functions, because otherwise there's no process to continue.) The alts
 // instruction always continues the process upon completion; there is no async version of alts.
@@ -115,7 +115,7 @@ function isInstruction(value) {
 
 // Puts a value of any onto a channel. When the value is successfully taken off the channel by another process or when
 // the channel closes, the callback fires if it exists.
-export function putAsync(channel, value, callback) {
+export function putRaw(channel, value, callback) {
   const result = channel.put(value, opHandler(callback));
   if (result && callback) {
     callback(result.value);
@@ -123,7 +123,7 @@ export function putAsync(channel, value, callback) {
 }
 
 // Takes a value off a channel. When the value becomes available, it is passed to the callback.
-export function takeAsync(channel, callback) {
+export function takeRaw(channel, callback) {
   const result = channel.take(opHandler(callback));
   if (result && callback) {
     callback(result.value);
@@ -146,7 +146,7 @@ function randomArray(n) {
   return a;
 }
 
-// Processes the operations in an alts function call. This works in the same way as `takeAsync` and `putAsync` except
+// Processes the operations in an alts function call. This works in the same way as `takeRaw` and `putRaw` except
 // that each operation (each of which can be either a put or a take on any channel) is queued in a random order onto
 // its channel and only the first to complete returns a value (the other ones become invalidated then and are
 // discarded).
@@ -318,13 +318,13 @@ export function process(gen, exh, onFinish) {
         switch (item.op) {
           case PUT: {
             const {channel, value} = item.data;
-            putAsync(channel, value, (status) => this.continue(status));
+            putRaw(channel, value, (status) => this.continue(status));
             break;
           }
 
           case TAKE: {
             const {channel, except} = item.data;
-            takeAsync(channel, (value) => this.continue(value, except));
+            takeRaw(channel, (value) => this.continue(value, except));
             break;
           }
 
@@ -341,7 +341,7 @@ export function process(gen, exh, onFinish) {
             } else {
               const ch = chan();
               setTimeout(() => ch.close(), delay);
-              takeAsync(ch, (value) => this.continue(value));
+              takeRaw(ch, (value) => this.continue(value));
             }
             break;
           }

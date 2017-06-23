@@ -7,11 +7,11 @@
 [`go`](#go)
 [`goSafe`](#go)
 [`put`](#put)
-[`putAsync`](#put-async)
+[`putRaw`](#put-raw)
 [`sleep`](#sleep)
 [`spawn`](#spawn)
 [`take`](#take)
-[`takeAsync`](#take-async)
+[`takeRaw`](#take-raw)
 [`takeOrThrow`](#take-or-throw)
 [`timeout`](#timeout)
 [`CLOSED`](#closed)
@@ -77,7 +77,7 @@ This does exactly the same thing as [`go`](#go), but it takes a generator instea
 
 **Creates and returns a new channel.**
 
-By default this channel will be a simple unbuffered, untransformed channel, but that can be changed through parameters to this function. A channel does not have any externally useful properties. It exists largely to be passed into [`put`](#put), [`take`](#take), [`alts`](#alts), [`putAsync`](#put-async), and [`takeAsync`](#take-async) calls.
+By default this channel will be a simple unbuffered, untransformed channel, but that can be changed through parameters to this function. A channel does not have any externally useful properties. It exists largely to be passed into [`put`](#put), [`take`](#take), [`alts`](#alts), [`putRaw`](#put-raw), and [`takeRaw`](#take-raw) calls.
 
 If a buffer value is provided, it defines what buffer should back the channel. If this is `null`, `0`, or completely missing, the channel will be unbuffered. If it's a positive number, the channel will be buffered by a [`fixed`](buffers.md#fixed) buffer of that size. If it's a buffer object, that object will be used as the channel's buffer.
 
@@ -154,13 +154,24 @@ This function *must* be called from within a process and as part of a `yield` ex
 
 It functions in every way like [`take`](#take) **except** in the case that the value on the channel is an object that has `Error.prototype` in its prototype chain (any built-in error, any properly-constructed custom error). If that happens, the error is thrown at that point in the process. This throw is like any other throw; i.e., it can be caught, the custom handler from [`goSafe`](#go-safe) can deal with it, etc.
 
+If the taken value is an error object, the `yield takeOrThrow` expression will have no value (after all, it threw an error instead).
+
+`takeOrThrow` is roughly equivalent to
+
+```
+const value = yield take(ch);
+if (Error.prototype.isPrototypeOf(value)) {
+  throw value;
+}
+```
+
 *Parameters*
 
 - `channel` (*channel*): the channel that the process is taking a value from.
 
 *Returns*
 
-- The function itself returns an instruction object that guides the process in running the take. This is why `takeOrThrow` must be run in a process; the instruction object is meaningless otherwise. After the process unblocks, the `yield takeOrThrow` expression returns the value taken from the channel, or [`CLOSED`](special.md#closed) if the target channel has closed and no more values are available to be taken.
+- The function itself returns an instruction object that guides the process in running the take. This is why `takeOrThrow` must be run in a process; the instruction object is meaningless otherwise. After the process unblocks, the `yield takeOrThrow` expression returns the value taken from the channel, [`CLOSED`](special.md#closed) if the target channel has closed and no more values are available to be taken, or no value at all if the taken value was an error object.
 
 ### <a name="alts"></a> `alts(operations, options?)`
 
@@ -205,11 +216,11 @@ When this function completes and its process unblocks, the `yield` expression do
 
 ## Out-of-Channel Instructions
 
-### <a name="put-async"></a> `putAsync(channel, value?, callback?)`
+### <a name="put-raw"></a> `putRaw(channel, value?, callback?)`
 
 **Puts a value onto a channel without resorting to the `yield` mechanism.**
 
-This means that a call to `putAsync` does not block, and it is not necessary to use it inside a process. Rather than blocking until the put value is taken by another process, this one returns immediately and then invokes the callback (if provided) when the put value is taken. It can be seen as a non-blocking version of [`put`](#put).
+This means that a call to `putRaw` does not block, and it is not necessary to use it inside a process. Rather than blocking until the put value is taken by another process, this one returns immediately and then invokes the callback (if provided) when the put value is taken. It can be seen as a non-blocking version of [`put`](#put).
 
 While the primary use of this function is to put values onto channels in contexts where being inside a process is impossible (for example, in a DOM element's event handler), it can still be used inside processes at times when it's important to make sure that the process doesn't block from the put.
 
@@ -221,15 +232,15 @@ The callback is a function of one parameter. The parameter that's supplied to th
 - `value` (*any*): the value being put onto the channel.
 - `callback` (*function*): a function that gets invoked either when the value is taken by another process or when the channel is closed. This function can take one parameter, which is `true` in the former case and `false` in the latter.
 
-### <a name="take-async"></a> `takeAsync(channel, callback?)`
+### <a name="take-raw"></a> `takeRaw(channel, callback?)`
 
 **Takes a value from a channel without resorting to the `yield` mechanism.**
 
-This means that a call to `takeAsync` does not block, and it is not necessary to use it inside a process. Rather than blocking until a value becomes available on the channel to be taken, this one returns immediately and then invokes the callback (if provided) when a value becomes available. It can be regarded as a non-blocking version of [`take`](#take).
+This means that a call to `takeRaw` does not block, and it is not necessary to use it inside a process. Rather than blocking until a value becomes available on the channel to be taken, this one returns immediately and then invokes the callback (if provided) when a value becomes available. It can be regarded as a non-blocking version of [`take`](#take).
 
 While the primary use of this function is to take values from channels in contexts where being inside a process is impossible, it can still be used inside processes a ttimes when it's important that the take doesn't block the process.
 
-The callback is a function of one parameter, and the value supplied for that parameter is the value taken from the channel (either a value that was put or [`CLOSED`](special.md#closed)). If the callback isn't present, nothing will happen after the value is taken. (This is less useful than it is for [`putAsync`](#put-async)).
+The callback is a function of one parameter, and the value supplied for that parameter is the value taken from the channel (either a value that was put or [`CLOSED`](special.md#closed)). If the callback isn't present, nothing will happen after the value is taken. (This is less useful than it is for [`putRaw`](#put-raw)).
 
 *Parameters*
 
