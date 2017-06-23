@@ -154,13 +154,24 @@ This function *must* be called from within a process and as part of a `yield` ex
 
 It functions in every way like [`take`](#take) **except** in the case that the value on the channel is an object that has `Error.prototype` in its prototype chain (any built-in error, any properly-constructed custom error). If that happens, the error is thrown at that point in the process. This throw is like any other throw; i.e., it can be caught, the custom handler from [`goSafe`](#go-safe) can deal with it, etc.
 
+If the taken value is an error object, the `yield takeOrThrow` expression will have no value (after all, it threw an error instead).
+
+`takeOrThrow` is roughly equivalent to
+
+```
+const value = yield take(ch);
+if (Error.prototype.isPrototypeOf(value)) {
+  throw value;
+}
+```
+
 *Parameters*
 
 - `channel` (*channel*): the channel that the process is taking a value from.
 
 *Returns*
 
-- The function itself returns an instruction object that guides the process in running the take. This is why `takeOrThrow` must be run in a process; the instruction object is meaningless otherwise. After the process unblocks, the `yield takeOrThrow` expression returns the value taken from the channel, or [`CLOSED`](special.md#closed) if the target channel has closed and no more values are available to be taken.
+- The function itself returns an instruction object that guides the process in running the take. This is why `takeOrThrow` must be run in a process; the instruction object is meaningless otherwise. After the process unblocks, the `yield takeOrThrow` expression returns the value taken from the channel, [`CLOSED`](special.md#closed) if the target channel has closed and no more values are available to be taken, or no value at all if the taken value was an error object.
 
 ### <a name="alts"></a> `alts(operations, options?)`
 
