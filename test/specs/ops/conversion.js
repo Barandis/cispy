@@ -5,7 +5,7 @@ import {
   go,
   put,
   take,
-  takeAsync,
+  takeRaw,
   close
 } from '../../../src/core';
 
@@ -57,7 +57,7 @@ describe('Channel conversion functions', () => {
 
       fillChannel(input, 5, true);
 
-      takeAsync(output, (value) => {
+      takeRaw(output, (value) => {
         expect(value).to.equal(15);
         expect(output.closed).to.be.true;
         done();
