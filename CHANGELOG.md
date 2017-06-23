@@ -6,7 +6,7 @@ All notable changes to the library will be documented in this file.
 ### Added
 - a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
 - a `goSafe` function to create processes that carry a handler to deal with errors that are thrown from the process itself, even if the process has no `try`/`catch` to deal with them.
-- a `takeOrThrow` function as an alternative to `take`. If `takeOrThrow` takes an error object off a channel, then it will throw that error rather than pass it to the matching `put`. How that error is handled depends on whether it's caught within the process and/or whether the process was created with `goSafe`.
+- a `takeOrThrow` function as an alternative to `take`. If `takeOrThrow` takes an error object off a channel, then it will throw that error right at that point (inside the process). How that error is handled depends on whether it's caught within the process and/or whether the process was created with `goSafe`.
 - a `close` function to close channels. There has always been a `close` function on the channel object, but I felt like there was some inconsistency with calling a function for `take(ch)` etc. but calling a function property for `ch.close()`. The function property is still available, but now you can also use `close(ch)`. (I would make them all available as function properties, but that wouldn't make sense for `alts`.)
 
 ### Removed
