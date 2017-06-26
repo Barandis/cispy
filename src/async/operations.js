@@ -27,7 +27,7 @@
 // process itself (they return special values that the process can read but are meaningless elsewhere). Those operations
 // are in process.js.
 
-import { chan, box, isBox } from './channel';
+import { chan, box, isBox } from '../core/channel';
 
 // Used to represent the default channel in an alts call where a default is provided. If that default is returned, the
 // default value is returned as the value of the `value` property while this is returned as the value of the `channel`

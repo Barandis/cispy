@@ -36,7 +36,7 @@ import {
   close,
   CLOSED,
   promise
-} from '../../core';
+} from '../../cispy';
 
 const { put, take } = promise;
 

@@ -45,7 +45,7 @@ import {
   takeRaw,
   close,
   CLOSED
-} from '../core';
+} from '../../cispy';
 
 const protocols = {
   taps: '@@multitap/taps'

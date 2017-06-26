@@ -28,9 +28,9 @@
 //
 // This library provides these functions in a CommonJS format, but if it is run in a non-CommonJS environment, a global
 // `cispy` variable is provided.
-import * as flow from './ops/flow';
-import * as conversion from './ops/conversion';
-import * as timing from './ops/timing';
+import * as flow from './generator/operations/flow';
+import * as conversion from './generator/operations/conversion';
+import * as timing from './generator/operations/timing';
 
 export {
   spawn,
@@ -55,6 +55,6 @@ export {
   EMPTY,
   CLOSED,
   DEFAULT
-} from './core';
+} from './cispy';
 
 export const ops = Object.assign({}, flow, conversion, timing);

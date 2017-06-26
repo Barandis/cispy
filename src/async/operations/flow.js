@@ -44,7 +44,7 @@ import {
   putRaw,
   takeRaw,
   CLOSED
-} from '../../core';
+} from '../../cispy';
 
 const { put, take, alts } = promise;
 

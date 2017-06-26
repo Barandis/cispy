@@ -37,7 +37,7 @@ import {
   take,
   close,
   CLOSED
-} from '../core';
+} from '../../cispy';
 
 // Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
 // the reduction function can also be supplied. The single value that comes out of this reduction (which cannot

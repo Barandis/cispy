@@ -29,9 +29,9 @@
 // generator by its `yield` expressions. By passing special values out of those expressions (in the form of
 // instruction objects), the process can control when and how the generator is restarted.
 
-import { chan } from './channel';
-import { putRaw, takeRaw, processAlts } from './operations';
-import { dispatch } from './dispatcher';
+import { chan } from '../core/channel';
+import { putRaw, takeRaw, processAlts } from '../async/operations';
+import { dispatch } from '../core/dispatcher';
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
 // explicitly supported by the Process object itself. Other instructions like putRaw and takeRaw are handled

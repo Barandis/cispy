@@ -38,7 +38,7 @@ import {
   timeout,
   close,
   CLOSED
-} from '../core';
+} from '../../cispy';
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === '[object Number]' && isFinite(x);

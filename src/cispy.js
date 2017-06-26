@@ -27,10 +27,10 @@
 // defined here (go, spawn, chan). All three types of buffers are also supplied, along with the special values CLOSED.
 // EMPTY, and DEFAULT.
 
-import * as buffers from './modules/buffers';
-import * as channel from './modules/channel';
-import * as process from './modules/process';
-import * as operations from './modules/operations';
+import * as buffers from './core/buffers';
+import * as channel from './core/channel';
+import * as process from './generator/process';
+import * as operations from './async/operations';
 
 // Creates a process from a generator (not a generator function) and runs it. The process is then left to its own
 // devices until it returns. This function creates and returns a channel, though that channel can only ever have one
@@ -112,13 +112,13 @@ export {
   take,
   takeOrThrow,
   alts,
-  sleep } from './modules/process';
+  sleep } from './generator/process';
 
 export {
   putRaw,
   takeRaw,
   DEFAULT
-} from './modules/operations';
+} from './async/operations';
 
 export const promise = {
   put: operations.put,
@@ -127,6 +127,6 @@ export const promise = {
   alts: operations.alts,
   sleep: operations.sleep
 };
-export { CLOSED } from './modules/channel';
-export { EMPTY } from './modules/buffers';
-export { config } from './modules/options';
+export { CLOSED } from './core/channel';
+export { EMPTY } from './core/buffers';
+export { config } from './core/options';

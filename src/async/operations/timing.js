@@ -36,7 +36,7 @@ import {
   timeout,
   close,
   CLOSED
-} from '../../core';
+} from '../../cispy';
 
 const { put, alts } = promise;
 
