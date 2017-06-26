@@ -11,12 +11,12 @@ import {
   config,
   close,
   CLOSED
-} from '../../../src/core';
+} from '../../../src/cispy';
 
 import {
   debounce,
   throttle
-} from '../../../src/ops/timing';
+} from '../../../src/generator/operations/timing';
 
 const {fixed, dropping, sliding} = buffers;
 

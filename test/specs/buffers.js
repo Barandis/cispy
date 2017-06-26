@@ -6,7 +6,7 @@ import {
   fixed,
   dropping,
   sliding
-} from '../../src/modules/buffers';
+} from '../../src/core/buffers';
 
 describe('Buffers', () => {
   context('queue', () => {

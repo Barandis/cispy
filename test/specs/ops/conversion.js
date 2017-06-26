@@ -7,13 +7,13 @@ import {
   take,
   takeRaw,
   close
-} from '../../../src/core';
+} from '../../../src/cispy';
 
 import {
   reduce,
   onto,
   into
-} from '../../../src/ops/conversion';
+} from '../../../src/generator/operations/conversion';
 
 function fillChannel(channel, count, cl) {
   go(function* () {

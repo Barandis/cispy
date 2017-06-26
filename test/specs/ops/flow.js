@@ -9,7 +9,7 @@ import {
   buffers,
   close,
   CLOSED
-} from '../../../src/core';
+} from '../../../src/cispy';
 
 import {
   pipe,
@@ -20,7 +20,7 @@ import {
   untap,
   untapAll,
   map
-} from '../../../src/ops/flow';
+} from '../../../src/generator/operations/flow';
 
 const {fixed, dropping, sliding} = buffers;
 

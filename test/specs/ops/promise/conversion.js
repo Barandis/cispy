@@ -4,13 +4,13 @@ import {
   chan,
   close,
   promise
-} from '../../../../src/core';
+} from '../../../../src/cispy';
 
 import {
   reduce,
   onto,
   into
-} from '../../../../src/ops/promise/conversion';
+} from '../../../../src/async/operations/conversion';
 
 const { put, take } = promise;
 
