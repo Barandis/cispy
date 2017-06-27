@@ -43,10 +43,11 @@
 
 /* global MessageChannel */
 
-import { queue as q, EMPTY } from './buffers';
-import { options } from './options';
+const buffers = require('./buffers');
+const { options } = require('./options');
 
-const queue = q();
+const queue = buffers.queue();
+const EMPTY = buffers.EMPTY;
 
 const SET_IMMEDIATE = 0;
 const MESSAGE_CHANNEL = 1;
@@ -120,7 +121,7 @@ function createDispatcher() {
   }
 }
 
-export function setDispatcher() {
+function setDispatcher() {
   dispatcher = createDispatcher();
 }
 
@@ -153,7 +154,12 @@ function processTasks() {
   }
 }
 
-export function dispatch(task) {
+function dispatch(task) {
   queue.enqueue(task);
   dispatcher();
 }
+
+module.exports = {
+  setDispatcher,
+  dispatch
+};

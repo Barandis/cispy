@@ -1,13 +1,13 @@
-const fs = require('fs');
 const path = require('path');
-const webpack = require('webpack');
 
 module.exports = {
-  entry: [
-    './src/api.js'
-  ],
+  entry: {
+    cispy: './src/cispy.js',
+    'cispy.generator': './src/generator.js',
+    'cispy.promise': './src/promise.js'
+  },
   output: {
-    filename: 'cispy.js',
+    filename: '[name].js',
     library: 'cispy',
     libraryTarget: 'umd',
     path: path.resolve(__dirname, 'lib')

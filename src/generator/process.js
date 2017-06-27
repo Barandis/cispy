@@ -29,12 +29,12 @@
 // generator by its `yield` expressions. By passing special values out of those expressions (in the form of
 // instruction objects), the process can control when and how the generator is restarted.
 
-import { chan } from './channel';
-import { putRaw, takeRaw, processAlts } from './operations';
-import { dispatch } from './dispatcher';
+const { chan } = require('../core/channel');
+const { putAsync, takeAsync, altsAsync } = require('../core/operations');
+const { dispatch } = require('../core/dispatcher');
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
-// explicitly supported by the Process object itself. Other instructions like putRaw and takeRaw are handled
+// explicitly supported by the Process object itself. Other instructions like putAsync and takeAsync are handled
 // outside of the process and do not have process instructions.
 
 const TAKE  = 'take';
@@ -74,7 +74,7 @@ function isInstruction(value) {
 //
 // Each invocation of the wrapped generator - whether from the initial run or continuing after handling a `yield`
 // expression (special or not) - will be scheduled by the dispatcher to run as a separate message in the message queue.
-export function process(gen, exh, onFinish) {
+function process(gen, exh, onFinish) {
   return {
     gen,
     exh,
@@ -167,19 +167,19 @@ export function process(gen, exh, onFinish) {
         switch (item.op) {
           case PUT: {
             const {channel, value} = item.data;
-            putRaw(channel, value, (status) => this.continue(status));
+            putAsync(channel, value, (status) => this.continue(status));
             break;
           }
 
           case TAKE: {
             const {channel, except} = item.data;
-            takeRaw(channel, (value) => this.continue(value, except));
+            takeAsync(channel, (value) => this.continue(value, except));
             break;
           }
 
           case ALTS: {
             const {ops, options} = item.data;
-            processAlts(ops, (result) => this.continue(result), options);
+            altsAsync(ops, (result) => this.continue(result), options);
             break;
           }
 
@@ -190,7 +190,7 @@ export function process(gen, exh, onFinish) {
             } else {
               const ch = chan();
               setTimeout(() => ch.close(), delay);
-              takeRaw(ch, (value) => this.continue(value));
+              takeAsync(ch, (value) => this.continue(value));
             }
             break;
           }
@@ -203,76 +203,11 @@ export function process(gen, exh, onFinish) {
   };
 }
 
-// Takes the first available value off the specified channel. If there is no value currently available, this will block
-// until either the channel closes or a put is made onto the channel. If there are multiple takes (or take operations
-// from `alts`) queued on the channel and waiting, they will be provided values in order as the values are put onto the
-// channel.
-//
-// The return value of this function is a TAKE instruction. This doesn't have any value except that, when returned via
-// `yield`, it will stop the execution of the process until a value is returned from the channel. The process is then
-// restarted, with the returned value from the channel becoming the value of the `yield` expression. If the unblocking
-// was the result of the channel closing, then the value of that `yield` expression will be CLOSED.
-export function take(channel) {
-  return instruction(TAKE, {channel, except: false});
-}
-
-// Works exactly like `take`, except that if the value that is taken off the channel is an `Error` object, that error
-// is thrown back into the process. At that point it acts exactly like any other thrown error.
-export function takeOrThrow(channel) {
-  return instruction(TAKE, {channel, except: true});
-}
-
-// Puts the value onto the specified channel. If there is no process ready to take this value, this function will block
-// until either the channel closes or a taker becomes available. If there are multiple puts (or put operations from
-// `alts`) queued on the channel and waiting, they will be processed in order as take requests happen.
-//
-// The return value of this function is a PUT instruction. This doesn't have any value except that, when returned via
-// `yield`, it will stop the execution of the process until a take is called on the channel or until the channel
-// closes. The process is then restarted, and either `true` (if there was a take) or `false` (if the channel was
-// closed) will become the value of the `yield` expression.
-export function put(channel, value) {
-  return instruction(PUT, {channel, value});
-}
-
-// Processes an arbitrary number of puts and takes (represented by the operations array). When the first operation
-// successfully completes, the rest are discarded.
-//
-// Each element of the operations array is one operation. If that element is a channel, then the operation is a take on
-// that channel. If the element is a two-element array, the operation is a put operation. These operations are queued
-// on their respective channels in a random order. In this case, the first element of the sub-array should be the
-// channel to put on, and the second value the value to put on that channel.
-//
-// As with put and take, the return value of this function is an instruction (ALTS), which is only useful in that a
-// process knows how to use it to restart itself with the correct value being applied as the result of the `yield`
-// expression that caused the process to pause in the first place.
-//
-// Operations are processed in a random order. The first one to come back without blocking, or if they all block, the
-// first one to come unblocked, will be the operation that is run. Other operations will be discarded. The successful
-// operation will cause an object to become the value of the `yield` expression in the process. This object has two
-// properties: `value` is the return value of the operation (the same as the return value for either a put or a take),
-// and `channel` is the channel on which the operation was executed. This way the process has the ability to know which
-// channel was used to provide the value.
-//
-// This function takes an optional object that provides options to the execution. There are two legal options:
-// `priority` causes the operations to be queued in the order of the operations array, rather than randomly; `default`
-// causes its value to become the return value (with a channel of DEFAULT) if all operations block before completing.
-// In this case all of the operations are discarded.
-export function alts(ops, options = {}) {
-  return instruction(ALTS, {ops, options});
-}
-
-// Blocks the process until some amount of time has elapsed. This is done by creating a local channel that isn't
-// exposed to the outside and setting it to close after the required delay. The process then becomes unblocked because
-// blocking stops when a channel closes. Since the channel is private, there's no way to prematurely unblock the
-// process.
-//
-// If no delay is passed, or if that delay is 0, then a new channel won't be created. Instead, the process will simply
-// relinquish its control and cause itself to be immediately queued back up to be run after all of the other processes
-// (and the event loop) have a chance to run.
-//
-// The return value of this function is a SLEEP instruction. This doesn't have any value except that, when returned via
-// `yield`, it will stop the execution of the process until a the required amount of time has passed. The process is
-// then restarted automatically.
-export function sleep(delay = 0) {
-  return instruction(SLEEP, {delay});
-}
+module.exports = {
+  TAKE,
+  PUT,
+  ALTS,
+  SLEEP,
+  instruction,
+  process
+};

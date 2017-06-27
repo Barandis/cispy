@@ -1,19 +1,9 @@
-import { expect } from '../../helper';
+const { expect } = require('../../helper');
 
-import {
-  chan,
-  go,
-  put,
-  take,
-  takeRaw,
-  close
-} from '../../../src/core';
+const { chan, close, takeAsync, generator } = require('../../../src/cispy');
 
-import {
-  reduce,
-  onto,
-  into
-} from '../../../src/ops/conversion';
+const { go, put, take, util } = generator;
+const { reduce, onto, into } = util;
 
 function fillChannel(channel, count, cl) {
   go(function* () {
@@ -53,11 +43,11 @@ describe('Channel conversion functions', () => {
   describe('reduce', () => {
     it('creates a one-value channel with the reduction value of the input channel', (done) => {
       const input = chan();
-      const output = reduce(((acc, input) => acc + input), input, 0);
+      const output = reduce((acc, input) => acc + input, input, 0);
 
       fillChannel(input, 5, true);
 
-      takeRaw(output, (value) => {
+      takeAsync(output, (value) => {
         expect(value).to.equal(15);
         expect(output.closed).to.be.true;
         done();

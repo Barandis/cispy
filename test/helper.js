@@ -1,11 +1,9 @@
-import chai from 'chai';
-import sinonChai from 'sinon-chai';
+const chai = require('chai');
+const sinonChai = require('sinon-chai');
 
 chai.use(sinonChai);
 
-export const expect = chai.expect;
-
-export function testAsync(fn) {
+function testAsync(fn) {
   return async (done) => {
     try {
       await fn();
@@ -15,3 +13,8 @@ export function testAsync(fn) {
     }
   };
 }
+
+module.exports = {
+  expect: chai.expect,
+  testAsync
+};

@@ -30,15 +30,8 @@
 //
 // These functions change the timing of inputs being put onto the input channel.
 
-import {
-  chan,
-  go,
-  put,
-  alts,
-  timeout,
-  close,
-  CLOSED
-} from '../core';
+const { chan, timeout, close, CLOSED } = require('../../core/channel');
+const { put, alts } = require('../operations');
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === '[object Number]' && isFinite(x);
@@ -61,22 +54,22 @@ function isNumber(x) {
 // A channel can be provided to the `cancel` option. If it is, then putting -anything- onto that channel will cause
 // the debouncing to immediately cease, the output channel to be closed, and any remaining values that had been waiting
 // to be output after the debounce timer to instead be discarded.
-export function debounce(src, buffer, delay, options) {
+function debounce(src, buffer, delay, options) {
+  const defaults = { leading: false, trailing: true, maxDelay: 0, cancel: chan() };
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
-  const opts = Object.assign({leading: false, trailing: true, maxDelay: 0, cancel: chan()},
-                             (isNumber(delay) ? options : delay) || {});
+  const opts = Object.assign(defaults, (isNumber(delay) ? options : delay) || {});
 
   const dest = chan(buf);
-  const {leading, trailing, maxDelay, cancel} = opts;
+  const { leading, trailing, maxDelay, cancel } = opts;
 
-  go(function* () {
+  async function loop() {
     let timer = chan();
     let max = chan();
     let current = CLOSED;
 
     for (;;) {
-      const {value, channel} = yield alts([src, timer, max, cancel]);
+      const { value, channel } = await alts([src, timer, max, cancel]);
 
       if (channel === cancel) {
         close(dest);
@@ -97,7 +90,7 @@ export function debounce(src, buffer, delay, options) {
 
         if (leading) {
           if (!timing) {
-            yield put(dest, value);
+            await put(dest, value);
           } else {
             current = value;
           }
@@ -108,13 +101,14 @@ export function debounce(src, buffer, delay, options) {
         timer = chan();
         max = chan();
         if (trailing && current !== CLOSED) {
-          yield put(dest, current);
+          await put(dest, current);
           current = CLOSED;
         }
       }
     }
-  });
+  }
 
+  loop();
   return dest;
 }
 
@@ -140,21 +134,21 @@ export function debounce(src, buffer, delay, options) {
 // A channel can be provided to the `cancel` option. If it is, then putting -anything- onto that channel will cause
 // the throttling to immediately cease, the output channel to be closed, and all remaining throttled values that had
 // not yet been put onto the channel to be discarded.
-export function throttle(src, buffer, delay, options) {
+function throttle(src, buffer, delay, options) {
+  const defaults = { leading: true, trailing: true, cancel: chan() };
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
-  const opts = Object.assign({leading: true, trailing: true, cancel: chan()},
-                             (isNumber(delay) ? options : delay) || {});
+  const opts = Object.assign(defaults, (isNumber(delay) ? options : delay) || {});
 
   const dest = chan(buf);
-  const {leading, trailing, cancel} = opts;
+  const { leading, trailing, cancel } = opts;
 
-  go(function* () {
+  async function loop() {
     let timer = chan();
     let current = CLOSED;
 
     for (;;) {
-      const {value, channel} = yield alts([src, timer, cancel]);
+      const { value, channel } = await alts([src, timer, cancel]);
 
       if (channel === cancel) {
         close(dest);
@@ -172,7 +166,7 @@ export function throttle(src, buffer, delay, options) {
 
         if (leading) {
           if (!timing) {
-            yield put(dest, value);
+            await put(dest, value);
           } else if (trailing) {
             current = value;
           }
@@ -181,13 +175,19 @@ export function throttle(src, buffer, delay, options) {
         }
       } else if (trailing && current !== CLOSED) {
         timer = timeout(del);
-        yield put(dest, current);
+        await put(dest, current);
         current = CLOSED;
       } else {
         timer = chan();
       }
     }
-  });
+  }
 
+  loop();
   return dest;
 }
+
+module.exports = {
+  debounce,
+  throttle
+};

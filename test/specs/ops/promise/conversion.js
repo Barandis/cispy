@@ -1,18 +1,9 @@
-import { expect } from '../../../helper';
+const { expect } = require('../../../helper');
 
-import {
-  chan,
-  close,
-  promise
-} from '../../../../src/core';
+const { chan, close, promise } = require('../../../../src/cispy');
 
-import {
-  reduce,
-  onto,
-  into
-} from '../../../../src/ops/promise/conversion';
-
-const { put, take } = promise;
+const { put, take, util } = promise;
+const { reduce, onto, into } = util;
 
 function fillChannel(channel, count, cl) {
   (async () => {

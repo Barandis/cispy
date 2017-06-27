@@ -1,21 +1,13 @@
-import { expect } from '../helper';
-import sinon from 'sinon';
+const { expect } = require('../helper');
+const sinon = require('sinon');
 
-import {
-  promise,
-  chan,
-  close,
-  putRaw,
-  takeRaw,
-  config,
-  CLOSED,
-  DEFAULT
-} from '../../src/api';
+const { chan, close, CLOSED, DEFAULT } = require('../../src/core/channel');
+const { putAsync, takeAsync } = require('../../src/core/operations');
+const { config } = require('../../src/core/options');
+const { put, take, takeOrThrow, alts, sleep } = require('../../src/promise/operations');
 
 // As of the writing of this comment (the initial production of this test file), this is basically a copy of all of the
 // tests in core.js that are relevant for promise-based channel operations.
-
-const {sleep, put, take, alts, takeOrThrow} = promise;
 
 describe('Promise functions', () => {
   // Sleep continues to vex, as the promise-based version fails while using Sinon's fake timers. I've opted to
@@ -86,7 +78,7 @@ describe('Promise functions', () => {
       putter();
     });
 
-    it('returns a value that was putRaw onto a channel', (done) => {
+    it('returns a value that was putAsync onto a channel', (done) => {
       const ch = chan();
 
       async function taker() {
@@ -94,7 +86,7 @@ describe('Promise functions', () => {
         done();
       }
 
-      putRaw(ch, 1729);
+      putAsync(ch, 1729);
       taker();
     });
 
@@ -140,14 +132,14 @@ describe('Promise functions', () => {
       taker();
     });
 
-    it('puts a value onto a channel for takeRaw', (done) => {
+    it('puts a value onto a channel for takeAsync', (done) => {
       const ch = chan();
 
       async function putter() {
         await put(ch, 1729);
       }
 
-      takeRaw(ch, (value) => {
+      takeAsync(ch, (value) => {
         expect(value).to.equal(1729);
         done();
       });

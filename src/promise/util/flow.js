@@ -37,16 +37,9 @@
 //
 // These functions all use async/await. They mimic the regular process-based functions.
 
-import {
-  promise,
-  chan,
-  close,
-  putRaw,
-  takeRaw,
-  CLOSED
-} from '../../core';
-
-const { put, take, alts } = promise;
+const { chan, close, CLOSED } = require('../../core/channel');
+const { putAsync, takeAsync } = require('../../core/operations');
+const { put, take, alts } = require('../operations');
 
 const protocols = {
   taps: Symbol('multitap/taps')
@@ -62,7 +55,7 @@ function isNumber(x) {
 //
 // Because of the option to keep the destination channel open after the source channel closes, pipe can be used to
 // convert an automatically-closing channel into one that remains open.
-export function pipe(src, dest, keepOpen) {
+function pipe(src, dest, keepOpen) {
   async function loop() {
     for (;;) {
       const value = await take(src);
@@ -85,7 +78,7 @@ export function pipe(src, dest, keepOpen) {
 // Partitions the values from one channel into two new channels. Which channel each value is put onto depends on
 // whether it returns `true` or `false` when passed through a supplied predicate function. Both output channels are
 // created and returned, and both are closed when the source channel closes.
-export function partition(fn, src, tBuffer = 0, fBuffer = 0) {
+function partition(fn, src, tBuffer = 0, fBuffer = 0) {
   const tDest = chan(tBuffer);
   const fDest = chan(fBuffer);
 
@@ -109,7 +102,7 @@ export function partition(fn, src, tBuffer = 0, fBuffer = 0) {
 // channel is indeterminate; it cannot be assumed that each source channel will be cycled through in order. As each
 // source channel is closed, it stops providing values to be merged; only when all source channels are closed will the
 // new channel close.
-export function merge(srcs, buffer = 0) {
+function merge(srcs, buffer = 0) {
   const dest = chan(buffer);
   const inputs = srcs.slice();
 
@@ -136,7 +129,7 @@ export function merge(srcs, buffer = 0) {
 // Splits a channel into an arbitrary number of other channels, all of which will contain whatever values are put on
 // the source channel. Essentially this creates some number of copies of the source channel. All of the new channels
 // are closed when the source channel is closed.
-export function split(src, ...buffers) {
+function split(src, ...buffers) {
   const dests = [];
 
   let bs = buffers.length === 0 ? [2] : buffers;
@@ -157,7 +150,7 @@ export function split(src, ...buffers) {
 
   function cb() {
     if (--count === 0) {
-      putRaw(done);
+      putAsync(done);
     }
   }
 
@@ -173,7 +166,7 @@ export function split(src, ...buffers) {
 
       count = dests.length;
       for (const dest of dests) {
-        putRaw(dest, value, cb);
+        putAsync(dest, value, cb);
       }
       await take(done);
     }
@@ -195,7 +188,7 @@ function tapped(src) {
 
   function cb() {
     if (--count === 0) {
-      putRaw(done);
+      putAsync(done);
     }
   }
 
@@ -209,7 +202,7 @@ function tapped(src) {
 
       count = src[protocols.taps].length;
       for (const tap of src[protocols.taps]) {
-        putRaw(tap, value, cb);
+        putAsync(tap, value, cb);
       }
       await take(done);
     }
@@ -228,7 +221,7 @@ function tapped(src) {
 //
 // In essence, this is intended to be a temporary tap of one already existing channel into another, and when the tap is
 // removed, the channels are just as they were before.
-export function tap(src, dest = chan()) {
+function tap(src, dest = chan()) {
   const taps = src[protocols.taps];
   if (!taps) {
     tapped(src);
@@ -242,14 +235,14 @@ export function tap(src, dest = chan()) {
 // Removes the tap from the destination channel into the source channel. If the destination channel wasn't tapping the
 // source channel to begin with, then nothing will happen. If this function removes the last tap from a source channel,
 // that channel will revert to being a normal untapped channel.
-export function untap(src, dest) {
+function untap(src, dest) {
   const taps = src[protocols.taps];
   if (taps) {
     const index = taps.indexOf(dest);
     if (index !== -1) {
       taps.splice(index, 1);
       if (taps.length === 0) {
-        putRaw(src);
+        putAsync(src);
       }
     }
   }
@@ -257,10 +250,10 @@ export function untap(src, dest) {
 
 // Removes all taps from a source channel. Every tapping channel that's removed and the tapped source channel revert to
 // being normal channels.
-export function untapAll(src) {
+function untapAll(src) {
   if (src[protocols.taps]) {
     src[protocols.taps] = [];
-    putRaw(src);
+    putAsync(src);
   }
 }
 
@@ -271,7 +264,7 @@ export function untapAll(src) {
 //
 // The returned channel will contain values as long as ALL of the source channels provide values. As soon as one source
 // channel is closed, the mapping is complete and the returned channel is also closed.
-export function map(fn, srcs, buffer = 0) {
+function map(fn, srcs, buffer = 0) {
   const dest = chan(buffer);
   const srcLen = srcs.length;
   const values = [];
@@ -284,7 +277,7 @@ export function map(fn, srcs, buffer = 0) {
       return (value) => {
         values[index] = value;
         if (--count === 0) {
-          putRaw(temp, values.slice());
+          putAsync(temp, values.slice());
         }
       };
     })(i);
@@ -294,7 +287,7 @@ export function map(fn, srcs, buffer = 0) {
     for (;;) {
       count = srcLen;
       for (let i = 0; i < srcLen; ++i) {
-        takeRaw(srcs[i], callbacks[i]);
+        takeAsync(srcs[i], callbacks[i]);
       }
       const values = await take(temp);
       for (const value of values) {
@@ -310,3 +303,14 @@ export function map(fn, srcs, buffer = 0) {
   loop();
   return dest;
 }
+
+module.exports = {
+  pipe,
+  partition,
+  merge,
+  split,
+  tap,
+  untap,
+  untapAll,
+  map
+};

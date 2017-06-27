@@ -24,9 +24,7 @@
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tracks and allows the setting of a few runtime-configurable options.
 
-import { setDispatcher } from './dispatcher';
-
-export const options = {
+const options = {
   // The maximum number of operations (puts or takes) that can be queued in a channel buffer before running a cleanup
   // operation to make sure no inactive operations are in the queue.
   maxDirtyOps:    64,
@@ -48,7 +46,8 @@ export const options = {
 // that object's property's names match one of those of the options object, its value becomes the new value of that
 // option. Properties that don't exist as options are ignored, and options that are not present in the parameter are
 // left unchanged.
-export function config(opts) {
+function config(opts) {
+  const { setDispatcher } = require('./dispatcher');
   for (const key in options) {
     if (opts.hasOwnProperty(key)) {
       options[key] = opts[key];
@@ -59,3 +58,8 @@ export function config(opts) {
     }
   }
 }
+
+module.exports = {
+  options,
+  config
+};
