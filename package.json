@@ -9,7 +9,7 @@
     "build:prod": "webpack --config=webpack.min.config.js",
     "build": "npm run clean && npm run build:dev && npm run build:prod",
     "lint": "eslint ./src",
-    "test": "mocha --compilers js:babel-core/register --recursive",
+    "test": "mocha --recursive",
     "test:cover": "nyc mocha --recursive",
     "test:cover:upload": "npm run test:cover -s && cat ./coverage/lcov.info | coveralls",
     "test:watch": "npm run test:raw -- --watch"
