@@ -5,7 +5,6 @@ All notable changes to the library will be documented in this file.
 ## [Unreleased]
 ### Added
 - an entire new promise-based implementation of processes. This is completely agnostic to channels; channels have not had to change to accommodate these functions. These are best used with the `async`/`await` keywords from ES7, which are seeing relatively wide implementation, though they will work fine with straight promises as well. Since the JS engine handles promises, there is no need for custom process machinery, so `go`, `goSafe`, and `spawn` are not necessary.
-- two new builds, one for generators only and one for promises only. The core `cispy.js` retains both, but to accommodate this, generator operations are under the `generator` key and promise operations are under the `promise` key.
 - a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
 - a `goSafe` function to create processes that carry a handler to deal with errors that are thrown from the process itself, even if the process has no `try`/`catch` to deal with them.
 - a `takeOrThrow` function as an alternative to `take`. If `takeOrThrow` takes an error object off a channel, then it will throw that error right at that point (inside the process). How that error is handled depends on whether it's caught within the process and/or whether the process was created with `goSafe`.
