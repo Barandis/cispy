@@ -23,7 +23,10 @@
 // operations.js
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import { instruction, TAKE, PUT, ALTS, SLEEP } from './process';
+import { process, instruction, TAKE, PUT, ALTS, SLEEP } from './process';
+import { fixed } from '../core/buffers';
+import { chan, close, CLOSED } from '../core/channel';
+import { putAsync } from '../core/operations';
 
 // Takes the first available value off the specified channel. If there is no value currently available, this will block
 // until either the channel closes or a put is made onto the channel. If there are multiple takes (or take operations
@@ -97,4 +100,40 @@ export function alts(ops, options = {}) {
 // then restarted automatically.
 export function sleep(delay = 0) {
   return instruction(SLEEP, {delay});
+}
+
+// Creates a process from a generator (not a generator function) and runs it. The process is then left to its own
+// devices until it returns. This function creates and returns a channel, though that channel can only ever have one
+// value: the return value of the generator (the channel closes after this value is taken).
+//
+// If a second argument is passed and it's a function, then that function will be called when an exception is thrown
+// within the process code itself. The handler receives the error object as an argument.
+//
+// Since this requires a generator and not a generator function, it isn't used nearly as much as `go`.
+export function spawn(gen, exh) {
+  const ch = chan(fixed(1));
+  process(gen, exh, (value) => {
+    if (value === CLOSED) {
+      ch.close();
+    } else {
+      putAsync(ch, value, () => close(ch));
+    }
+  }).run();
+  return ch;
+}
+
+// Creates a process from a generator function (not a generator) and runs it. What this really does is create a
+// generator from the generator function and its optional arguments, and then pass that off to `spawn`. But since
+// generator functions have a literal form (`function* ()`) while generators themselves do not, this is going to be the
+// much more commonly used function of the two.
+export function go(fn, ...args) {
+  return spawn(fn(...args));
+}
+
+// Creates a process from a generator function just like `go`, except this one also accepts an exception handling
+// function. This function is called any time an error is caught within the process itself. It receives the error object
+// as an argument. The process is then considered finished, and the value placed into its return channel is the value
+// returned from the exception handler.
+export function goSafe(fn, exh, ...args) {
+  return spawn(fn(...args), exh);
 }
