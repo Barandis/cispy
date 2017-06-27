@@ -45,7 +45,7 @@
 // channel, it's first run through the transformer and the transformed value is the one actually put into the channel's
 // buffer. This avoids both of the problems noted above.
 
-import { queue, EMPTY } from './buffers';
+import { queue, fixed, EMPTY } from './buffers';
 import { dispatch } from './dispatcher';
 import { protocols as p } from './protocol';
 import { options } from './options';
@@ -133,7 +133,7 @@ export function channel(takes, puts, buffer, xform, timeout) {
     get timeout() {
       return !!timeout;
     }
-  }, { put, take, close });
+  }, { put: putImpl, take: takeImpl, close: closeImpl });
 }
 
 // Puts a value on the channel. The specified handler is used to control whether the put is active and what to do after
@@ -142,7 +142,7 @@ export function channel(takes, puts, buffer, xform, timeout) {
 //
 // This value is given to a take handler immediately if there's one waiting. Otherwise the value and handler are queued
 // together to wait for a take.
-function put(value, handler) {
+function putImpl(value, handler) {
   if (value === CLOSED) {
     throw Error('Cannot put CLOSED on a channel');
   }
@@ -224,7 +224,7 @@ function put(value, handler) {
   return null;
 }
 
-function take(handler) {
+function takeImpl(handler) {
   let putter, putHandler, callback;
 
   // Happens when this is a buffered channel and the buffer is not empty (an empty buffer means there are no pending
@@ -308,7 +308,7 @@ function take(handler) {
 // Note that the buffer is not emptied if there are still values remaining after all of the pending takes have been
 // handled. The channel will still provide those values to any future takes, though no new values may be added to the
 // channel. Once the buffer is depleted, any future take will return CLOSED.
-function close() {
+function closeImpl() {
   if (this._closed) {
     return;
   }
@@ -426,12 +426,37 @@ const bufferReducer = {
 // designated, and may optionally have an exception handler registered to deal with exceptions that occur in the
 // transformation process. There must be a buffer specified in order to add a transform or an error will be thrown. An
 // exception handler can be passed either way, though it will have no real effect if passed without a transformer.
-// (Hopefully. An error on a channel with no transformer means there's a bug in this library.)
-export function chan(buffer, xform, handler, timeout) {
-  if (xform && !buffer) {
+export function chan(buffer, xform, handler) {
+  const buf = buffer === 0 ? null : buffer;
+  const b = typeof buf === 'number' ? fixed(buf) : buf;
+
+  if (xform && !b) {
     throw Error('Only buffered channels can use transformers');
   }
   const xf = wrapTransformer(xform ? xform(bufferReducer) : bufferReducer, handler);
 
-  return channel(queue(), queue(), buffer, xf, timeout);
+  return channel(queue(), queue(), b, xf, false);
+}
+
+// Creates an unbuffered channel that closes after a certain delay (in milliseconds). This isn't terribly different
+// from the channel created in the `sleep` instruction, except that this one is available to be used while it's
+// delaying. A good use case for this is in preventing an `alts` call from waiting too long, as if one of these
+// channels is in its operations list, it will trigger the `alts` after the delay time if no other channel does first.
+export function timeout(delay) {
+  const ch = channel(queue(), queue(), null, wrapTransformer(bufferReducer), true);
+  setTimeout(() => close(ch), delay);
+  return ch;
+}
+
+// Closes a channel. After a channel is closed, no further values can be put on it (`put` will return `false` and no
+// new value will be in the channel). If the channel is buffered, the values that are already there when the channel is
+// closed remain there, ready to be taken. If the channel is unbuffered or if it is buffered but empty, each `take`
+// will result in `CLOSED`. If there are pending takes on the channel when it is closed, those takes will immediately
+// return with `CLOSED`.
+//
+// Channels are perfectly capable of being closed with `channel.close()` without this function at all. However, that is
+// the only function that is regularly called on the channel object, and it is more consistent to do `close` the same
+// way we do `put`, `take`, etc.
+export function close(channel) {
+  channel.close();
 }
