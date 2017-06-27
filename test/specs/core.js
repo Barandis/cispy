@@ -3,7 +3,7 @@ const sinon = require('sinon');
 
 const { chan, timeout, close, CLOSED, DEFAULT } = require('../../src/core/channel');
 const { putAsync, takeAsync } = require('../../src/core/operations');
-const { config } = require('../../src/core/options');
+const { config, SET_TIMEOUT } = require('../../src/core/dispatcher');
 const { go, sleep, put, take, alts } = require('../../src/generator/operations');
 const { process } = require('../../src/generator/process');
 
@@ -18,7 +18,7 @@ describe('Core CSP', () => {
   describe('sleep', () => {
     let clock;
 
-    before(() => config({dispatchMethod: 'setTimeout'}));
+    before(() => config({dispatchMethod: SET_TIMEOUT}));
     beforeEach(() => clock = sinon.useFakeTimers());
     afterEach(() => clock.restore());
     after(() => config({dispatchMethod: null}));
@@ -42,7 +42,7 @@ describe('Core CSP', () => {
   describe('timeout', () => {
     let clock;
 
-    before(() => config({dispatchMethod: 'setTimeout'}));
+    before(() => config({dispatchMethod: SET_TIMEOUT}));
     beforeEach(() => clock = sinon.useFakeTimers());
     afterEach(() => clock.restore());
     after(() => config({dispatchMethod: null}));

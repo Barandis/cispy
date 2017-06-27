@@ -30,7 +30,7 @@
 const { fixed, sliding, dropping, EMPTY } = require('./core/buffers');
 const { chan, timeout, close, CLOSED, DEFAULT } = require('./core/channel');
 const { putAsync, takeAsync, altsAsync } = require('./core/operations');
-const { config } = require('./core/options');
+const { config, SET_IMMEDIATE, MESSAGE_CHANNEL, SET_TIMEOUT } = require('./core/dispatcher');
 
 const { go, goSafe, spawn, put, take, takeOrThrow, alts, sleep } = require('./generator/operations');
 
@@ -58,5 +58,8 @@ module.exports = {
   CLOSED,
   DEFAULT,
   EMPTY,
-  util
+  util,
+  SET_IMMEDIATE,
+  MESSAGE_CHANNEL,
+  SET_TIMEOUT
 };

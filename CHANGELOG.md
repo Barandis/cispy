@@ -16,6 +16,7 @@ All notable changes to the library will be documented in this file.
 - The `defaultHandler` config option. Error handlers are now passed in explicitly through `goSafe`, avoiding the need for a global default.
 
 ### Changed
+- moved config options to other places. `maxDirty` and `maxQueued` are now part of an options object sent to `chan()`, while `batchSize` and `dispatchMethod` have moved to the dispatcher file. The latter two are still called the same way (via `config`), but it's better to have that be only dispatcher configuration since the dispatcher is the only global.
 - the special values of `CLOSED`, `DEFAULT`, and `EMPTY` are now symbols instead of objects.
 - Babel's stage-0 preset was replaced with stage-3. Stage-3 features are very likely to be in ES2017, while some stage-0 features are quite unlikely. There isn't anything in stage-3 that isn't possible natively in current Node.js with the `--harmony` flag, and that isn't possible with stage-0. (The only changes were the replacement of two `::`s with `call`.)
 - buffers have been flattened in the API. Rather than having a `buffers` object with `fixed`, `dropping`, and `sliding` functions, there are now top-level `fixedBuffer`, `droppingBuffer`, and `slidingBuffer` functions. This is more akin to core.async, it makes it harder to make code unclear, and it's a personal preference anyway.

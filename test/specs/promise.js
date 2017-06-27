@@ -3,7 +3,7 @@ const sinon = require('sinon');
 
 const { chan, close, CLOSED, DEFAULT } = require('../../src/core/channel');
 const { putAsync, takeAsync } = require('../../src/core/operations');
-const { config } = require('../../src/core/options');
+const { config, SET_TIMEOUT } = require('../../src/core/dispatcher');
 const { put, take, takeOrThrow, alts, sleep } = require('../../src/promise/operations');
 
 // As of the writing of this comment (the initial production of this test file), this is basically a copy of all of the
@@ -16,7 +16,7 @@ describe('Promise functions', () => {
   describe('sleep', () => {
     // let clock;
 
-    before(() => config({dispatchMethod: 'setTimeout'}));
+    before(() => config({dispatchMethod: SET_TIMEOUT}));
     // beforeEach(() => (clock = sinon.useFakeTimers()));
     // afterEach(() => clock.restore());
     after(() => config({dispatchMethod: null}));

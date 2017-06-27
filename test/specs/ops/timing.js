@@ -1,12 +1,12 @@
 const { expect } = require('../../helper');
 const sinon = require('sinon');
 
-const {chan, close, CLOSED, config, fixedBuffer, go, put, take, util } = require('../../../src/cispy');
+const { chan, close, CLOSED, config, SET_TIMEOUT, fixedBuffer, go, put, take, util } = require('../../../src/cispy');
 
 const { debounce, throttle } = util;
 
 describe('Channel timing functions', () => {
-  before(() => config({dispatchMethod: 'setTimeout'}));
+  before(() => config({dispatchMethod: SET_TIMEOUT}));
   after(() => config({dispatchMethod: null}));
 
   describe('debounce', () => {
