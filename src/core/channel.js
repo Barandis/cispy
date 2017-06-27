@@ -58,6 +58,12 @@ const BOX = Symbol();
 // onto a channel.
 export const CLOSED = Symbol('CLOSED');
 
+// Used to represent the default channel in an alts call where a default is provided. If that default is returned, the
+// default value is returned as the value of the `value` property while this is returned as the value of the `channel`
+// property.
+
+export const DEFAULT = Symbol('DEFAULT');
+
 // Determines whether an object is reduced. This is done using the transducer protocol; an object with the protocol-
 // specified `reduced` property is assumed to be reduced. If a result of a transformation is reduced, it means that the
 // transformation is complete and the channel should be closed.

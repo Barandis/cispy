@@ -30,7 +30,7 @@
 // instruction objects), the process can control when and how the generator is restarted.
 
 import { chan } from '../core/channel';
-import { putUnblocked, takeUnblocked, processAlts } from '../async/operations';
+import { putUnblocked, takeUnblocked, processAlts } from '../core/operations';
 import { dispatch } from '../core/dispatcher';
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are

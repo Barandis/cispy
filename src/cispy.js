@@ -31,6 +31,7 @@ import * as buffers from './core/buffers';
 import * as channel from './core/channel';
 import * as process from './generator/process';
 import * as operations from './async/operations';
+import { putUnblocked } from './core/operations';
 
 // Creates a process from a generator (not a generator function) and runs it. The process is then left to its own
 // devices until it returns. This function creates and returns a channel, though that channel can only ever have one
@@ -46,7 +47,7 @@ export function spawn(gen, exh) {
     if (value === channel.CLOSED) {
       ch.close();
     } else {
-      operations.putUnblocked(ch, value, () => ch.close());
+      putUnblocked(ch, value, () => ch.close());
     }
   }).run();
   return ch;
@@ -79,21 +80,22 @@ export {
   chan,
   timeout,
   close,
-  CLOSED
+  CLOSED,
+  DEFAULT
 } from './core/channel';
+
+export {
+  putUnblocked,
+  takeUnblocked
+} from './core/operations';
 
 export {
   put,
   take,
   takeOrThrow,
   alts,
-  sleep } from './generator/process';
-
-export {
-  putUnblocked,
-  takeUnblocked,
-  DEFAULT
-} from './async/operations';
+  sleep
+} from './generator/process';
 
 export const promise = {
   put: operations.put,
