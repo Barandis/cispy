@@ -96,7 +96,7 @@ export {
   takeOrThrow,
   alts,
   sleep
-} from './yield/process';
+} from './yield/operations';
 
 export const promise = {
   put: operations.put,
