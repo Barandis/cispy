@@ -39,7 +39,6 @@ const genUtil = require('./generator/util');
 const proUtil = require('./promise/util');
 
 module.exports = {
-  buffers: { fixed, sliding, dropping },
   generator: {
     go: gen.go,
     goSafe: gen.goSafe,
@@ -66,6 +65,9 @@ module.exports = {
   takeAsync,
   altsAsync,
   config,
+  fixedBuffer: fixed,
+  slidingBuffer: sliding,
+  droppingBuffer: dropping,
   CLOSED,
   DEFAULT,
   EMPTY

@@ -1,8 +1,7 @@
 const { expect } = require('../../helper');
 
-const { chan, close, CLOSED, generator, buffers } = require('../../../src/cispy');
+const { chan, close, CLOSED, generator, fixedBuffer, droppingBuffer, slidingBuffer } = require('../../../src/cispy');
 
-const { fixed, dropping, sliding } = buffers;
 const { go, put, take, sleep, util } = generator;
 const { pipe, partition, merge, split, tap, untap, untapAll, map } = util;
 
@@ -148,7 +147,7 @@ describe('Flow control functions', () => {
 
     it('accepts buffers to back the output channels', (done) => {
       const input = chan();
-      const outputs = partition(even, input, sliding(3), dropping(3));
+      const outputs = partition(even, input, slidingBuffer(3), droppingBuffer(3));
       const start = chan();
       const end = chan();
 
@@ -213,7 +212,7 @@ describe('Flow control functions', () => {
 
     it('accepts a buffer to back the output channel', (done) => {
       const inputs = [chan(), chan(), chan()]
-      const output = merge(inputs, sliding(3));
+      const output = merge(inputs, slidingBuffer(3));
 
       fillChannelWith(inputs[0], [0, 1, 2, 3, 4]);
       fillChannelWith(inputs[1], [5, 6, 7, 8, 9]);
@@ -280,7 +279,7 @@ describe('Flow control functions', () => {
 
     it('can accept a series of output buffers', (done) => {
       const input = chan();
-      const outputs = split(input, fixed(5), dropping(3), sliding(3));
+      const outputs = split(input, fixedBuffer(5), droppingBuffer(3), slidingBuffer(3));
       const start = chan();
       const end = chan();
 
@@ -474,7 +473,7 @@ describe('Flow control functions', () => {
 
     it('accepts a buffer to back th eoutput channel', (done) => {
       const inputs = [chan(5), chan(5), chan(5)];
-      const output = map(sum3, inputs, sliding(3));
+      const output = map(sum3, inputs, slidingBuffer(3));
 
       fillChannel(inputs[0], 5);
       fillChannel(inputs[1], 5);

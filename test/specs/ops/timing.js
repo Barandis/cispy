@@ -1,9 +1,8 @@
 const { expect } = require('../../helper');
 const sinon = require('sinon');
 
-const {chan, close, CLOSED, config, buffers, generator } = require('../../../src/cispy');
+const {chan, close, CLOSED, config, fixedBuffer, generator } = require('../../../src/cispy');
 
-const { fixed } = buffers;
 const { go, put, take, util } = generator;
 const { debounce, throttle } = util;
 
@@ -19,7 +18,7 @@ describe('Channel timing functions', () => {
 
     it('can accept a buffer value for the output channel', (done) => {
       const input = chan();
-      const output = debounce(input, fixed(1), 100);
+      const output = debounce(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
 
       go(function* () {
@@ -376,7 +375,7 @@ describe('Channel timing functions', () => {
 
     it('can accept a buffer value for the output channel', (done) => {
       const input = chan();
-      const output = throttle(input, fixed(1), 100);
+      const output = throttle(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
 
       go(function* () {
