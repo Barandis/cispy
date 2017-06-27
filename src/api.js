@@ -47,6 +47,7 @@ export {
   sleep,
   putAsync,
   takeAsync,
+  altsAsync,
 
   promise,
   buffers,

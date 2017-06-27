@@ -93,7 +93,7 @@ function randomArray(n) {
 // returned from the channel, and `channel` is the channel onto which the successful operation was queued.
 //
 // The `options` parameter is the same as the options parameter in `alts`.
-export function processAlts(ops, callback, options) {
+export function altsAsync(ops, callback, options) {
   const count = ops.length;
   if (count === 0) {
     throw Error('Alts called with no operations');

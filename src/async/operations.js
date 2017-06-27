@@ -28,7 +28,7 @@
 // are in process.js.
 
 import { chan } from '../core/channel';
-import { putAsync, takeAsync, processAlts } from '../core/operations';
+import { putAsync, takeAsync, altsAsync } from '../core/operations';
 
 // Puts the value onto the specified channel. A promise is returned which will resolve to `true` once a taker is
 // available to take the put value or `false` if the channel closes before such a taker becomes available. If there are
@@ -86,7 +86,7 @@ export function takeOrThrow(channel) {
 // In this case all of the operations are discarded.
 export function alts(ops, options = {}) {
   return new Promise((resolve) => {
-    processAlts(ops, resolve, options);
+    altsAsync(ops, resolve, options);
   });
 }
 

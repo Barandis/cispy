@@ -86,7 +86,8 @@ export {
 
 export {
   putAsync,
-  takeAsync
+  takeAsync,
+  altsAsync
 } from './core/operations';
 
 export {

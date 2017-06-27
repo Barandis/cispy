@@ -30,7 +30,7 @@
 // instruction objects), the process can control when and how the generator is restarted.
 
 import { chan } from '../core/channel';
-import { putAsync, takeAsync, processAlts } from '../core/operations';
+import { putAsync, takeAsync, altsAsync } from '../core/operations';
 import { dispatch } from '../core/dispatcher';
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
@@ -179,7 +179,7 @@ export function process(gen, exh, onFinish) {
 
           case ALTS: {
             const {ops, options} = item.data;
-            processAlts(ops, (result) => this.continue(result), options);
+            altsAsync(ops, (result) => this.continue(result), options);
             break;
           }
 
