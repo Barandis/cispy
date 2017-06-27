@@ -1,8 +1,7 @@
 const { expect } = require('../../helper');
 
-const { chan, close, takeAsync, generator } = require('../../../src/cispy');
+const { chan, close, takeAsync, go, put, take, util } = require('../../../src/cispy');
 
-const { go, put, take, util } = generator;
 const { reduce, onto, into } = util;
 
 function fillChannel(channel, count, cl) {

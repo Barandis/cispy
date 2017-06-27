@@ -3,7 +3,6 @@ const path = require('path');
 module.exports = {
   entry: {
     cispy: './src/cispy.js',
-    'cispy.generator': './src/generator.js',
     'cispy.promise': './src/promise.js'
   },
   output: {

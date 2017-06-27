@@ -32,32 +32,19 @@ const { chan, timeout, close, CLOSED, DEFAULT } = require('./core/channel');
 const { putAsync, takeAsync, altsAsync } = require('./core/operations');
 const { config } = require('./core/options');
 
-const gen = require('./generator/operations');
-const pro = require('./promise/operations');
+const { go, goSafe, spawn, put, take, takeOrThrow, alts, sleep } = require('./generator/operations');
 
-const genUtil = require('./generator/util');
-const proUtil = require('./promise/util');
+const util = require('./generator/util');
 
 module.exports = {
-  generator: {
-    go: gen.go,
-    goSafe: gen.goSafe,
-    spawn: gen.spawn,
-    put: gen.put,
-    take: gen.take,
-    takeOrThrow: gen.takeOrThrow,
-    alts: gen.alts,
-    sleep: gen.sleep,
-    util: genUtil
-  },
-  promise: {
-    put: pro.put,
-    take: pro.take,
-    takeOrThrow: pro.takeOrThrow,
-    alts: pro.alts,
-    sleep: pro.sleep,
-    util: proUtil
-  },
+  go,
+  goSafe,
+  spawn,
+  put,
+  take,
+  takeOrThrow,
+  alts,
+  sleep,
   chan,
   timeout,
   close,
@@ -70,5 +57,6 @@ module.exports = {
   droppingBuffer: dropping,
   CLOSED,
   DEFAULT,
-  EMPTY
+  EMPTY,
+  util
 };

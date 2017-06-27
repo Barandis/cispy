@@ -1,8 +1,18 @@
 const { expect } = require('../../helper');
 
-const { chan, close, CLOSED, generator, fixedBuffer, droppingBuffer, slidingBuffer } = require('../../../src/cispy');
+const {
+  chan,
+  close,
+  CLOSED,
+  fixedBuffer,
+  droppingBuffer,
+  slidingBuffer,
+  go,
+  put,
+  take,
+  sleep,
+  util } = require('../../../src/cispy');
 
-const { go, put, take, sleep, util } = generator;
 const { pipe, partition, merge, split, tap, untap, untapAll, map } = util;
 
 const TAPS = '@@multitap/taps';

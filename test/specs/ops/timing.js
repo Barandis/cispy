@@ -1,9 +1,8 @@
 const { expect } = require('../../helper');
 const sinon = require('sinon');
 
-const {chan, close, CLOSED, config, fixedBuffer, generator } = require('../../../src/cispy');
+const {chan, close, CLOSED, config, fixedBuffer, go, put, take, util } = require('../../../src/cispy');
 
-const { go, put, take, util } = generator;
 const { debounce, throttle } = util;
 
 describe('Channel timing functions', () => {
