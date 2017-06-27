@@ -26,7 +26,7 @@
 // (also provided) which is in turn backed by a JavaScript array.
 
 // A symbol returned whenever an attempt is made to get an item from an empty buffer.
-export const EMPTY = Symbol('EMPTY');
+const EMPTY = Symbol('EMPTY');
 
 // A general purpose, highly efficient JavaScript queue. It is backed by a JavaScript array, but it does not use
 // unshift to take elements off the array because unshift causes elements to be copied down every time it's used.
@@ -39,7 +39,7 @@ export const EMPTY = Symbol('EMPTY');
 // This type of queue is possible because JavaScript arrays are infinitely resizable. In languages with fixed-size
 // arrays, a resizing operation would have to run each time the queue fills. This involves a pretty inefficient copy of
 // data from one array to a new and bigger array, so it's good that we don't have to resort to that here.
-export function queue() {
+function queue() {
   return {
     store: [],
     pointer: 0,
@@ -133,7 +133,7 @@ function base(size) {
 // This buffer has a concept of 'full', but it's a soft limit. If the size of the is exceeded, added items are still
 // stored. `full` returns `true` any time that the size is reached or exceeded, so it's entirely possible to call
 // `remove` on a full buffer and have it still be full.
-export function fixed(size) {
+function fixed(size) {
   return Object.assign(Object.create(base(size), {
     full: {
       get() {
@@ -154,7 +154,7 @@ export function fixed(size) {
 // This dropping behavior is silent: the new item is simply not added to the queue. Note that this buffer is never
 // `full` because it can always be added to without exceeding the size, even if that `adding` doesn't result in a new
 // item actually appearing in the buffer.
-export function dropping(size) {
+function dropping(size) {
   return Object.assign(Object.create(base(size), {
     full: {
       get() {
@@ -178,7 +178,7 @@ export function dropping(size) {
 // this buffer, the new item is indeed added to the buffer, but in order to keep the count of the buffer at or below
 // the size, the oldest item in the buffer is silently dropped if the buffer is full when added to. `full` is always
 // `false`.
-export function sliding(size) {
+function sliding(size) {
   return Object.assign(Object.create(base(size), {
     full: {
       get() {
@@ -196,3 +196,11 @@ export function sliding(size) {
     }
   });
 }
+
+module.exports = {
+  EMPTY,
+  queue,
+  fixed,
+  dropping,
+  sliding
+};

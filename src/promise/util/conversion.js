@@ -22,7 +22,8 @@
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // conversion.js
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// A series of functions meant to operate on the channels that the rest of this library creates and manages.
+// A series of functions meant to operate on the channels that the rest of this library creates and manages. These
+// functions specifically use async functions rather than processes.
 //
 // All of the functions that are here cannot be done with transducers because of the limitations on transducers
 // themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
@@ -30,54 +31,50 @@
 //
 // These functions convert channels into other kinds of data, or vice versa.
 
-import {
-  chan,
-  go,
-  put,
-  take,
-  close,
-  CLOSED
-} from '../core';
+const { chan, close, CLOSED } = require('../../core/channel');
+const { put, take } = require('../operations');
 
 // Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
-// the reduction function can also be supplied. The single value that comes out of this reduction (which cannot
-// complete until the input channel is closed) is put into a channel that is returned. This returned channel will close
-// automatically after the value is taken from it.
+// the reduction function can also be supplied. This is an async function that returns a promise that resolves to the
+// result of the reduction, but it will not resolve until the input channel is closed (this is the only way to know
+// when all of the data needed for the reduction is present on the channel)'
 //
 // This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
 // can result in a single scalar value.
-export function reduce(fn, ch, init) {
-  return go(function* () {
-    let result = init;
-    for (;;) {
-      const value = yield take(ch);
-      if (value === CLOSED) {
-        return result;
-      }
-      result = fn(result, value);
+async function reduce(fn, ch, init) {
+  let result = init;
+  for (;;) {
+    const value = await take(ch);
+    if (value === CLOSED) {
+      return result;
     }
-  });
+    result = fn(result, value);
+  }
 }
 
 // Puts all of the values in the input array onto the supplied channel. If no channel is supplied (if only an array is
 // passed), then a new buffered channel of the same length of the array is created. Either way, the channel is returned
 // and will close when the last array value has been taken.
-export function onto(ch, array) {
+//
+// This is NOT an async function. It returns a channel, and a channel-returning function can immediately return a
+// channel even if the channel doesn't have all of the results on it yet. (In fact, unless it's a buffered channel, it
+// *cannot* have all values on it until some are taken.)
+function onto(ch, array) {
   const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
 
-  go(function* () {
+  (async () => {
     for (const item of arr) {
-      yield put(chnl, item);
+      await put(chnl, item);
     }
     close(chnl);
-  });
+  })();
   return chnl;
 }
 
 // Moves all of the values on a channel into the supplied array. If no array is supplied (if the only parameter passed
-// is a channel), then a new and empty array is created to contain the values. A channel is returned; the resulting
-// channel will hold the resulting array and will close immediately upon that array being taken from it.
-export function into(array, ch) {
+// is a channel), then a new and empty array is created to contain the values. This function is async; the promise it
+// returns resolves with the resulting array once the input channel has closed.
+async function into(array, ch) {
   const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
   const init = arr.slice();
 
@@ -86,3 +83,9 @@ export function into(array, ch) {
     return acc;
   }, chnl, init);
 }
+
+module.exports = {
+  reduce,
+  onto,
+  into
+};

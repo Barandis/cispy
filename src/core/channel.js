@@ -45,10 +45,12 @@
 // channel, it's first run through the transformer and the transformed value is the one actually put into the channel's
 // buffer. This avoids both of the problems noted above.
 
-import { queue, EMPTY } from './buffers';
-import { dispatch } from './dispatcher';
-import { protocols as p } from './protocol';
-import { options } from './options';
+const { queue, fixed, EMPTY } = require('./buffers');
+const { dispatch } = require('./dispatcher');
+const p = require('./protocol').protocols;
+
+const MAX_DIRTY = 64;
+const MAX_QUEUED = 1024;
 
 // This is a unique value used to indicate for certain that an object is indeed a box. Since there is no access to this
 // object outside of the library, there is no way to emulate a box in a value that might be on a channel.
@@ -56,7 +58,13 @@ const BOX = Symbol();
 
 // A symbol returned when a take is attempted in a closed channel. This is the only value that is not legal to be put
 // onto a channel.
-export const CLOSED = Symbol('CLOSED');
+const CLOSED = Symbol('CLOSED');
+
+// Used to represent the default channel in an alts call where a default is provided. If that default is returned, the
+// default value is returned as the value of the `value` property while this is returned as the value of the `channel`
+// property.
+
+const DEFAULT = Symbol('DEFAULT');
 
 // Determines whether an object is reduced. This is done using the transducer protocol; an object with the protocol-
 // specified `reduced` property is assumed to be reduced. If a result of a transformation is reduced, it means that the
@@ -69,7 +77,7 @@ function isReduced(value) {
 // parameter that's passed by reference rather than value is also important in a couple places. If a channel operation
 // (put or take) returns a Box, it means that an actual value was returned. A non-Box (which always happens to be
 // `null`) means that the operation must block.
-export function box(value) {
+function box(value) {
   return {
     value,
     box: BOX
@@ -87,7 +95,7 @@ function putBox(handler, value) {
 }
 
 // Determines whether a value is boxed.
-export function isBox(value) {
+function isBox(value) {
   return value && value.box === BOX;
 }
 
@@ -112,12 +120,14 @@ export function isBox(value) {
 // the transformation still happens. Also, transformations require that the channel be buffered (this buffer is what is
 // sent to the transformer's reduction step function); trying to create a channel with a transformer but without a
 // buffer will result in an error being thrown.
-export function channel(takes, puts, buffer, xform, timeout) {
+function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueued = MAX_QUEUED } = {}) {
   return Object.assign({
-    takes,
-    puts,
+    takes: queue(),
+    puts: queue(),
     buffer,
     xform,
+    maxDirty,
+    maxQueued,
     dirtyTakes: 0,
     dirtyPuts: 0,
     _closed: false,
@@ -133,7 +143,7 @@ export function channel(takes, puts, buffer, xform, timeout) {
     get timeout() {
       return !!timeout;
     }
-  }, { put, take, close });
+  }, { put: putImpl, take: takeImpl, close: closeImpl });
 }
 
 // Puts a value on the channel. The specified handler is used to control whether the put is active and what to do after
@@ -142,7 +152,7 @@ export function channel(takes, puts, buffer, xform, timeout) {
 //
 // This value is given to a take handler immediately if there's one waiting. Otherwise the value and handler are queued
 // together to wait for a take.
-function put(value, handler) {
+function putImpl(value, handler) {
   if (value === CLOSED) {
     throw Error('Cannot put CLOSED on a channel');
   }
@@ -209,22 +219,22 @@ function put(value, handler) {
   // If there are no pending takes on an unbuffered channel, or on a buffered channel with a full buffer, we queue the
   // put to let it wait for a take to become available. Puts whose handlers have gone inactive (because they were part
   // of an ALTS instruction) are periodically purged.
-  if (this.dirtyPuts > options.maxDirtyOps) {
+  if (this.dirtyPuts > this.maxDirty) {
     this.puts.filter((putter) => putter.handler.active);
     this.dirtyPuts = 0;
   } else {
     this.dirtyPuts++;
   }
 
-  if (this.puts.count >= options.maxQueuedOps) {
-    throw Error(`No more than ${options.maxQueuedOps} pending puts are allowed on a single channel`);
+  if (this.puts.count >= this.maxQueued) {
+    throw Error(`No more than ${this.maxQueuedO} pending puts are allowed on a single channel`);
   }
   this.puts.enqueue(putBox(handler, value));
 
   return null;
 }
 
-function take(handler) {
+function takeImpl(handler) {
   let putter, putHandler, callback;
 
   // Happens when this is a buffered channel and the buffer is not empty (an empty buffer means there are no pending
@@ -286,15 +296,15 @@ function take(handler) {
   // If an unbuffered channel or a buffered channel with an empty buffer has no pending puts, and if the channel is
   // still open, the take is queued to be processed when a put is available. Takes whose handlers have gone inactive as
   // the result of alts processing are periodically purged.
-  if (this.dirtyTakes > options.maxDirtyOps) {
+  if (this.dirtyTakes > this.maxDirty) {
     this.takes.filter((taker) => taker.active);
     this.dirtyTakes = 0;
   } else {
     this.dirtyTakes++;
   }
 
-  if (this.takes.count >= options.maxQueuedOps) {
-    throw Error(`No more than ${options.maxQueuedOps} pending takes are allowed on a single channel`);
+  if (this.takes.count >= this.maxQueued) {
+    throw Error(`No more than ${this.maxQueued} pending takes are allowed on a single channel`);
   }
   this.takes.enqueue(handler);
 
@@ -308,7 +318,7 @@ function take(handler) {
 // Note that the buffer is not emptied if there are still values remaining after all of the pending takes have been
 // handled. The channel will still provide those values to any future takes, though no new values may be added to the
 // channel. Once the buffer is depleted, any future take will return CLOSED.
-function close() {
+function closeImpl() {
   if (this._closed) {
     return;
   }
@@ -426,12 +436,47 @@ const bufferReducer = {
 // designated, and may optionally have an exception handler registered to deal with exceptions that occur in the
 // transformation process. There must be a buffer specified in order to add a transform or an error will be thrown. An
 // exception handler can be passed either way, though it will have no real effect if passed without a transformer.
-// (Hopefully. An error on a channel with no transformer means there's a bug in this library.)
-export function chan(buffer, xform, handler, timeout) {
-  if (xform && !buffer) {
+function chan(buffer = 0, xform, handler, options = {}) {
+  const buf = buffer === 0 ? null : buffer;
+  const b = typeof buf === 'number' ? fixed(buf) : buf;
+
+  if (xform && !b) {
     throw Error('Only buffered channels can use transformers');
   }
   const xf = wrapTransformer(xform ? xform(bufferReducer) : bufferReducer, handler);
 
-  return channel(queue(), queue(), buffer, xf, timeout);
+  return channel(b, xf, false, options);
 }
+
+// Creates an unbuffered channel that closes after a certain delay (in milliseconds). This isn't terribly different
+// from the channel created in the `sleep` instruction, except that this one is available to be used while it's
+// delaying. A good use case for this is in preventing an `alts` call from waiting too long, as if one of these
+// channels is in its operations list, it will trigger the `alts` after the delay time if no other channel does first.
+function timeout(delay) {
+  const ch = channel(null, wrapTransformer(bufferReducer), true);
+  setTimeout(() => close(ch), delay);
+  return ch;
+}
+
+// Closes a channel. After a channel is closed, no further values can be put on it (`put` will return `false` and no
+// new value will be in the channel). If the channel is buffered, the values that are already there when the channel is
+// closed remain there, ready to be taken. If the channel is unbuffered or if it is buffered but empty, each `take`
+// will result in `CLOSED`. If there are pending takes on the channel when it is closed, those takes will immediately
+// return with `CLOSED`.
+//
+// Channels are perfectly capable of being closed with `channel.close()` without this function at all. However, that is
+// the only function that is regularly called on the channel object, and it is more consistent to do `close` the same
+// way we do `put`, `take`, etc.
+function close(channel) {
+  channel.close();
+}
+
+module.exports = {
+  CLOSED,
+  DEFAULT,
+  box,
+  isBox,
+  chan,
+  timeout,
+  close
+};

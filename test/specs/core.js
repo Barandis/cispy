@@ -1,23 +1,11 @@
-import { expect } from '../helper';
-import sinon from 'sinon';
+const { expect } = require('../helper');
+const sinon = require('sinon');
 
-import {
-  go,
-  chan,
-  timeout,
-  sleep,
-  put,
-  take,
-  alts,
-  putRaw,
-  takeRaw,
-  config,
-  close,
-  CLOSED,
-  DEFAULT
-} from '../../src/api';
-
-import { process } from '../../src/modules/process';
+const { chan, timeout, close, CLOSED, DEFAULT } = require('../../src/core/channel');
+const { putAsync, takeAsync } = require('../../src/core/operations');
+const { config, SET_TIMEOUT } = require('../../src/core/dispatcher');
+const { go, sleep, put, take, alts } = require('../../src/generator/operations');
+const { process } = require('../../src/generator/process');
 
 describe('Core CSP', () => {
 
@@ -30,7 +18,7 @@ describe('Core CSP', () => {
   describe('sleep', () => {
     let clock;
 
-    before(() => config({dispatchMethod: 'setTimeout'}));
+    before(() => config({dispatchMethod: SET_TIMEOUT}));
     beforeEach(() => clock = sinon.useFakeTimers());
     afterEach(() => clock.restore());
     after(() => config({dispatchMethod: null}));
@@ -54,7 +42,7 @@ describe('Core CSP', () => {
   describe('timeout', () => {
     let clock;
 
-    before(() => config({dispatchMethod: 'setTimeout'}));
+    before(() => config({dispatchMethod: SET_TIMEOUT}));
     beforeEach(() => clock = sinon.useFakeTimers());
     afterEach(() => clock.restore());
     after(() => config({dispatchMethod: null}));
@@ -136,7 +124,7 @@ describe('Core CSP', () => {
       });
     });
 
-    it('returns a value that was putRaw onto a channel', (done) => {
+    it('returns a value that was putAsync onto a channel', (done) => {
       const ch = chan();
 
       go(function* () {
@@ -144,7 +132,7 @@ describe('Core CSP', () => {
         done();
       });
 
-      putRaw(ch, 1729);
+      putAsync(ch, 1729);
     });
 
     it('blocks until there is a value on the channel', (done) => {
@@ -190,7 +178,7 @@ describe('Core CSP', () => {
   });
 
   describe('put', () => {
-    it('puts a value onto a channel for take', () => {
+    it('puts a value onto a channel for take', (done) => {
       const ch = chan();
 
       go(function* () {
@@ -203,14 +191,14 @@ describe('Core CSP', () => {
       });
     });
 
-    it('puts a value onto a channel for takeRaw', (done) => {
+    it('puts a value onto a channel for takeAsync', (done) => {
       const ch = chan();
 
       go(function* () {
         yield put(ch, 1729);
       });
 
-      takeRaw(ch, (value) => {
+      takeAsync(ch, (value) => {
         expect(value).to.equal(1729);
         done();
       });

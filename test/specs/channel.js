@@ -1,27 +1,19 @@
-import { expect } from '../helper';
+const { expect } = require('../helper');
 
-import {
-  go,
-  chan,
-  sleep,
-  put,
-  take,
-  buffers,
-  config,
-  close,
-  CLOSED
-} from '../../src/api';
+const { fixed, dropping, sliding } = require('../../src/core/buffers');
+const { chan, close, CLOSED } = require('../../src/core/channel');
+const { go, sleep, put, take } = require('../../src/generator/operations');
 
-import * as t from 'xduce';
+const t = require('xduce');
 
 describe('CSP channel', () => {
   it('is not a timeout channel, no matter how it was created via chan', () => {
     expect(chan().timeout).to.be.false;
     expect(chan(0).timeout).to.be.false;
     expect(chan(3).timeout).to.be.false;
-    expect(chan(buffers.fixed(3)).timeout).to.be.false;
-    expect(chan(buffers.dropping(3)).timeout).to.be.false;
-    expect(chan(buffers.sliding(3)).timeout).to.be.false;
+    expect(chan(fixed(3)).timeout).to.be.false;
+    expect(chan(dropping(3)).timeout).to.be.false;
+    expect(chan(sliding(3)).timeout).to.be.false;
     expect(chan(1, t.map(x => x)).timeout).to.be.false;
     expect(chan(1, t.map(x => x), e => { throw e; }).timeout).to.be.false;
   });
@@ -65,8 +57,7 @@ describe('CSP channel', () => {
   });
 
   it('can configure how many pending puts/takes to allow', (done) => {
-    config({maxQueuedOps: 2});
-    const ch = chan();
+    const ch = chan(0, null, null, {maxQueued: 2});
 
     try {
       for (let i = 0; i < 3; ++i) {
@@ -80,7 +71,6 @@ describe('CSP channel', () => {
       expect(ex.message).to.equal('No more than 2 pending takes are allowed on a single channel');
     }
     finally {
-      config({maxQueuedOps: 1024});
       done();
     }
   });
@@ -135,7 +125,7 @@ describe('CSP channel', () => {
     });
 
     it('accepts fixed buffers', (done) => {
-      const ch = chan(buffers.fixed(3));
+      const ch = chan(fixed(3));
       expect(ch.buffered).to.be.true;
 
       go(function* () {
@@ -155,7 +145,7 @@ describe('CSP channel', () => {
     });
 
     it('accepts dropping buffers', (done) => {
-      const ch = chan(buffers.dropping(3));
+      const ch = chan(dropping(3));
 
       go(function* () {
         yield put(ch, 1);
@@ -181,7 +171,7 @@ describe('CSP channel', () => {
     });
 
     it('accepts sliding buffers', (done) => {
-      const ch = chan(buffers.sliding(3));
+      const ch = chan(sliding(3));
       expect(ch.buffered).to.be.true;
 
       go(function* () {

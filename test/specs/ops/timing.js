@@ -1,27 +1,12 @@
-import { expect } from '../../helper';
-import sinon from 'sinon';
+const { expect } = require('../../helper');
+const sinon = require('sinon');
 
-import {
-  chan,
-  go,
-  put,
-  take,
-  sleep,
-  buffers,
-  config,
-  close,
-  CLOSED
-} from '../../../src/core';
+const { chan, close, CLOSED, config, SET_TIMEOUT, fixedBuffer, go, put, take, util } = require('../../../src/cispy');
 
-import {
-  debounce,
-  throttle
-} from '../../../src/ops/timing';
-
-const {fixed, dropping, sliding} = buffers;
+const { debounce, throttle } = util;
 
 describe('Channel timing functions', () => {
-  before(() => config({dispatchMethod: 'setTimeout'}));
+  before(() => config({dispatchMethod: SET_TIMEOUT}));
   after(() => config({dispatchMethod: null}));
 
   describe('debounce', () => {
@@ -32,7 +17,7 @@ describe('Channel timing functions', () => {
 
     it('can accept a buffer value for the output channel', (done) => {
       const input = chan();
-      const output = debounce(input, fixed(1), 100);
+      const output = debounce(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
 
       go(function* () {
@@ -389,7 +374,7 @@ describe('Channel timing functions', () => {
 
     it('can accept a buffer value for the output channel', (done) => {
       const input = chan();
-      const output = throttle(input, fixed(1), 100);
+      const output = throttle(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
 
       go(function* () {

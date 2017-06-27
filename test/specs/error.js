@@ -1,15 +1,9 @@
-import { expect } from '../helper';
-import sinon from 'sinon';
+const { expect } = require('../helper');
+const sinon = require('sinon');
 
-import {
-  go,
-  goSafe,
-  chan,
-  put,
-  putRaw,
-  take,
-  takeOrThrow
-} from '../../src/api';
+const { chan } = require('../../src/core/channel');
+const { putAsync } = require('../../src/core/operations');
+const { go, goSafe, put, take, takeOrThrow } = require('../../src/generator/operations');
 
 describe('An error thrown from the process itself', () => {
   // This ONLY works if the error is thrown before the first yield
@@ -132,7 +126,7 @@ describe('takeOrThrow', () => {
     const exh = (ex) => {
       expect(ex).to.equal(err);
       spy();
-      putRaw(ctrl);
+      putAsync(ctrl);
     };
 
     goSafe(function* () {
