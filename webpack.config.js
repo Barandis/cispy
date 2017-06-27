@@ -9,7 +9,7 @@ module.exports = {
     filename: '[name].js',
     library: 'cispy',
     libraryTarget: 'umd',
-    path: path.resolve(__dirname, 'lib')
+    path: path.resolve(__dirname, 'dist')
   },
   plugins: [],
   module: {

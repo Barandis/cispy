@@ -2,9 +2,9 @@
   "name": "cispy",
   "version": "0.8.1",
   "description": "Communicating sequential processes library for JavaScript",
-  "main": "lib/cispy.js",
+  "main": "dist/cispy.js",
   "scripts": {
-    "clean": "rimraf lib",
+    "clean": "rimraf dist",
     "build:dev": "webpack",
     "build:prod": "webpack --config=webpack.min.config.js",
     "build": "npm run clean && npm run build:dev && npm run build:prod",
@@ -18,7 +18,7 @@
   "author": "Thomas Otterson <tjotterson@gmail.com>",
   "license": "MIT",
   "files": [
-    "lib"
+    "dist"
   ],
   "devDependencies": {
     "babel-core": "^6.23.1",
