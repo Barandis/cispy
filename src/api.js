@@ -45,8 +45,8 @@ export {
   takeOrThrow,
   alts,
   sleep,
-  putUnblocked,
-  takeUnblocked,
+  putAsync,
+  takeAsync,
 
   promise,
   buffers,

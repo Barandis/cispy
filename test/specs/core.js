@@ -9,8 +9,8 @@ import {
   put,
   take,
   alts,
-  putUnblocked,
-  takeUnblocked,
+  putAsync,
+  takeAsync,
   config,
   close,
   CLOSED,
@@ -136,7 +136,7 @@ describe('Core CSP', () => {
       });
     });
 
-    it('returns a value that was putUnblocked onto a channel', (done) => {
+    it('returns a value that was putAsync onto a channel', (done) => {
       const ch = chan();
 
       go(function* () {
@@ -144,7 +144,7 @@ describe('Core CSP', () => {
         done();
       });
 
-      putUnblocked(ch, 1729);
+      putAsync(ch, 1729);
     });
 
     it('blocks until there is a value on the channel', (done) => {
@@ -190,7 +190,7 @@ describe('Core CSP', () => {
   });
 
   describe('put', () => {
-    it('puts a value onto a channel for take', () => {
+    it('puts a value onto a channel for take', (done) => {
       const ch = chan();
 
       go(function* () {
@@ -203,14 +203,14 @@ describe('Core CSP', () => {
       });
     });
 
-    it('puts a value onto a channel for takeUnblocked', (done) => {
+    it('puts a value onto a channel for takeAsync', (done) => {
       const ch = chan();
 
       go(function* () {
         yield put(ch, 1729);
       });
 
-      takeUnblocked(ch, (value) => {
+      takeAsync(ch, (value) => {
         expect(value).to.equal(1729);
         done();
       });

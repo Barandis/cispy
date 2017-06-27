@@ -28,7 +28,7 @@
 // are in process.js.
 
 import { chan } from '../core/channel';
-import { putUnblocked, takeUnblocked, processAlts } from '../core/operations';
+import { putAsync, takeAsync, processAlts } from '../core/operations';
 
 // Puts the value onto the specified channel. A promise is returned which will resolve to `true` once a taker is
 // available to take the put value or `false` if the channel closes before such a taker becomes available. If there are
@@ -36,7 +36,7 @@ import { putUnblocked, takeUnblocked, processAlts } from '../core/operations';
 // take requests happen.
 export function put(channel, value) {
   return new Promise((resolve) => {
-    putUnblocked(channel, value, resolve);
+    putAsync(channel, value, resolve);
   });
 }
 
@@ -45,7 +45,7 @@ export function put(channel, value) {
 // the channel is/was closed.
 export function take(channel) {
   return new Promise((resolve) => {
-    takeUnblocked(channel, resolve);
+    takeAsync(channel, resolve);
   });
 }
 
@@ -53,7 +53,7 @@ export function take(channel) {
 // is an error object, the returned promise is rejected with that error.
 export function takeOrThrow(channel) {
   return new Promise((resolve, reject) => {
-    takeUnblocked(channel, (result) => {
+    takeAsync(channel, (result) => {
       if (Error.prototype.isPrototypeOf(result)) {
         reject(result);
       } else {
@@ -104,7 +104,7 @@ export function sleep(delay = 0) {
     } else {
       const ch = chan();
       setTimeout(() => ch.close(), delay);
-      takeUnblocked(ch, resolve);
+      takeAsync(ch, resolve);
     }
   });
 }

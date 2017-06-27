@@ -23,7 +23,7 @@
 // core.js
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // All of the CSP functions are pulled together into this file and exported. The process-related functions (put, take,
-// alts, putUnblocked, takeUnblocked, raise, sleep) and some others are just passed along, but a number of other
+// alts, putAsync, takeAsync, raise, sleep) and some others are just passed along, but a number of other
 // functions are defined here (go, spawn, chan). All three types of buffers are also supplied, along with the special
 // values CLOSED, EMPTY, and DEFAULT.
 
@@ -31,7 +31,7 @@ import * as buffers from './core/buffers';
 import * as channel from './core/channel';
 import * as process from './generator/process';
 import * as operations from './async/operations';
-import { putUnblocked } from './core/operations';
+import { putAsync } from './core/operations';
 
 // Creates a process from a generator (not a generator function) and runs it. The process is then left to its own
 // devices until it returns. This function creates and returns a channel, though that channel can only ever have one
@@ -47,7 +47,7 @@ export function spawn(gen, exh) {
     if (value === channel.CLOSED) {
       ch.close();
     } else {
-      putUnblocked(ch, value, () => ch.close());
+      putAsync(ch, value, () => ch.close());
     }
   }).run();
   return ch;
@@ -85,8 +85,8 @@ export {
 } from './core/channel';
 
 export {
-  putUnblocked,
-  takeUnblocked
+  putAsync,
+  takeAsync
 } from './core/operations';
 
 export {

@@ -41,8 +41,8 @@ import {
   put,
   take,
   alts,
-  putUnblocked,
-  takeUnblocked,
+  putAsync,
+  takeAsync,
   close,
   CLOSED
 } from '../../cispy';
@@ -149,7 +149,7 @@ export function split(src, ...buffers) {
   let doneCount = 0;
   function done() {
     if (--doneCount === 0) {
-      putUnblocked(doneCh);
+      putAsync(doneCh);
     }
   }
 
@@ -165,7 +165,7 @@ export function split(src, ...buffers) {
 
       doneCount = dests.length;
       for (const dest of dests) {
-        putUnblocked(dest, value, done);
+        putAsync(dest, value, done);
       }
       yield take(doneCh);
     }
@@ -184,7 +184,7 @@ function tapped(src) {
   let doneCount = 0;
   function done() {
     if (--doneCount === 0) {
-      putUnblocked(doneCh);
+      putAsync(doneCh);
     }
   }
 
@@ -198,7 +198,7 @@ function tapped(src) {
 
       doneCount = src[protocols.taps].length;
       for (const tap of src[protocols.taps]) {
-        putUnblocked(tap, value, done);
+        putAsync(tap, value, done);
       }
       yield take(doneCh);
     }
@@ -236,7 +236,7 @@ export function untap(src, dest) {
       if (src[protocols.taps].length === 0) {
         // We have to do this because a tapped channel sits waiting in a while loop for a take to happen, and it wil be
         // waiting when we untap the last channel. Still nervous about it though.
-        putUnblocked(src);
+        putAsync(src);
       }
     }
   }
@@ -247,7 +247,7 @@ export function untap(src, dest) {
 export function untapAll(src) {
   if (src[protocols.taps]) {
     src[protocols.taps] = [];
-    putUnblocked(src);
+    putAsync(src);
   }
 }
 
@@ -271,7 +271,7 @@ export function map(fn, srcs, buffer = 0) {
       return (value) => {
         values[index] = value;
         if (--count === 0) {
-          putUnblocked(temp, values.slice());
+          putAsync(temp, values.slice());
         }
       };
     })(i);
@@ -281,7 +281,7 @@ export function map(fn, srcs, buffer = 0) {
     for (;;) {
       count = srcLen;
       for (let i = 0; i < srcLen; ++i) {
-        takeUnblocked(srcs[i], callbacks[i]);
+        takeAsync(srcs[i], callbacks[i]);
       }
       const values = yield take(temp);
       for (const value of values) {

@@ -5,7 +5,7 @@ import {
   go,
   put,
   take,
-  takeUnblocked,
+  takeAsync,
   close
 } from '../../../src/cispy';
 
@@ -53,11 +53,11 @@ describe('Channel conversion functions', () => {
   describe('reduce', () => {
     it('creates a one-value channel with the reduction value of the input channel', (done) => {
       const input = chan();
-      const output = reduce(((acc, input) => acc + input), input, 0);
+      const output = reduce((acc, input) => acc + input, input, 0);
 
       fillChannel(input, 5, true);
 
-      takeUnblocked(output, (value) => {
+      takeAsync(output, (value) => {
         expect(value).to.equal(15);
         expect(output.closed).to.be.true;
         done();

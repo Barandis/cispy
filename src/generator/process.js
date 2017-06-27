@@ -30,11 +30,11 @@
 // instruction objects), the process can control when and how the generator is restarted.
 
 import { chan } from '../core/channel';
-import { putUnblocked, takeUnblocked, processAlts } from '../core/operations';
+import { putAsync, takeAsync, processAlts } from '../core/operations';
 import { dispatch } from '../core/dispatcher';
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
-// explicitly supported by the Process object itself. Other instructions like putUnblocked and takeUnblocked are handled
+// explicitly supported by the Process object itself. Other instructions like putAsync and takeAsync are handled
 // outside of the process and do not have process instructions.
 
 const TAKE  = 'take';
@@ -167,13 +167,13 @@ export function process(gen, exh, onFinish) {
         switch (item.op) {
           case PUT: {
             const {channel, value} = item.data;
-            putUnblocked(channel, value, (status) => this.continue(status));
+            putAsync(channel, value, (status) => this.continue(status));
             break;
           }
 
           case TAKE: {
             const {channel, except} = item.data;
-            takeUnblocked(channel, (value) => this.continue(value, except));
+            takeAsync(channel, (value) => this.continue(value, except));
             break;
           }
 
@@ -190,7 +190,7 @@ export function process(gen, exh, onFinish) {
             } else {
               const ch = chan();
               setTimeout(() => ch.close(), delay);
-              takeUnblocked(ch, (value) => this.continue(value));
+              takeAsync(ch, (value) => this.continue(value));
             }
             break;
           }

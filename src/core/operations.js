@@ -29,7 +29,7 @@ import { box, isBox, DEFAULT } from './channel';
 // pieces of information: the function to call when a put or take unblocks (because a value sent to put has been taken,
 // or a take has accepted a value that has been put) and whether or not the handler is still active.
 //
-// The function is a callback that actually defines the difference between put/take and putUnblocked/takeUnblocked:
+// The function is a callback that actually defines the difference between put/take and putAsync/takeAsync:
 // while the unblocked calls use the callback passed to the function, put and take simply continue the process where it
 // left off. (This is why put and take only work inside go functions, because otherwise there's no process to continue.)
 // The alts instruction always continues the process upon completion; there is no unblocked version of alts.
@@ -84,7 +84,7 @@ function randomArray(n) {
   return a;
 }
 
-// Processes the operations in an alts function call. This works in the same way as `takeUnblocked` and `putUnblocked`
+// Processes the operations in an alts function call. This works in the same way as `takeAsync` and `putAsync`
 // except that each operation (each of which can be either a put or a take on any channel) is queued in a random order
 // onto its channel and only the first to complete returns a value (the other ones become invalidated then and are
 // discarded).
@@ -153,7 +153,7 @@ export function processAlts(ops, callback, options) {
 
 // Puts a value onto a channel. When the value is successfully taken off the channel by another process or when
 // the channel closes, the callback fires if it exists.
-export function putUnblocked(channel, value, callback) {
+export function putAsync(channel, value, callback) {
   const result = channel.put(value, opHandler(callback));
   if (result && callback) {
     callback(result.value);
@@ -161,7 +161,7 @@ export function putUnblocked(channel, value, callback) {
 }
 
 // Takes a value off a channel. When the value becomes available, it is passed to the callback.
-export function takeUnblocked(channel, callback) {
+export function takeAsync(channel, callback) {
   const result = channel.take(opHandler(callback));
   if (result && callback) {
     callback(result.value);
