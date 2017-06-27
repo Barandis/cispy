@@ -1,23 +1,11 @@
-import { expect } from '../helper';
-import sinon from 'sinon';
+const { expect } = require('../helper');
+const sinon = require('sinon');
 
-import {
-  go,
-  chan,
-  timeout,
-  sleep,
-  put,
-  take,
-  alts,
-  putAsync,
-  takeAsync,
-  config,
-  close,
-  CLOSED,
-  DEFAULT
-} from '../../src/api';
-
-import { process } from '../../src/generator/process';
+const { chan, timeout, close, CLOSED, DEFAULT } = require('../../src/core/channel');
+const { putAsync, takeAsync } = require('../../src/core/operations');
+const { config } = require('../../src/core/options');
+const { go, sleep, put, take, alts } = require('../../src/generator/operations');
+const { process } = require('../../src/generator/process');
 
 describe('Core CSP', () => {
 

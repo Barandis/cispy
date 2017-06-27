@@ -1,24 +1,11 @@
-import { expect } from '../../helper';
-import sinon from 'sinon';
+const { expect } = require('../../helper');
+const sinon = require('sinon');
 
-import {
-  chan,
-  go,
-  put,
-  take,
-  sleep,
-  buffers,
-  config,
-  close,
-  CLOSED
-} from '../../../src/cispy';
+const {chan, close, CLOSED, config, buffers, generator } = require('../../../src/cispy');
 
-import {
-  debounce,
-  throttle
-} from '../../../src/generator/util/timing';
-
-const {fixed, dropping, sliding} = buffers;
+const { fixed } = buffers;
+const { go, put, take, util } = generator;
+const { debounce, throttle } = util;
 
 describe('Channel timing functions', () => {
   before(() => config({dispatchMethod: 'setTimeout'}));

@@ -23,10 +23,8 @@
 // cispy.js
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import * as conversion from './conversion';
-import * as flow from './flow';
-import * as timing from './timing';
+const conversion = require('./conversion');
+const flow = require('./flow');
+const timing = require('./timing');
 
-const util = Object.assign({}, conversion, flow, timing);
-
-export default util;
+module.exports = Object.assign({}, conversion, flow, timing);

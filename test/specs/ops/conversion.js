@@ -1,19 +1,9 @@
-import { expect } from '../../helper';
+const { expect } = require('../../helper');
 
-import {
-  chan,
-  go,
-  put,
-  take,
-  takeAsync,
-  close
-} from '../../../src/cispy';
+const { chan, close, takeAsync, generator } = require('../../../src/cispy');
 
-import {
-  reduce,
-  onto,
-  into
-} from '../../../src/generator/util/conversion';
+const { go, put, take, util } = generator;
+const { reduce, onto, into } = util;
 
 function fillChannel(channel, count, cl) {
   go(function* () {

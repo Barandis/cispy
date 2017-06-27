@@ -1,21 +1,13 @@
-import { expect } from '../helper';
-import sinon from 'sinon';
+const { expect } = require('../helper');
+const sinon = require('sinon');
 
-import {
-  promise,
-  chan,
-  close,
-  putAsync,
-  takeAsync,
-  config,
-  CLOSED,
-  DEFAULT
-} from '../../src/api';
+const { chan, close, CLOSED, DEFAULT } = require('../../src/core/channel');
+const { putAsync, takeAsync } = require('../../src/core/operations');
+const { config } = require('../../src/core/options');
+const { put, take, takeOrThrow, alts, sleep } = require('../../src/promise/operations');
 
 // As of the writing of this comment (the initial production of this test file), this is basically a copy of all of the
 // tests in core.js that are relevant for promise-based channel operations.
-
-const {sleep, put, take, alts, takeOrThrow} = promise;
 
 describe('Promise functions', () => {
   // Sleep continues to vex, as the promise-based version fails while using Sinon's fake timers. I've opted to

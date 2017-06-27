@@ -30,14 +30,8 @@
 //
 // These functions convert channels into other kinds of data, or vice versa.
 
-import {
-  chan,
-  go,
-  put,
-  take,
-  close,
-  CLOSED
-} from '../../cispy';
+const { chan, close, CLOSED } = require('../../core/channel');
+const { go, put, take } = require('../operations');
 
 // Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
 // the reduction function can also be supplied. The single value that comes out of this reduction (which cannot
@@ -46,7 +40,7 @@ import {
 //
 // This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
 // can result in a single scalar value.
-export function reduce(fn, ch, init) {
+function reduce(fn, ch, init) {
   return go(function* () {
     let result = init;
     for (;;) {
@@ -62,7 +56,7 @@ export function reduce(fn, ch, init) {
 // Puts all of the values in the input array onto the supplied channel. If no channel is supplied (if only an array is
 // passed), then a new buffered channel of the same length of the array is created. Either way, the channel is returned
 // and will close when the last array value has been taken.
-export function onto(ch, array) {
+function onto(ch, array) {
   const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
 
   go(function* () {
@@ -77,7 +71,7 @@ export function onto(ch, array) {
 // Moves all of the values on a channel into the supplied array. If no array is supplied (if the only parameter passed
 // is a channel), then a new and empty array is created to contain the values. A channel is returned; the resulting
 // channel will hold the resulting array and will close immediately upon that array being taken from it.
-export function into(array, ch) {
+function into(array, ch) {
   const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
   const init = arr.slice();
 
@@ -86,3 +80,9 @@ export function into(array, ch) {
     return acc;
   }, chnl, init);
 }
+
+module.exports = {
+  reduce,
+  onto,
+  into
+};

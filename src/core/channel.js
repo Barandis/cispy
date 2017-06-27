@@ -45,10 +45,10 @@
 // channel, it's first run through the transformer and the transformed value is the one actually put into the channel's
 // buffer. This avoids both of the problems noted above.
 
-import { queue, fixed, EMPTY } from './buffers';
-import { dispatch } from './dispatcher';
-import { protocols as p } from './protocol';
-import { options } from './options';
+const { queue, fixed, EMPTY } = require('./buffers');
+const { dispatch } = require('./dispatcher');
+const { options } = require('./options');
+const p = require('./protocol').protocols;
 
 // This is a unique value used to indicate for certain that an object is indeed a box. Since there is no access to this
 // object outside of the library, there is no way to emulate a box in a value that might be on a channel.
@@ -56,13 +56,13 @@ const BOX = Symbol();
 
 // A symbol returned when a take is attempted in a closed channel. This is the only value that is not legal to be put
 // onto a channel.
-export const CLOSED = Symbol('CLOSED');
+const CLOSED = Symbol('CLOSED');
 
 // Used to represent the default channel in an alts call where a default is provided. If that default is returned, the
 // default value is returned as the value of the `value` property while this is returned as the value of the `channel`
 // property.
 
-export const DEFAULT = Symbol('DEFAULT');
+const DEFAULT = Symbol('DEFAULT');
 
 // Determines whether an object is reduced. This is done using the transducer protocol; an object with the protocol-
 // specified `reduced` property is assumed to be reduced. If a result of a transformation is reduced, it means that the
@@ -75,7 +75,7 @@ function isReduced(value) {
 // parameter that's passed by reference rather than value is also important in a couple places. If a channel operation
 // (put or take) returns a Box, it means that an actual value was returned. A non-Box (which always happens to be
 // `null`) means that the operation must block.
-export function box(value) {
+function box(value) {
   return {
     value,
     box: BOX
@@ -93,7 +93,7 @@ function putBox(handler, value) {
 }
 
 // Determines whether a value is boxed.
-export function isBox(value) {
+function isBox(value) {
   return value && value.box === BOX;
 }
 
@@ -118,7 +118,7 @@ export function isBox(value) {
 // the transformation still happens. Also, transformations require that the channel be buffered (this buffer is what is
 // sent to the transformer's reduction step function); trying to create a channel with a transformer but without a
 // buffer will result in an error being thrown.
-export function channel(takes, puts, buffer, xform, timeout) {
+function channel(takes, puts, buffer, xform, timeout) {
   return Object.assign({
     takes,
     puts,
@@ -432,7 +432,7 @@ const bufferReducer = {
 // designated, and may optionally have an exception handler registered to deal with exceptions that occur in the
 // transformation process. There must be a buffer specified in order to add a transform or an error will be thrown. An
 // exception handler can be passed either way, though it will have no real effect if passed without a transformer.
-export function chan(buffer, xform, handler) {
+function chan(buffer, xform, handler) {
   const buf = buffer === 0 ? null : buffer;
   const b = typeof buf === 'number' ? fixed(buf) : buf;
 
@@ -448,7 +448,7 @@ export function chan(buffer, xform, handler) {
 // from the channel created in the `sleep` instruction, except that this one is available to be used while it's
 // delaying. A good use case for this is in preventing an `alts` call from waiting too long, as if one of these
 // channels is in its operations list, it will trigger the `alts` after the delay time if no other channel does first.
-export function timeout(delay) {
+function timeout(delay) {
   const ch = channel(queue(), queue(), null, wrapTransformer(bufferReducer), true);
   setTimeout(() => close(ch), delay);
   return ch;
@@ -463,6 +463,16 @@ export function timeout(delay) {
 // Channels are perfectly capable of being closed with `channel.close()` without this function at all. However, that is
 // the only function that is regularly called on the channel object, and it is more consistent to do `close` the same
 // way we do `put`, `take`, etc.
-export function close(channel) {
+function close(channel) {
   channel.close();
 }
+
+module.exports = {
+  CLOSED,
+  DEFAULT,
+  box,
+  isBox,
+  chan,
+  timeout,
+  close
+};

@@ -1,28 +1,10 @@
-import { expect } from '../../helper';
+const { expect } = require('../../helper');
 
-import {
-  chan,
-  go,
-  put,
-  take,
-  sleep,
-  buffers,
-  close,
-  CLOSED
-} from '../../../src/cispy';
+const { chan, close, CLOSED, generator, buffers } = require('../../../src/cispy');
 
-import {
-  pipe,
-  partition,
-  merge,
-  split,
-  tap,
-  untap,
-  untapAll,
-  map
-} from '../../../src/generator/util/flow';
-
-const {fixed, dropping, sliding} = buffers;
+const { fixed, dropping, sliding } = buffers;
+const { go, put, take, sleep, util } = generator;
+const { pipe, partition, merge, split, tap, untap, untapAll, map } = util;
 
 const TAPS = '@@multitap/taps';
 

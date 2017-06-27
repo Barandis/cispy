@@ -23,7 +23,7 @@
 // operations.js
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import { box, isBox, DEFAULT } from './channel';
+const { box, isBox, DEFAULT } = require('./channel');
 
 // These two handlers are used by channels to track execution of instructions (put, take, and alts). They provide two
 // pieces of information: the function to call when a put or take unblocks (because a value sent to put has been taken,
@@ -93,7 +93,7 @@ function randomArray(n) {
 // returned from the channel, and `channel` is the channel onto which the successful operation was queued.
 //
 // The `options` parameter is the same as the options parameter in `alts`.
-export function altsAsync(ops, callback, options) {
+function altsAsync(ops, callback, options) {
   const count = ops.length;
   if (count === 0) {
     throw Error('Alts called with no operations');
@@ -153,7 +153,7 @@ export function altsAsync(ops, callback, options) {
 
 // Puts a value onto a channel. When the value is successfully taken off the channel by another process or when
 // the channel closes, the callback fires if it exists.
-export function putAsync(channel, value, callback) {
+function putAsync(channel, value, callback) {
   const result = channel.put(value, opHandler(callback));
   if (result && callback) {
     callback(result.value);
@@ -161,9 +161,15 @@ export function putAsync(channel, value, callback) {
 }
 
 // Takes a value off a channel. When the value becomes available, it is passed to the callback.
-export function takeAsync(channel, callback) {
+function takeAsync(channel, callback) {
   const result = channel.take(opHandler(callback));
   if (result && callback) {
     callback(result.value);
   }
 }
+
+module.exports = {
+  altsAsync,
+  putAsync,
+  takeAsync
+};

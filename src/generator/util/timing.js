@@ -30,15 +30,8 @@
 //
 // These functions change the timing of inputs being put onto the input channel.
 
-import {
-  chan,
-  go,
-  put,
-  alts,
-  timeout,
-  close,
-  CLOSED
-} from '../../cispy';
+const { chan, timeout, close, CLOSED } = require('../../core/channel');
+const { go, put, alts } = require('../operations');
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === '[object Number]' && isFinite(x);
@@ -61,7 +54,7 @@ function isNumber(x) {
 // A channel can be provided to the `cancel` option. If it is, then putting -anything- onto that channel will cause
 // the debouncing to immediately cease, the output channel to be closed, and any remaining values that had been waiting
 // to be output after the debounce timer to instead be discarded.
-export function debounce(src, buffer, delay, options) {
+function debounce(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
   const opts = Object.assign({leading: false, trailing: true, maxDelay: 0, cancel: chan()},
@@ -140,7 +133,7 @@ export function debounce(src, buffer, delay, options) {
 // A channel can be provided to the `cancel` option. If it is, then putting -anything- onto that channel will cause
 // the throttling to immediately cease, the output channel to be closed, and all remaining throttled values that had
 // not yet been put onto the channel to be discarded.
-export function throttle(src, buffer, delay, options) {
+function throttle(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
   const opts = Object.assign({leading: true, trailing: true, cancel: chan()},
@@ -191,3 +184,8 @@ export function throttle(src, buffer, delay, options) {
 
   return dest;
 }
+
+module.exports = {
+  debounce,
+  throttle
+};

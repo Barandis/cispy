@@ -1,12 +1,12 @@
-import { expect } from '../helper';
+const { expect } = require('../helper');
 
-import {
+const {
   EMPTY,
   queue,
   fixed,
   dropping,
   sliding
-} from '../../src/core/buffers';
+} = require('../../src/core/buffers');
 
 describe('Buffers', () => {
   context('queue', () => {

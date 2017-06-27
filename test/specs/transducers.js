@@ -1,15 +1,9 @@
-import { expect } from '../helper';
+const { expect } = require('../helper');
 
-import {
-  go,
-  chan,
-  put,
-  take,
-  close,
-  CLOSED
-} from '../../src/api';
+const { chan, close, CLOSED } = require('../../src/core/channel');
+const { go, put, take } = require('../../src/generator/operations');
 
-import * as t from 'xduce';
+const t = require('xduce');
 
 const add1  = (x) => x + 1;
 const even  = (x) => x % 2 === 0;

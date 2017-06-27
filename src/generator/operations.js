@@ -23,10 +23,10 @@
 // operations.js
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import { process, instruction, TAKE, PUT, ALTS, SLEEP } from './process';
-import { fixed } from '../core/buffers';
-import { chan, close, CLOSED } from '../core/channel';
-import { putAsync } from '../core/operations';
+const { process, instruction, TAKE, PUT, ALTS, SLEEP } = require('./process');
+const { fixed } = require('../core/buffers');
+const { chan, close, CLOSED } = require('../core/channel');
+const { putAsync } = require('../core/operations');
 
 // Takes the first available value off the specified channel. If there is no value currently available, this will block
 // until either the channel closes or a put is made onto the channel. If there are multiple takes (or take operations
@@ -37,13 +37,13 @@ import { putAsync } from '../core/operations';
 // `yield`, it will stop the execution of the process until a value is returned from the channel. The process is then
 // restarted, with the returned value from the channel becoming the value of the `yield` expression. If the unblocking
 // was the result of the channel closing, then the value of that `yield` expression will be CLOSED.
-export function take(channel) {
+function take(channel) {
   return instruction(TAKE, {channel, except: false});
 }
 
 // Works exactly like `take`, except that if the value that is taken off the channel is an `Error` object, that error
 // is thrown back into the process. At that point it acts exactly like any other thrown error.
-export function takeOrThrow(channel) {
+function takeOrThrow(channel) {
   return instruction(TAKE, {channel, except: true});
 }
 
@@ -55,7 +55,7 @@ export function takeOrThrow(channel) {
 // `yield`, it will stop the execution of the process until a take is called on the channel or until the channel
 // closes. The process is then restarted, and either `true` (if there was a take) or `false` (if the channel was
 // closed) will become the value of the `yield` expression.
-export function put(channel, value) {
+function put(channel, value) {
   return instruction(PUT, {channel, value});
 }
 
@@ -82,7 +82,7 @@ export function put(channel, value) {
 // `priority` causes the operations to be queued in the order of the operations array, rather than randomly; `default`
 // causes its value to become the return value (with a channel of DEFAULT) if all operations block before completing.
 // In this case all of the operations are discarded.
-export function alts(ops, options = {}) {
+function alts(ops, options = {}) {
   return instruction(ALTS, {ops, options});
 }
 
@@ -98,7 +98,7 @@ export function alts(ops, options = {}) {
 // The return value of this function is a SLEEP instruction. This doesn't have any value except that, when returned via
 // `yield`, it will stop the execution of the process until a the required amount of time has passed. The process is
 // then restarted automatically.
-export function sleep(delay = 0) {
+function sleep(delay = 0) {
   return instruction(SLEEP, {delay});
 }
 
@@ -110,7 +110,7 @@ export function sleep(delay = 0) {
 // within the process code itself. The handler receives the error object as an argument.
 //
 // Since this requires a generator and not a generator function, it isn't used nearly as much as `go`.
-export function spawn(gen, exh) {
+function spawn(gen, exh) {
   const ch = chan(fixed(1));
   process(gen, exh, (value) => {
     if (value === CLOSED) {
@@ -126,7 +126,7 @@ export function spawn(gen, exh) {
 // generator from the generator function and its optional arguments, and then pass that off to `spawn`. But since
 // generator functions have a literal form (`function* ()`) while generators themselves do not, this is going to be the
 // much more commonly used function of the two.
-export function go(fn, ...args) {
+function go(fn, ...args) {
   return spawn(fn(...args));
 }
 
@@ -134,6 +134,17 @@ export function go(fn, ...args) {
 // function. This function is called any time an error is caught within the process itself. It receives the error object
 // as an argument. The process is then considered finished, and the value placed into its return channel is the value
 // returned from the exception handler.
-export function goSafe(fn, exh, ...args) {
+function goSafe(fn, exh, ...args) {
   return spawn(fn(...args), exh);
 }
+
+module.exports = {
+  put,
+  take,
+  takeOrThrow,
+  alts,
+  sleep,
+  go,
+  goSafe,
+  spawn
+};

@@ -27,14 +27,14 @@
 // process itself (they return special values that the process can read but are meaningless elsewhere). Those operations
 // are in process.js.
 
-import { chan } from '../core/channel';
-import { putAsync, takeAsync, altsAsync } from '../core/operations';
+const { chan } = require('../core/channel');
+const { putAsync, takeAsync, altsAsync } = require('../core/operations');
 
 // Puts the value onto the specified channel. A promise is returned which will resolve to `true` once a taker is
 // available to take the put value or `false` if the channel closes before such a taker becomes available. If there are
 // multiple puts (or put operations from `alts`) queued on the channel and waiting, they will be processed in order as
 // take requests happen.
-export function put(channel, value) {
+function put(channel, value) {
   return new Promise((resolve) => {
     putAsync(channel, value, resolve);
   });
@@ -43,7 +43,7 @@ export function put(channel, value) {
 // Takes a value from a channel. This returns a promise that resolves as soon as another process puts a value onto the
 // channel to be taken, or when the channel closes. The promise resolves to the value that was put, or to `CLOSED` if
 // the channel is/was closed.
-export function take(channel) {
+function take(channel) {
   return new Promise((resolve) => {
     takeAsync(channel, resolve);
   });
@@ -51,7 +51,7 @@ export function take(channel) {
 
 // Takes a value from a channel. This works exactly like `take`, except that if the value that is taken from the channel
 // is an error object, the returned promise is rejected with that error.
-export function takeOrThrow(channel) {
+function takeOrThrow(channel) {
   return new Promise((resolve, reject) => {
     takeAsync(channel, (result) => {
       if (Error.prototype.isPrototypeOf(result)) {
@@ -84,7 +84,7 @@ export function takeOrThrow(channel) {
 // `priority` causes the operations to be queued in the order of the operations array, rather than randomly; `default`
 // causes its value to become the return value (with a channel of DEFAULT) if all operations block before completing.
 // In this case all of the operations are discarded.
-export function alts(ops, options = {}) {
+function alts(ops, options = {}) {
   return new Promise((resolve) => {
     altsAsync(ops, resolve, options);
   });
@@ -97,7 +97,7 @@ export function alts(ops, options = {}) {
 // If no delay is passed, or if that delay is 0, then a new channel won't be created. Instead, the promise will simply
 // resolve. This allows an async function to relinquish its control and cause itself to be immediately queued back up to
 // be run after all of the other waiting functions (and the event loop) have a chance to run.
-export function sleep(delay = 0) {
+function sleep(delay = 0) {
   return new Promise((resolve) => {
     if (delay === 0) {
       setTimeout(resolve, 0);
@@ -108,3 +108,11 @@ export function sleep(delay = 0) {
     }
   });
 }
+
+module.exports = {
+  put,
+  take,
+  takeOrThrow,
+  alts,
+  sleep
+};

@@ -27,48 +27,46 @@
 // functions are defined here (go, spawn, chan). All three types of buffers are also supplied, along with the special
 // values CLOSED, EMPTY, and DEFAULT.
 
-import { fixed, sliding, dropping } from './core/buffers';
+const { fixed, sliding, dropping, EMPTY } = require('./core/buffers');
+const { chan, timeout, close, CLOSED, DEFAULT } = require('./core/channel');
+const { putAsync, takeAsync, altsAsync } = require('./core/operations');
+const { config } = require('./core/options');
 
-import * as gen from './generator/operations';
-import * as pro from './promise/operations';
+const gen = require('./generator/operations');
+const pro = require('./promise/operations');
 
-import genUtil from './generator/util';
-import proUtil from './promise/util';
+const genUtil = require('./generator/util');
+const proUtil = require('./promise/util');
 
-export const buffers = { fixed, sliding, dropping };
-export const generator = {
-  go: gen.go,
-  goSafe: gen.goSafe,
-  spawn: gen.spawn,
-  put: gen.put,
-  take: gen.take,
-  takeOrThrow: gen.takeOrThrow,
-  alts: gen.alts,
-  sleep: gen.sleep,
-  util: genUtil
-};
-export const promise = {
-  put: pro.put,
-  take: pro.take,
-  takeOrThrow: pro.takeOrThrow,
-  alts: pro.alts,
-  sleep: pro.sleep,
-  util: proUtil
-};
-
-export {
+module.exports = {
+  buffers: { fixed, sliding, dropping },
+  generator: {
+    go: gen.go,
+    goSafe: gen.goSafe,
+    spawn: gen.spawn,
+    put: gen.put,
+    take: gen.take,
+    takeOrThrow: gen.takeOrThrow,
+    alts: gen.alts,
+    sleep: gen.sleep,
+    util: genUtil
+  },
+  promise: {
+    put: pro.put,
+    take: pro.take,
+    takeOrThrow: pro.takeOrThrow,
+    alts: pro.alts,
+    sleep: pro.sleep,
+    util: proUtil
+  },
   chan,
   timeout,
   close,
-  CLOSED,
-  DEFAULT
-} from './core/channel';
-
-export {
   putAsync,
   takeAsync,
-  altsAsync
-} from './core/operations';
-
-export { EMPTY } from './core/buffers';
-export { config } from './core/options';
+  altsAsync,
+  config,
+  CLOSED,
+  DEFAULT,
+  EMPTY
+};

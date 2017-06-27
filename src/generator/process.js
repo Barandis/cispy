@@ -29,18 +29,18 @@
 // generator by its `yield` expressions. By passing special values out of those expressions (in the form of
 // instruction objects), the process can control when and how the generator is restarted.
 
-import { chan } from '../core/channel';
-import { putAsync, takeAsync, altsAsync } from '../core/operations';
-import { dispatch } from '../core/dispatcher';
+const { chan } = require('../core/channel');
+const { putAsync, takeAsync, altsAsync } = require('../core/operations');
+const { dispatch } = require('../core/dispatcher');
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
 // explicitly supported by the Process object itself. Other instructions like putAsync and takeAsync are handled
 // outside of the process and do not have process instructions.
 
-export const TAKE  = 'take';
-export const PUT   = 'put';
-export const ALTS  = 'alts';
-export const SLEEP = 'sleep';
+const TAKE  = 'take';
+const PUT   = 'put';
+const ALTS  = 'alts';
+const SLEEP = 'sleep';
 
 // A unique value used to tag an object as an instruction. Since there's no access to this value outside of this module,
 // there's no way to emulate (accidentally or on purpose) an instruction in the process queue.
@@ -49,7 +49,7 @@ const INSTRUCTION = Symbol();
 // A simple object basically used as a wrapper to associate some data with a  particular instruction. The op property
 // is the string name of the instruction (from the five choices in the constants above), while the data property
 // contains whatever data is necessary to process that instruction.
-export function instruction(op, data) {
+function instruction(op, data) {
   return {
     op,
     data,
@@ -74,7 +74,7 @@ function isInstruction(value) {
 //
 // Each invocation of the wrapped generator - whether from the initial run or continuing after handling a `yield`
 // expression (special or not) - will be scheduled by the dispatcher to run as a separate message in the message queue.
-export function process(gen, exh, onFinish) {
+function process(gen, exh, onFinish) {
   return {
     gen,
     exh,
@@ -203,3 +203,11 @@ export function process(gen, exh, onFinish) {
   };
 }
 
+module.exports = {
+  TAKE,
+  PUT,
+  ALTS,
+  SLEEP,
+  instruction,
+  process
+};

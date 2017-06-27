@@ -38,7 +38,7 @@ function generateKey(name) {
   return USE_SYMBOLS && symbol ? Symbol.for(name) : `@@${name}`;
 }
 
-export const protocols = {
+const protocols = {
   // Since this one is built in, it already has a custom Symbol property, so we don't need to generate a symbol for a
   // key when symbols are supported.
   iterator: symbol ? Symbol.iterator : '@@iterator',
@@ -50,3 +50,5 @@ export const protocols = {
   reduced:  generateKey('transducer/reduced'),
   value:    generateKey('transducer/value')
 };
+
+module.exports = { protocols };

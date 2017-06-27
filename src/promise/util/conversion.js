@@ -31,14 +31,8 @@
 //
 // These functions convert channels into other kinds of data, or vice versa.
 
-import {
-  chan,
-  close,
-  CLOSED,
-  promise
-} from '../../cispy';
-
-const { put, take } = promise;
+const { chan, close, CLOSED } = require('../../core/channel');
+const { put, take } = require('../operations');
 
 // Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
 // the reduction function can also be supplied. This is an async function that returns a promise that resolves to the
@@ -47,7 +41,7 @@ const { put, take } = promise;
 //
 // This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
 // can result in a single scalar value.
-export async function reduce(fn, ch, init) {
+async function reduce(fn, ch, init) {
   let result = init;
   for (;;) {
     const value = await take(ch);
@@ -65,7 +59,7 @@ export async function reduce(fn, ch, init) {
 // This is NOT an async function. It returns a channel, and a channel-returning function can immediately return a
 // channel even if the channel doesn't have all of the results on it yet. (In fact, unless it's a buffered channel, it
 // *cannot* have all values on it until some are taken.)
-export function onto(ch, array) {
+function onto(ch, array) {
   const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
 
   (async () => {
@@ -80,7 +74,7 @@ export function onto(ch, array) {
 // Moves all of the values on a channel into the supplied array. If no array is supplied (if the only parameter passed
 // is a channel), then a new and empty array is created to contain the values. This function is async; the promise it
 // returns resolves with the resulting array once the input channel has closed.
-export async function into(array, ch) {
+async function into(array, ch) {
   const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
   const init = arr.slice();
 
@@ -90,3 +84,8 @@ export async function into(array, ch) {
   }, chnl, init);
 }
 
+module.exports = {
+  reduce,
+  onto,
+  into
+};
