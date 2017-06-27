@@ -2,7 +2,6 @@ const { expect } = require('../helper');
 
 const { fixed, dropping, sliding } = require('../../src/core/buffers');
 const { chan, close, CLOSED } = require('../../src/core/channel');
-const { config } = require('../../src/core/options');
 const { go, sleep, put, take } = require('../../src/generator/operations');
 
 const t = require('xduce');
@@ -58,8 +57,7 @@ describe('CSP channel', () => {
   });
 
   it('can configure how many pending puts/takes to allow', (done) => {
-    config({maxQueuedOps: 2});
-    const ch = chan();
+    const ch = chan(0, null, null, {maxQueued: 2});
 
     try {
       for (let i = 0; i < 3; ++i) {
@@ -73,7 +71,6 @@ describe('CSP channel', () => {
       expect(ex.message).to.equal('No more than 2 pending takes are allowed on a single channel');
     }
     finally {
-      config({maxQueuedOps: 1024});
       done();
     }
   });

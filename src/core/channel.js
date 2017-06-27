@@ -47,8 +47,10 @@
 
 const { queue, fixed, EMPTY } = require('./buffers');
 const { dispatch } = require('./dispatcher');
-const { options } = require('./options');
 const p = require('./protocol').protocols;
+
+const MAX_DIRTY = 64;
+const MAX_QUEUED = 1024;
 
 // This is a unique value used to indicate for certain that an object is indeed a box. Since there is no access to this
 // object outside of the library, there is no way to emulate a box in a value that might be on a channel.
@@ -118,12 +120,14 @@ function isBox(value) {
 // the transformation still happens. Also, transformations require that the channel be buffered (this buffer is what is
 // sent to the transformer's reduction step function); trying to create a channel with a transformer but without a
 // buffer will result in an error being thrown.
-function channel(takes, puts, buffer, xform, timeout) {
+function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueued = MAX_QUEUED } = {}) {
   return Object.assign({
-    takes,
-    puts,
+    takes: queue(),
+    puts: queue(),
     buffer,
     xform,
+    maxDirty,
+    maxQueued,
     dirtyTakes: 0,
     dirtyPuts: 0,
     _closed: false,
@@ -215,15 +219,15 @@ function putImpl(value, handler) {
   // If there are no pending takes on an unbuffered channel, or on a buffered channel with a full buffer, we queue the
   // put to let it wait for a take to become available. Puts whose handlers have gone inactive (because they were part
   // of an ALTS instruction) are periodically purged.
-  if (this.dirtyPuts > options.maxDirtyOps) {
+  if (this.dirtyPuts > this.maxDirty) {
     this.puts.filter((putter) => putter.handler.active);
     this.dirtyPuts = 0;
   } else {
     this.dirtyPuts++;
   }
 
-  if (this.puts.count >= options.maxQueuedOps) {
-    throw Error(`No more than ${options.maxQueuedOps} pending puts are allowed on a single channel`);
+  if (this.puts.count >= this.maxQueued) {
+    throw Error(`No more than ${this.maxQueuedO} pending puts are allowed on a single channel`);
   }
   this.puts.enqueue(putBox(handler, value));
 
@@ -292,15 +296,15 @@ function takeImpl(handler) {
   // If an unbuffered channel or a buffered channel with an empty buffer has no pending puts, and if the channel is
   // still open, the take is queued to be processed when a put is available. Takes whose handlers have gone inactive as
   // the result of alts processing are periodically purged.
-  if (this.dirtyTakes > options.maxDirtyOps) {
+  if (this.dirtyTakes > this.maxDirty) {
     this.takes.filter((taker) => taker.active);
     this.dirtyTakes = 0;
   } else {
     this.dirtyTakes++;
   }
 
-  if (this.takes.count >= options.maxQueuedOps) {
-    throw Error(`No more than ${options.maxQueuedOps} pending takes are allowed on a single channel`);
+  if (this.takes.count >= this.maxQueued) {
+    throw Error(`No more than ${this.maxQueued} pending takes are allowed on a single channel`);
   }
   this.takes.enqueue(handler);
 
@@ -432,7 +436,7 @@ const bufferReducer = {
 // designated, and may optionally have an exception handler registered to deal with exceptions that occur in the
 // transformation process. There must be a buffer specified in order to add a transform or an error will be thrown. An
 // exception handler can be passed either way, though it will have no real effect if passed without a transformer.
-function chan(buffer, xform, handler) {
+function chan(buffer = 0, xform, handler, options = {}) {
   const buf = buffer === 0 ? null : buffer;
   const b = typeof buf === 'number' ? fixed(buf) : buf;
 
@@ -441,7 +445,7 @@ function chan(buffer, xform, handler) {
   }
   const xf = wrapTransformer(xform ? xform(bufferReducer) : bufferReducer, handler);
 
-  return channel(queue(), queue(), b, xf, false);
+  return channel(b, xf, false, options);
 }
 
 // Creates an unbuffered channel that closes after a certain delay (in milliseconds). This isn't terribly different
@@ -449,7 +453,7 @@ function chan(buffer, xform, handler) {
 // delaying. A good use case for this is in preventing an `alts` call from waiting too long, as if one of these
 // channels is in its operations list, it will trigger the `alts` after the delay time if no other channel does first.
 function timeout(delay) {
-  const ch = channel(queue(), queue(), null, wrapTransformer(bufferReducer), true);
+  const ch = channel(null, wrapTransformer(bufferReducer), true);
   setTimeout(() => close(ch), delay);
   return ch;
 }

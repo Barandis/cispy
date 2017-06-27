@@ -25,11 +25,6 @@
 // Tracks and allows the setting of a few runtime-configurable options.
 
 const options = {
-  // The maximum number of operations (puts or takes) that can be queued in a channel buffer before running a cleanup
-  // operation to make sure no inactive operations are in the queue.
-  maxDirtyOps:    64,
-  // The maximum number of puts or takes that can be queued on a channel at the same time.
-  maxQueuedOps:   1024,
   // The maximum number of tasks that the dispatcher will run in a single batch. If the number of pending tasks exceeds
   // this, the remaining are not discarded. They're simply run as part of another batch after the current batch
   // completes. Setting this to a reasonable number makes sure that control can pass back to the event loop every now
