@@ -28,7 +28,7 @@
 // values CLOSED, EMPTY, and DEFAULT.
 
 import { fixed, sliding, dropping } from './core/buffers';
-import * as operations from './await/operations';
+import * as operations from './promise/operations';
 
 export const buffers = { fixed, sliding, dropping };
 
