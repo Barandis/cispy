@@ -28,9 +28,9 @@
 //
 // This library provides these functions in a CommonJS format, but if it is run in a non-CommonJS environment, a global
 // `cispy` variable is provided.
-import * as flow from './generator/operations/flow';
-import * as conversion from './generator/operations/conversion';
-import * as timing from './generator/operations/timing';
+import * as flow from './generator/util/flow';
+import * as conversion from './generator/util/conversion';
+import * as timing from './generator/util/timing';
 
 export {
   spawn,

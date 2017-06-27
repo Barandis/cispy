@@ -13,7 +13,7 @@ import {
   reduce,
   onto,
   into
-} from '../../../src/generator/operations/conversion';
+} from '../../../src/generator/util/conversion';
 
 function fillChannel(channel, count, cl) {
   go(function* () {
