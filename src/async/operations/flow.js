@@ -41,8 +41,8 @@ import {
   promise,
   chan,
   close,
-  putRaw,
-  takeRaw,
+  putUnblocked,
+  takeUnblocked,
   CLOSED
 } from '../../cispy';
 
@@ -157,7 +157,7 @@ export function split(src, ...buffers) {
 
   function cb() {
     if (--count === 0) {
-      putRaw(done);
+      putUnblocked(done);
     }
   }
 
@@ -173,7 +173,7 @@ export function split(src, ...buffers) {
 
       count = dests.length;
       for (const dest of dests) {
-        putRaw(dest, value, cb);
+        putUnblocked(dest, value, cb);
       }
       await take(done);
     }
@@ -195,7 +195,7 @@ function tapped(src) {
 
   function cb() {
     if (--count === 0) {
-      putRaw(done);
+      putUnblocked(done);
     }
   }
 
@@ -209,7 +209,7 @@ function tapped(src) {
 
       count = src[protocols.taps].length;
       for (const tap of src[protocols.taps]) {
-        putRaw(tap, value, cb);
+        putUnblocked(tap, value, cb);
       }
       await take(done);
     }
@@ -249,7 +249,7 @@ export function untap(src, dest) {
     if (index !== -1) {
       taps.splice(index, 1);
       if (taps.length === 0) {
-        putRaw(src);
+        putUnblocked(src);
       }
     }
   }
@@ -260,7 +260,7 @@ export function untap(src, dest) {
 export function untapAll(src) {
   if (src[protocols.taps]) {
     src[protocols.taps] = [];
-    putRaw(src);
+    putUnblocked(src);
   }
 }
 
@@ -284,7 +284,7 @@ export function map(fn, srcs, buffer = 0) {
       return (value) => {
         values[index] = value;
         if (--count === 0) {
-          putRaw(temp, values.slice());
+          putUnblocked(temp, values.slice());
         }
       };
     })(i);
@@ -294,7 +294,7 @@ export function map(fn, srcs, buffer = 0) {
     for (;;) {
       count = srcLen;
       for (let i = 0; i < srcLen; ++i) {
-        takeRaw(srcs[i], callbacks[i]);
+        takeUnblocked(srcs[i], callbacks[i]);
       }
       const values = await take(temp);
       for (const value of values) {

@@ -5,7 +5,7 @@ import {
   go,
   put,
   take,
-  takeRaw,
+  takeUnblocked,
   close
 } from '../../../src/cispy';
 
@@ -57,7 +57,7 @@ describe('Channel conversion functions', () => {
 
       fillChannel(input, 5, true);
 
-      takeRaw(output, (value) => {
+      takeUnblocked(output, (value) => {
         expect(value).to.equal(15);
         expect(output.closed).to.be.true;
         done();

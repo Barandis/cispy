@@ -41,8 +41,8 @@ import {
   put,
   take,
   alts,
-  putRaw,
-  takeRaw,
+  putUnblocked,
+  takeUnblocked,
   close,
   CLOSED
 } from '../../cispy';
@@ -149,7 +149,7 @@ export function split(src, ...buffers) {
   let doneCount = 0;
   function done() {
     if (--doneCount === 0) {
-      putRaw(doneCh);
+      putUnblocked(doneCh);
     }
   }
 
@@ -165,7 +165,7 @@ export function split(src, ...buffers) {
 
       doneCount = dests.length;
       for (const dest of dests) {
-        putRaw(dest, value, done);
+        putUnblocked(dest, value, done);
       }
       yield take(doneCh);
     }
@@ -184,7 +184,7 @@ function tapped(src) {
   let doneCount = 0;
   function done() {
     if (--doneCount === 0) {
-      putRaw(doneCh);
+      putUnblocked(doneCh);
     }
   }
 
@@ -198,7 +198,7 @@ function tapped(src) {
 
       doneCount = src[protocols.taps].length;
       for (const tap of src[protocols.taps]) {
-        putRaw(tap, value, done);
+        putUnblocked(tap, value, done);
       }
       yield take(doneCh);
     }
@@ -236,7 +236,7 @@ export function untap(src, dest) {
       if (src[protocols.taps].length === 0) {
         // We have to do this because a tapped channel sits waiting in a while loop for a take to happen, and it wil be
         // waiting when we untap the last channel. Still nervous about it though.
-        putRaw(src);
+        putUnblocked(src);
       }
     }
   }
@@ -247,7 +247,7 @@ export function untap(src, dest) {
 export function untapAll(src) {
   if (src[protocols.taps]) {
     src[protocols.taps] = [];
-    putRaw(src);
+    putUnblocked(src);
   }
 }
 
@@ -271,7 +271,7 @@ export function map(fn, srcs, buffer = 0) {
       return (value) => {
         values[index] = value;
         if (--count === 0) {
-          putRaw(temp, values.slice());
+          putUnblocked(temp, values.slice());
         }
       };
     })(i);
@@ -281,7 +281,7 @@ export function map(fn, srcs, buffer = 0) {
     for (;;) {
       count = srcLen;
       for (let i = 0; i < srcLen; ++i) {
-        takeRaw(srcs[i], callbacks[i]);
+        takeUnblocked(srcs[i], callbacks[i]);
       }
       const values = yield take(temp);
       for (const value of values) {

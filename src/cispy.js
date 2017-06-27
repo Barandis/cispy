@@ -23,9 +23,9 @@
 // core.js
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // All of the CSP functions are pulled together into this file and exported. The process-related functions (put, take,
-// alts, putRaw, takeRaw, raise, sleep) and some others are just passed along, but a number of other functions are
-// defined here (go, spawn, chan). All three types of buffers are also supplied, along with the special values CLOSED.
-// EMPTY, and DEFAULT.
+// alts, putUnblocked, takeUnblocked, raise, sleep) and some others are just passed along, but a number of other
+// functions are defined here (go, spawn, chan). All three types of buffers are also supplied, along with the special
+// values CLOSED, EMPTY, and DEFAULT.
 
 import * as buffers from './core/buffers';
 import * as channel from './core/channel';
@@ -46,7 +46,7 @@ export function spawn(gen, exh) {
     if (value === channel.CLOSED) {
       ch.close();
     } else {
-      operations.putRaw(ch, value, () => ch.close());
+      operations.putUnblocked(ch, value, () => ch.close());
     }
   }).run();
   return ch;
@@ -115,8 +115,8 @@ export {
   sleep } from './generator/process';
 
 export {
-  putRaw,
-  takeRaw,
+  putUnblocked,
+  takeUnblocked,
   DEFAULT
 } from './async/operations';
 

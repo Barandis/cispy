@@ -9,8 +9,8 @@ import {
   put,
   take,
   alts,
-  putRaw,
-  takeRaw,
+  putUnblocked,
+  takeUnblocked,
   config,
   close,
   CLOSED,
@@ -136,7 +136,7 @@ describe('Core CSP', () => {
       });
     });
 
-    it('returns a value that was putRaw onto a channel', (done) => {
+    it('returns a value that was putUnblocked onto a channel', (done) => {
       const ch = chan();
 
       go(function* () {
@@ -144,7 +144,7 @@ describe('Core CSP', () => {
         done();
       });
 
-      putRaw(ch, 1729);
+      putUnblocked(ch, 1729);
     });
 
     it('blocks until there is a value on the channel', (done) => {
@@ -203,14 +203,14 @@ describe('Core CSP', () => {
       });
     });
 
-    it('puts a value onto a channel for takeRaw', (done) => {
+    it('puts a value onto a channel for takeUnblocked', (done) => {
       const ch = chan();
 
       go(function* () {
         yield put(ch, 1729);
       });
 
-      takeRaw(ch, (value) => {
+      takeUnblocked(ch, (value) => {
         expect(value).to.equal(1729);
         done();
       });

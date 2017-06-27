@@ -6,7 +6,7 @@ import {
   goSafe,
   chan,
   put,
-  putRaw,
+  putUnblocked,
   take,
   takeOrThrow
 } from '../../src/api';
@@ -132,7 +132,7 @@ describe('takeOrThrow', () => {
     const exh = (ex) => {
       expect(ex).to.equal(err);
       spy();
-      putRaw(ctrl);
+      putUnblocked(ctrl);
     };
 
     goSafe(function* () {

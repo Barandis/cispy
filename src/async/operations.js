@@ -39,10 +39,10 @@ export const DEFAULT = Symbol('DEFAULT');
 // pieces of information: the function to call when a put or take unblocks (because a value sent to put has been taken,
 // or a take has accepted a value that has been put) and whether or not the handler is still active.
 //
-// The function is a callback that actually defines the difference between put/take and putRaw/takeRaw: while the
-// async calls use the callback passed to the function, put and take simply continue the process where it left off.
-// (This is why put and take only work inside go functions, because otherwise there's no process to continue.) The alts
-// instruction always continues the process upon completion; there is no async version of alts.
+// The function is a callback that actually defines the difference between put/take and putUnblocked/takeUnblocked:
+// while the unblocked calls use the callback passed to the function, put and take simply continue the process where it
+// left off. (This is why put and take only work inside go functions, because otherwise there's no process to continue.)
+// The alts instruction always continues the process upon completion; there is no unblocked version of alts.
 //
 // This function is provided as the return value of the commit method. Calling commit has no extra effect with put and
 // take instructions, but for alts, it also marks the handler as no longer being active. This means that only one of
@@ -83,7 +83,7 @@ function altsHandler(active, fn) {
 
 // Puts a value onto a channel. When the value is successfully taken off the channel by another process or when
 // the channel closes, the callback fires if it exists.
-export function putRaw(channel, value, callback) {
+export function putUnblocked(channel, value, callback) {
   const result = channel.put(value, opHandler(callback));
   if (result && callback) {
     callback(result.value);
@@ -91,7 +91,7 @@ export function putRaw(channel, value, callback) {
 }
 
 // Takes a value off a channel. When the value becomes available, it is passed to the callback.
-export function takeRaw(channel, callback) {
+export function takeUnblocked(channel, callback) {
   const result = channel.take(opHandler(callback));
   if (result && callback) {
     callback(result.value);
@@ -104,7 +104,7 @@ export function takeRaw(channel, callback) {
 // take requests happen.
 export function put(channel, value) {
   return new Promise((resolve) => {
-    putRaw(channel, value, resolve);
+    putUnblocked(channel, value, resolve);
   });
 }
 
@@ -113,7 +113,7 @@ export function put(channel, value) {
 // the channel is/was closed.
 export function take(channel) {
   return new Promise((resolve) => {
-    takeRaw(channel, resolve);
+    takeUnblocked(channel, resolve);
   });
 }
 
@@ -121,7 +121,7 @@ export function take(channel) {
 // is an error object, the returned promise is rejected with that error.
 export function takeOrThrow(channel) {
   return new Promise((resolve, reject) => {
-    takeRaw(channel, (result) => {
+    takeUnblocked(channel, (result) => {
       if (Error.prototype.isPrototypeOf(result)) {
         reject(result);
       } else {
@@ -172,7 +172,7 @@ export function sleep(delay = 0) {
     } else {
       const ch = chan();
       setTimeout(() => ch.close(), delay);
-      takeRaw(ch, resolve);
+      takeUnblocked(ch, resolve);
     }
   });
 }
@@ -193,9 +193,9 @@ function randomArray(n) {
   return a;
 }
 
-// Processes the operations in an alts function call. This works in the same way as `takeRaw` and `putRaw` except
-// that each operation (each of which can be either a put or a take on any channel) is queued in a random order onto
-// its channel and only the first to complete returns a value (the other ones become invalidated then and are
+// Processes the operations in an alts function call. This works in the same way as `takeUnblocked` and `putUnblocked`
+// except that each operation (each of which can be either a put or a take on any channel) is queued in a random order
+// onto its channel and only the first to complete returns a value (the other ones become invalidated then and are
 // discarded).
 //
 // The callback receives an object instead of a value. This object has two properties: `value` is the value that was

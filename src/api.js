@@ -45,8 +45,8 @@ export {
   takeOrThrow,
   alts,
   sleep,
-  putRaw,
-  takeRaw,
+  putUnblocked,
+  takeUnblocked,
 
   promise,
   buffers,
