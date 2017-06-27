@@ -4,7 +4,7 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: [
-    './src/api.js'
+    './src/cispy.js'
   ],
   output: {
     filename: 'cispy.js',

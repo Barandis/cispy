@@ -22,53 +22,11 @@
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // cispy.js
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// All of the CSP functions are pulled together into this file and exported. The process-related functions (put, take,
-// alts, putAsync, takeAsync, raise, sleep) and some others are just passed along, but a number of other
-// functions are defined here (go, spawn, chan). All three types of buffers are also supplied, along with the special
-// values CLOSED, EMPTY, and DEFAULT.
 
-import { fixed, sliding, dropping } from './core/buffers';
+import * as conversion from './conversion';
+import * as flow from './flow';
+import * as timing from './timing';
 
-import * as gen from './generator/operations';
-import * as pro from './promise/operations';
+const util = Object.assign({}, conversion, flow, timing);
 
-import genUtil from './generator/util';
-import proUtil from './promise/util';
-
-export const buffers = { fixed, sliding, dropping };
-export const generator = {
-  go: gen.go,
-  goSafe: gen.goSafe,
-  spawn: gen.spawn,
-  put: gen.put,
-  take: gen.take,
-  takeOrThrow: gen.takeOrThrow,
-  alts: gen.alts,
-  sleep: gen.sleep,
-  util: genUtil
-};
-export const promise = {
-  put: pro.put,
-  take: pro.take,
-  takeOrThrow: pro.takeOrThrow,
-  alts: pro.alts,
-  sleep: pro.sleep,
-  util: proUtil
-};
-
-export {
-  chan,
-  timeout,
-  close,
-  CLOSED,
-  DEFAULT
-} from './core/channel';
-
-export {
-  putAsync,
-  takeAsync,
-  altsAsync
-} from './core/operations';
-
-export { EMPTY } from './core/buffers';
-export { config } from './core/options';
+export default util;

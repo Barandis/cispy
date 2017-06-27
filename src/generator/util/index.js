@@ -20,42 +20,13 @@
  */
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// api.js
+// cispy.js
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// The entry point for the CSP library. This provides all of the core CSP functions, along with the `util` object that
-// has non-core operations that work on channels. (Note that this `util` object is the only place in this library where
-// actual ES6 generators are created).
-//
-// This library provides these functions in a CommonJS format, but if it is run in a non-CommonJS environment, a global
-// `cispy` variable is provided.
-import * as flow from './generator/util/flow';
-import * as conversion from './generator/util/conversion';
-import * as timing from './generator/util/timing';
 
-export {
-  spawn,
-  go,
-  goSafe,
-  chan,
-  close,
-  timeout,
+import * as conversion from './conversion';
+import * as flow from './flow';
+import * as timing from './timing';
 
-  put,
-  take,
-  takeOrThrow,
-  alts,
-  sleep,
-  putAsync,
-  takeAsync,
-  altsAsync,
+const util = Object.assign({}, conversion, flow, timing);
 
-  promise,
-  buffers,
-  config,
-
-  EMPTY,
-  CLOSED,
-  DEFAULT
-} from './cispy';
-
-export const ops = Object.assign({}, flow, conversion, timing);
+export default util;
