@@ -30,7 +30,7 @@
 import * as buffers from './core/buffers';
 import * as channel from './core/channel';
 import * as process from './yield/process';
-import * as operations from './async/operations';
+import * as operations from './await/operations';
 import { putAsync } from './core/operations';
 
 // Creates a process from a generator (not a generator function) and runs it. The process is then left to its own

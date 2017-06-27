@@ -10,7 +10,7 @@ import {
   reduce,
   onto,
   into
-} from '../../../../src/async/operations/conversion';
+} from '../../../../src/await/operations/conversion';
 
 const { put, take } = promise;
 
