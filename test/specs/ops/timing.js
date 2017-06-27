@@ -16,7 +16,7 @@ import {
 import {
   debounce,
   throttle
-} from '../../../src/yield/operations/timing';
+} from '../../../src/generator/operations/timing';
 
 const {fixed, dropping, sliding} = buffers;
 

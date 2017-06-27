@@ -55,7 +55,7 @@ export {
   spawn,
   go,
   goSafe
-} from './yield/operations';
+} from './generator/operations';
 
 export const promise = {
   put: operations.put,
