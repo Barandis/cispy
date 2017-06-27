@@ -20,7 +20,7 @@ import {
   untap,
   untapAll,
   map
-} from '../../../src/generator/operations/flow';
+} from '../../../src/yield/operations/flow';
 
 const {fixed, dropping, sliding} = buffers;
 

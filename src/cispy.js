@@ -29,7 +29,7 @@
 
 import * as buffers from './core/buffers';
 import * as channel from './core/channel';
-import * as process from './generator/process';
+import * as process from './yield/process';
 import * as operations from './async/operations';
 import { putAsync } from './core/operations';
 
@@ -96,7 +96,7 @@ export {
   takeOrThrow,
   alts,
   sleep
-} from './generator/process';
+} from './yield/process';
 
 export const promise = {
   put: operations.put,

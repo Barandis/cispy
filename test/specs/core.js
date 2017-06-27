@@ -17,7 +17,7 @@ import {
   DEFAULT
 } from '../../src/api';
 
-import { process } from '../../src/generator/process';
+import { process } from '../../src/yield/process';
 
 describe('Core CSP', () => {
 
