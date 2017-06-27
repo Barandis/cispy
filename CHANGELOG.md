@@ -4,19 +4,23 @@ All notable changes to the library will be documented in this file.
 
 ## [Unreleased]
 ### Added
+- an entire new promise-based implementation of processes. This is completely agnostic to channels; channels have not had to change to accommodate these functions. These are best used with the `async`/`await` keywords from ES7, which are seeing relatively wide implementation, though they will work fine with straight promises as well. Since the JS engine handles promises, there is no need for custom process machinery, so `go`, `goSafe`, and `spawn` are not necessary.
+- two new builds, one for generators only and one for promises only. The core `cispy.js` retains both, but to accommodate this, generator operations are under the `generator` key and promise operations are under the `promise` key.
 - a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
 - a `goSafe` function to create processes that carry a handler to deal with errors that are thrown from the process itself, even if the process has no `try`/`catch` to deal with them.
 - a `takeOrThrow` function as an alternative to `take`. If `takeOrThrow` takes an error object off a channel, then it will throw that error right at that point (inside the process). How that error is handled depends on whether it's caught within the process and/or whether the process was created with `goSafe`.
-- a `close` function to close channels. There has always been a `close` function on the channel object, but I felt like there was some inconsistency with calling a function for `take(ch)` etc. but calling a function property for `ch.close()`. The function property is still available, but now you can also use `close(ch)`. (I would make them all available as function properties, but that wouldn't make sense for `alts`.)
+- a `close` function to close channels. There has always been a `close` function on the channel object, but I felt like there was some inconsistency with calling a function for `take(ch)` etc. but calling a function property for `ch.close()`. The function property is still available, but now you can also use `close(ch)`.
+- `altsAsync`. This was an internal function that has been exposed publicly. It is akin to `putAsync` and `takeAsync` in that it returns immediately takes a callback function as an argument that will be called when the operation completes.
 
 ### Removed
 - The `raise` function. Exceptions are now going to be dealt differently, without the need of an explicit function to feed the errors back into the process. Besides, `raise` never really did anything in the end. It was the genesis of an idea that was never finished and is no longer necessary.
 - The `defaultHandler` config option. Error handlers are now passed in explicitly through `goSafe`, avoiding the need for a global default.
 
 ### Changed
-- **Breaking change:** `putAsync` and `takeAsync` have been changed to `putRaw` and `takeRaw`. The `-Async` suffixes came directly from ublonton and jlongster, not from Clojure's core.async (where they were given names with no letters, unlike `go` and `chan`) and were probably meant to mirror node.js `-Sync` suffixes. `-Raw` more accurately describes what they do - they put and take without going through the process machinery. I'm also now looking at functions to convert CSP puts and takes into promises, which will be intended for use in `async` functions. Leaving the raw functions with the `-Async` names would be confusing at that point.
 - the special values of `CLOSED`, `DEFAULT`, and `EMPTY` are now symbols instead of objects.
-- Babel's stage-0 preset was replaced with stage-3. Stage-3 features are very likely to be in ES2017, while some stage-0 features are quite unlikely. This just seems more correct. (The only changes were the replacement of two `::`s with `call`.)
+- Babel's stage-0 preset was replaced with stage-3. Stage-3 features are very likely to be in ES2017, while some stage-0 features are quite unlikely. There isn't anything in stage-3 that isn't possible natively in current Node.js with the `--harmony` flag, and that isn't possible with stage-0. (The only changes were the replacement of two `::`s with `call`.)
+- buffers have been flattened in the API. Rather than having a `buffers` object with `fixed`, `dropping`, and `sliding` functions, there are now top-level `fixedBuffer`, `droppingBuffer`, and `slidingBuffer` functions. This is more akin to core.async, it makes it harder to make code unclear, and it's a personal preference anyway.
+- internally, the project structure has changed significantly. Module organization makes more sense now, and it's much easier to have multiple versions and multiple ways to access.
 
 ## [0.8.1] 2017-03-15
 ### Added
