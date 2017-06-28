@@ -14,8 +14,8 @@ describe('CSP channel', () => {
     expect(chan(fixed(3)).timeout).to.be.false;
     expect(chan(dropping(3)).timeout).to.be.false;
     expect(chan(sliding(3)).timeout).to.be.false;
-    expect(chan(1, t.map(x => x)).timeout).to.be.false;
-    expect(chan(1, t.map(x => x), e => { throw e; }).timeout).to.be.false;
+    expect(chan(1, t.map((x) => x)).timeout).to.be.false;
+    expect(chan(1, t.map((x) => x), (e) => { throw e; }).timeout).to.be.false;
   });
 
   it('cannot queue more than 1024 puts at once', (done) => {
@@ -28,11 +28,9 @@ describe('CSP channel', () => {
         });
       }
       expect.fail();
-    }
-    catch (ex) {
+    } catch (ex) {
       expect(ex.message).to.equal('No more than 1024 pending puts are allowed on a single channel');
-    }
-    finally {
+    } finally {
       done();
     }
   });
@@ -47,11 +45,9 @@ describe('CSP channel', () => {
         });
       }
       expect.fail();
-    }
-    catch (ex) {
+    } catch (ex) {
       expect(ex.message).to.equal('No more than 1024 pending takes are allowed on a single channel');
-    }
-    finally {
+    } finally {
       done();
     }
   });
@@ -66,11 +62,9 @@ describe('CSP channel', () => {
         });
       }
       expect.fail();
-    }
-    catch (ex) {
+    } catch (ex) {
       expect(ex.message).to.equal('No more than 2 pending takes are allowed on a single channel');
-    }
-    finally {
+    } finally {
       done();
     }
   });
@@ -175,11 +169,11 @@ describe('CSP channel', () => {
       expect(ch.buffered).to.be.true;
 
       go(function* () {
-        yield put (ch, 1);
-        yield put (ch, 2);
-        yield put (ch, 3);
+        yield put(ch, 1);
+        yield put(ch, 2);
+        yield put(ch, 3);
         // This one causes the first value to be dropped
-        yield put (ch, 4);
+        yield put(ch, 4);
         close(ch);
       });
 
@@ -201,7 +195,7 @@ describe('CSP channel', () => {
     const even = (x) => x % 2 === 0;
 
     it('can modify values on the channel before they\'re taken', (done) => {
-      const ch = chan(1, t.map(x => x + 1));
+      const ch = chan(1, t.map((x) => x + 1));
 
       go(function* () {
         yield put(ch, 1);
@@ -247,11 +241,11 @@ describe('CSP channel', () => {
     });
 
     it('handles composed transformers', (done) => {
-      const xform = t.compose(t.map(x => x * 3), t.filter(even), t.take(3));
+      const xform = t.compose(t.map((x) => x * 3), t.filter(even), t.take(3));
       const ch = chan(10, xform);
 
       go(function* () {
-        for (let i of [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]) {
+        for (const i of [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]) {
           yield put(ch, i);
         }
       });
@@ -271,7 +265,7 @@ describe('CSP channel', () => {
       const ctrl = chan();
 
       go(function* () {
-        for (let i of [0, 1, 2, 3, 4]) {
+        for (const i of [0, 1, 2, 3, 4]) {
           yield put(ch, [i, i]);
         }
         yield put(ctrl);
