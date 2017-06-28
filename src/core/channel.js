@@ -121,7 +121,7 @@ function isBox(value) {
 // sent to the transformer's reduction step function); trying to create a channel with a transformer but without a
 // buffer will result in an error being thrown.
 function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueued = MAX_QUEUED } = {}) {
-  return Object.assign({
+  return {
     takes: queue(),
     puts: queue(),
     buffer,
@@ -142,239 +142,239 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
 
     get timeout() {
       return !!timeout;
-    }
-  }, { put: putImpl, take: takeImpl, close: closeImpl });
-}
+    },
 
-// Puts a value on the channel. The specified handler is used to control whether the put is active and what to do after
-// the put completes. A put can become inactive if it was part of an `alts` call and some other operation specified in
-// that call has already completed.
-//
-// This value is given to a take handler immediately if there's one waiting. Otherwise the value and handler are queued
-// together to wait for a take.
-function putImpl(value, handler) {
-  if (value === CLOSED) {
-    throw Error('Cannot put CLOSED on a channel');
-  }
-
-  if (this.closed) {
-    handler.commit();
-    return box(false);
-  }
-
-  let taker, callback;
-
-  // Push the incoming value through the buffer, even if there's already a taker waiting for the value. This is to make
-  // sure that the transducer step function has a chance to act on the value (which could change the value or make it
-  // unavailable altogether) before the taker sees it.
-  //
-  // If this channel is unbuffered this process is skipped (there can't be a transformer on an unbuffered channel
-  // anyway). If the buffer is full, the transformation is deferred until later when the buffer is not full.
-  if (this.buffer && !this.buffer.full) {
-    handler.commit();
-    const done = isReduced(this.xform[p.step](this.buffer, value));
-
-    for (;;) {
-      if (this.buffer.count === 0) {
-        break;
+    // Puts a value on the channel. The specified handler is used to control whether the put is active and what to do
+    // after the put completes. A put can become inactive if it was part of an `alts` call and some other operation
+    // specified in that call has already completed.
+    //
+    // This value is given to a take handler immediately if there's one waiting. Otherwise the value and handler are
+    // queued together to wait for a take.
+    put(value, handler) {
+      if (value === CLOSED) {
+        throw Error('Cannot put CLOSED on a channel');
       }
-      taker = this.takes.dequeue();
-      if (taker === EMPTY) {
-        break;
+
+      if (this.closed) {
+        handler.commit();
+        return box(false);
       }
-      if (taker.active) {
-        callback = taker.commit();
-        const val = this.buffer.remove();
-        if (callback) {
-          dispatch(() => callback(val));
+
+      let taker, callback;
+
+      // Push the incoming value through the buffer, even if there's already a taker waiting for the value. This is to
+      // make sure that the transducer step function has a chance to act on the value (which could change the value or
+      // make it unavailable altogether) before the taker sees it.
+      //
+      // If this channel is unbuffered this process is skipped (there can't be a transformer on an unbuffered channel
+      // anyway). If the buffer is full, the transformation is deferred until later when the buffer is not full.
+      if (this.buffer && !this.buffer.full) {
+        handler.commit();
+        const done = isReduced(this.xform[p.step](this.buffer, value));
+
+        for (;;) {
+          if (this.buffer.count === 0) {
+            break;
+          }
+          taker = this.takes.dequeue();
+          if (taker === EMPTY) {
+            break;
+          }
+          if (taker.active) {
+            callback = taker.commit();
+            const val = this.buffer.remove();
+            if (callback) {
+              dispatch(() => callback(val));
+            }
+          }
         }
-      }
-    }
 
-    if (done) {
-      this.close();
-    }
-    return box(true);
-  }
-
-  // This next loop happens if the channel is unbuffered and there is at least one pending take. It processes the next
-  // pending take immediately. (Buffered channels break out of the loop immediately, because in order for a buffered
-  // channel to reach this point, its buffer must have been full. This means there are no pending takes and the first
-  // one pulled will be EMPTY.)
-  for (;;) {
-    taker = this.takes.dequeue();
-    if (taker === EMPTY) {
-      break;
-    }
-    if (taker.active) {
-      handler.commit();
-      callback = taker.commit();
-      if (callback) {
-        dispatch(() => callback(value));
-      }
-      return box(true);
-    }
-  }
-
-  // If there are no pending takes on an unbuffered channel, or on a buffered channel with a full buffer, we queue the
-  // put to let it wait for a take to become available. Puts whose handlers have gone inactive (because they were part
-  // of an ALTS instruction) are periodically purged.
-  if (this.dirtyPuts > this.maxDirty) {
-    this.puts.filter((putter) => putter.handler.active);
-    this.dirtyPuts = 0;
-  } else {
-    this.dirtyPuts++;
-  }
-
-  if (this.puts.count >= this.maxQueued) {
-    throw Error(`No more than ${this.maxQueuedO} pending puts are allowed on a single channel`);
-  }
-  this.puts.enqueue(putBox(handler, value));
-
-  return null;
-}
-
-function takeImpl(handler) {
-  let putter, putHandler, callback;
-
-  // Happens when this is a buffered channel and the buffer is not empty (an empty buffer means there are no pending
-  // puts). We immediately process any puts that were queued when there were no pending takes, up until the buffer is
-  // filled with put values.
-  if (this.buffer && this.buffer.count > 0) {
-    handler.commit();
-    const value = this.buffer.remove();
-
-    for (;;) {
-      if (this.buffer.full) {
-        break;
-      }
-      putter = this.puts.dequeue();
-      if (putter === EMPTY) {
-        break;
-      }
-
-      putHandler = putter.handler;
-      if (putHandler.active) {
-        callback = putHandler.commit();
-        if (callback) {
-          dispatch(() => callback(true));
-        }
-        if (isReduced(this.xform[p.step](this.buffer, putter.value))) {
+        if (done) {
           this.close();
         }
+        return box(true);
       }
-    }
-    return box(value);
-  }
 
-  // This loop runs on an unbuffered channel if there are any pending puts. It processes the next pending put
-  // immediately. (Buffered channels skip this section because in order to have come this far, the channel's buffer
-  // must have been empty. This means there are no pending puts, so the first pending put pulled will be EMPTY.)
-  for (;;) {
-    putter = this.puts.dequeue();
-    if (putter === EMPTY) {
-      break;
-    }
-    putHandler = putter.handler;
-    if (putHandler.active) {
-      callback = putHandler.commit();
-      if (callback) {
-        dispatch(() => callback(true));
+      // This next loop happens if the channel is unbuffered and there is at least one pending take. It processes the
+      // next pending take immediately. (Buffered channels break out of the loop immediately, because in order for a
+      // buffered channel to reach this point, its buffer must have been full. This means there are no pending takes and
+      // the first one pulled will be EMPTY.)
+      for (;;) {
+        taker = this.takes.dequeue();
+        if (taker === EMPTY) {
+          break;
+        }
+        if (taker.active) {
+          handler.commit();
+          callback = taker.commit();
+          if (callback) {
+            dispatch(() => callback(value));
+          }
+          return box(true);
+        }
       }
-      return box(putter.value);
-    }
-  }
 
-  // If we've exhausted all of our pending puts and the channel is marked closed, we can finally return the fact that
-  // the channel is closed. This ensures that any puts that were already pending on the channel are still processed
-  // before closure, even if the channel was closed before that could happen.
-  if (this.closed) {
-    handler.commit();
-    return box(CLOSED);
-  }
-
-  // If an unbuffered channel or a buffered channel with an empty buffer has no pending puts, and if the channel is
-  // still open, the take is queued to be processed when a put is available. Takes whose handlers have gone inactive as
-  // the result of alts processing are periodically purged.
-  if (this.dirtyTakes > this.maxDirty) {
-    this.takes.filter((taker) => taker.active);
-    this.dirtyTakes = 0;
-  } else {
-    this.dirtyTakes++;
-  }
-
-  if (this.takes.count >= this.maxQueued) {
-    throw Error(`No more than ${this.maxQueued} pending takes are allowed on a single channel`);
-  }
-  this.takes.enqueue(handler);
-
-  return null;
-}
-
-// Closes the channel, if it isn't already closed. This immediately returns any buffered values to pending takes. If
-// there are no buffered values (or if they've already been taken by other takes), then all of the rest of the takes
-// are completed with the value of `CLOSED`. Any pending puts are completed with the value of `false`.
-//
-// Note that the buffer is not emptied if there are still values remaining after all of the pending takes have been
-// handled. The channel will still provide those values to any future takes, though no new values may be added to the
-// channel. Once the buffer is depleted, any future take will return CLOSED.
-function closeImpl() {
-  if (this._closed) {
-    return;
-  }
-  this._closed = true;
-
-  let taker, putter, callback;
-
-  // If there is a buffer and it has at least one value in it, send those values to any pending takes that might be
-  // queued.
-  if (this.buffer) {
-    this.xform[p.result](this.buffer);
-    for (;;) {
-      if (this.buffer.count === 0) {
-        break;
+      // If there are no pending takes on an unbuffered channel, or on a buffered channel with a full buffer, we queue
+      // the put to let it wait for a take to become available. Puts whose handlers have gone inactive (because they
+      // were part of an ALTS instruction) are periodically purged.
+      if (this.dirtyPuts > this.maxDirty) {
+        this.puts.filter((putter) => putter.handler.active);
+        this.dirtyPuts = 0;
+      } else {
+        this.dirtyPuts++;
       }
-      taker = this.takes.dequeue();
-      if (taker === EMPTY) {
-        break;
+
+      if (this.puts.count >= this.maxQueued) {
+        throw Error(`No more than ${this.maxQueuedO} pending puts are allowed on a single channel`);
       }
-      if (taker.active) {
-        callback = taker.commit();
+      this.puts.enqueue(putBox(handler, value));
+
+      return null;
+    },
+
+    take(handler) {
+      let putter, putHandler, callback;
+
+      // Happens when this is a buffered channel and the buffer is not empty (an empty buffer means there are no pending
+      // puts). We immediately process any puts that were queued when there were no pending takes, up until the buffer
+      // is filled with put values.
+      if (this.buffer && this.buffer.count > 0) {
+        handler.commit();
         const value = this.buffer.remove();
-        if (callback) {
-          dispatch(() => callback(value));
+
+        for (;;) {
+          if (this.buffer.full) {
+            break;
+          }
+          putter = this.puts.dequeue();
+          if (putter === EMPTY) {
+            break;
+          }
+
+          putHandler = putter.handler;
+          if (putHandler.active) {
+            callback = putHandler.commit();
+            if (callback) {
+              dispatch(() => callback(true));
+            }
+            if (isReduced(this.xform[p.step](this.buffer, putter.value))) {
+              this.close();
+            }
+          }
+        }
+        return box(value);
+      }
+
+      // This loop runs on an unbuffered channel if there are any pending puts. It processes the next pending put
+      // immediately. (Buffered channels skip this section because in order to have come this far, the channel's buffer
+      // must have been empty. This means there are no pending puts, so the first pending put pulled will be EMPTY.)
+      for (;;) {
+        putter = this.puts.dequeue();
+        if (putter === EMPTY) {
+          break;
+        }
+        putHandler = putter.handler;
+        if (putHandler.active) {
+          callback = putHandler.commit();
+          if (callback) {
+            dispatch(() => callback(true));
+          }
+          return box(putter.value);
+        }
+      }
+
+      // If we've exhausted all of our pending puts and the channel is marked closed, we can finally return the fact
+      // that the channel is closed. This ensures that any puts that were already pending on the channel are still
+      // processed before closure, even if the channel was closed before that could happen.
+      if (this.closed) {
+        handler.commit();
+        return box(CLOSED);
+      }
+
+      // If an unbuffered channel or a buffered channel with an empty buffer has no pending puts, and if the channel is
+      // still open, the take is queued to be processed when a put is available. Takes whose handlers have gone inactive
+      // as the result of alts processing are periodically purged.
+      if (this.dirtyTakes > this.maxDirty) {
+        this.takes.filter((taker) => taker.active);
+        this.dirtyTakes = 0;
+      } else {
+        this.dirtyTakes++;
+      }
+
+      if (this.takes.count >= this.maxQueued) {
+        throw Error(`No more than ${this.maxQueued} pending takes are allowed on a single channel`);
+      }
+      this.takes.enqueue(handler);
+
+      return null;
+    },
+
+    // Closes the channel, if it isn't already closed. This immediately returns any buffered values to pending takes. If
+    // there are no buffered values (or if they've already been taken by other takes), then all of the rest of the takes
+    // are completed with the value of `CLOSED`. Any pending puts are completed with the value of `false`.
+    //
+    // Note that the buffer is not emptied if there are still values remaining after all of the pending takes have been
+    // handled. The channel will still provide those values to any future takes, though no new values may be added to
+    // the channel. Once the buffer is depleted, any future take will return CLOSED.
+    close() {
+      if (this._closed) {
+        return;
+      }
+      this._closed = true;
+
+      let taker, putter, callback;
+
+      // If there is a buffer and it has at least one value in it, send those values to any pending takes that might be
+      // queued.
+      if (this.buffer) {
+        this.xform[p.result](this.buffer);
+        for (;;) {
+          if (this.buffer.count === 0) {
+            break;
+          }
+          taker = this.takes.dequeue();
+          if (taker === EMPTY) {
+            break;
+          }
+          if (taker.active) {
+            callback = taker.commit();
+            const value = this.buffer.remove();
+            if (callback) {
+              dispatch(() => callback(value));
+            }
+          }
+        }
+      }
+
+      // Once the buffer is empty (or if there never was a buffer), send CLOSED to all remaining queued takes.
+      for (;;) {
+        taker = this.takes.dequeue();
+        if (taker === EMPTY) {
+          break;
+        }
+        if (taker.active) {
+          callback = taker.commit();
+          if (callback) {
+            dispatch(() => callback(CLOSED));
+          }
+        }
+      }
+
+      // Send `false` to any remaining queued puts.
+      for (;;) {
+        putter = this.puts.dequeue();
+        if (putter === EMPTY) {
+          break;
+        }
+        if (putter.handler.active) {
+          callback = putter.handler.commit();
+          if (callback) {
+            dispatch(() => callback(false));
+          }
         }
       }
     }
-  }
-
-  // Once the buffer is empty (or if there never was a buffer), send CLOSED to all remaining queued takes.
-  for (;;) {
-    taker = this.takes.dequeue();
-    if (taker === EMPTY) {
-      break;
-    }
-    if (taker.active) {
-      callback = taker.commit();
-      if (callback) {
-        dispatch(() => callback(CLOSED));
-      }
-    }
-  }
-
-  // Send `false` to any remaining queued puts.
-  for (;;) {
-    putter = this.puts.dequeue();
-    if (putter === EMPTY) {
-      break;
-    }
-    if (putter.handler.active) {
-      callback = putter.handler.commit();
-      if (callback) {
-        dispatch(() => callback(false));
-      }
-    }
-  }
+  };
 }
 
 // The default exception handler, used when no exception handler is supplied to handleException, wrapTransformer, or
