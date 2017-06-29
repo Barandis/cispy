@@ -1,6 +1,6 @@
-const { expect } = require('../../helper');
+const { expect } = require('../../../helper');
 
-const { chan, close, takeAsync, go, put, take, util } = require('../../../src/cispy');
+const { chan, close, takeAsync, go, put, take, util } = require('../../../../src/cispy');
 
 const { reduce, onto, into } = util;
 

@@ -1,7 +1,8 @@
-const { expect } = require('../../helper');
+/* eslint-disable max-lines */
+const { expect } = require('../../../helper');
 const sinon = require('sinon');
 
-const { chan, close, CLOSED, config, SET_TIMEOUT, fixedBuffer, go, put, take, util } = require('../../../src/cispy');
+const { chan, close, CLOSED, config, SET_TIMEOUT, fixedBuffer, go, put, take, util } = require('../../../../src/cispy');
 
 const { debounce, throttle } = util;
 
@@ -12,7 +13,7 @@ describe('Channel timing functions', () => {
   describe('debounce', () => {
     let clock;
 
-    beforeEach(() => clock = sinon.useFakeTimers());
+    beforeEach(() => (clock = sinon.useFakeTimers()));
     afterEach(() => clock.restore());
 
     it('can accept a buffer value for the output channel', (done) => {
@@ -50,7 +51,7 @@ describe('Channel timing functions', () => {
         done();
       });
 
-      go(function* () { close(input); });
+      close(input);
 
       clock.tick(1);
     });
@@ -369,7 +370,7 @@ describe('Channel timing functions', () => {
   describe('throttle', () => {
     let clock;
 
-    beforeEach(() => clock = sinon.useFakeTimers());
+    beforeEach(() => (clock = sinon.useFakeTimers()));
     afterEach(() => clock.restore());
 
     it('can accept a buffer value for the output channel', (done) => {
@@ -404,7 +405,7 @@ describe('Channel timing functions', () => {
         done();
       });
 
-      go(function* () { close(input); });
+      close(input);
 
       clock.tick(1);
     });
@@ -665,7 +666,6 @@ describe('Channel timing functions', () => {
       });
 
       it('cancels throttling and closes the output channel if something is put onto the cancel channel', (done) => {
-
         go(function* () {
           expect(yield take(output)).to.equal(1729);
           expect(yield take(output)).to.equal(CLOSED);
