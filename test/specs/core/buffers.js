@@ -1,18 +1,12 @@
-const { expect } = require('../helper');
+const { expect } = require('../../helper');
 
-const {
-  EMPTY,
-  queue,
-  fixed,
-  dropping,
-  sliding
-} = require('../../src/core/buffers');
+const { EMPTY, queue, fixed, dropping, sliding } = require('../../../src/core/buffers');
 
 describe('Buffers', () => {
   context('queue', () => {
     let q;
 
-    beforeEach(() => q = queue());
+    beforeEach(() => (q = queue()));
 
     it('begins as an empty queue', () => {
       expect(q.empty).to.be.true;
@@ -21,7 +15,7 @@ describe('Buffers', () => {
 
     context('dequeue', () => {
       it('removes the oldest item from the queue', () => {
-        for (let i of [1, 2, 3]) {
+        for (const i of [1, 2, 3]) {
           q.enqueue(i);
         }
         expect(q.dequeue()).to.equal(1);
@@ -37,7 +31,7 @@ describe('Buffers', () => {
 
     context('peek', () => {
       it('peeks at the oldest item in the queue without removing it', () => {
-        for (let i of [1, 2, 3]) {
+        for (const i of [1, 2, 3]) {
           q.enqueue(i);
         }
         expect(q.peek()).to.equal(1);
@@ -53,11 +47,11 @@ describe('Buffers', () => {
 
     context('filter', () => {
       it('filters queued items by a predicate', () => {
-        for (let i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+        for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
           q.enqueue(i);
         }
         expect(q.count).to.equal(10);
-        q.filter(item => item % 2 === 0);
+        q.filter((item) => item % 2 === 0);
         expect(q.count).to.equal(5);
 
         expect(q.dequeue()).to.equal(2);
@@ -73,7 +67,7 @@ describe('Buffers', () => {
   context('fixed', () => {
     let buffer;
 
-    beforeEach(() => buffer = fixed(3));
+    beforeEach(() => (buffer = fixed(3)));
 
     it('does not start full', () => {
       expect(buffer.full).to.be.false;
@@ -135,7 +129,7 @@ describe('Buffers', () => {
   context('dropping', () => {
     let buffer;
 
-    beforeEach(() => buffer = dropping(3));
+    beforeEach(() => (buffer = dropping(3)));
 
     it('does not start full', () => {
       expect(buffer.full).to.be.false;
@@ -184,7 +178,7 @@ describe('Buffers', () => {
   context('sliding', () => {
     let buffer;
 
-    beforeEach(() => buffer = sliding(3));
+    beforeEach(() => (buffer = sliding(3)));
 
     it('does not start full', () => {
       expect(buffer.full).to.be.false;

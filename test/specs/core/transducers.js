@@ -1,7 +1,7 @@
-const { expect } = require('../helper');
+const { expect } = require('../../helper');
 
-const { chan, close, CLOSED } = require('../../src/core/channel');
-const { go, put, take } = require('../../src/generator/operations');
+const { chan, close, CLOSED } = require('../../../src/core/channel');
+const { go, put, take } = require('../../../src/generator/operations');
 
 const t = require('xduce');
 
@@ -28,7 +28,7 @@ function fillChannel(channel, count, cl) {
 
 function fillChannelWith(channel, array, cl) {
   go(function* () {
-    for (let i of array) {
+    for (const i of array) {
       yield put(channel, i);
     }
     if (cl) {
@@ -87,7 +87,7 @@ describe('Transducers', () => {
 
   describe('flatMap', () => {
     it('works on channels', (done) => {
-      const ch = chan(5, t.flatMap(x => [x, x + 1]));
+      const ch = chan(5, t.flatMap((x) => [x, x + 1]));
       fillChannel(ch, 5);
       expectChannel(ch, [1, 2, 2, 3, 3, 4, 4, 5, 5, 6], done);
     });
@@ -151,7 +151,7 @@ describe('Transducers', () => {
 
   describe('dropWhile', () => {
     it('works on channels', (done) => {
-      const ch = chan(5, t.dropWhile(lt4))
+      const ch = chan(5, t.dropWhile(lt4));
       fillChannel(ch, 5);
       expectChannel(ch, [4, 5], done);
     });

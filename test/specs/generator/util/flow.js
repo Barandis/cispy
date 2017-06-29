@@ -1,4 +1,5 @@
-const { expect } = require('../../helper');
+/* eslint-disable max-lines */
+const { expect } = require('../../../helper');
 
 const {
   chan,
@@ -11,7 +12,7 @@ const {
   put,
   take,
   sleep,
-  util } = require('../../../src/cispy');
+  util } = require('../../../../src/cispy');
 
 const { pipe, partition, merge, split, tap, untap, untapAll, map } = util;
 
@@ -33,7 +34,7 @@ function fillChannel(channel, count, cl) {
 
 function fillChannelWith(channel, array, cl) {
   go(function* () {
-    for (let i of array) {
+    for (const i of array) {
       yield put(channel, i);
     }
     if (cl) {
@@ -89,10 +90,10 @@ describe('Flow control functions', () => {
         done();
       });
 
-      go(function* () { close(input); });
+      close(input);
     });
 
-    it('keeps the outpuyt channel open with keeoOpen', (done) => {
+    it('keeps the output channel open with keeoOpen', (done) => {
       const input = chan();
       const output = chan();
       pipe(input, output, true);
@@ -215,13 +216,13 @@ describe('Flow control functions', () => {
           const index = yield take(output);
           values[index] = true;
         }
-        expect(values.every(x => x)).to.be.true;
+        expect(values.every((x) => x)).to.be.true;
         done();
       });
     });
 
     it('accepts a buffer to back the output channel', (done) => {
-      const inputs = [chan(), chan(), chan()]
+      const inputs = [chan(), chan(), chan()];
       const output = merge(inputs, slidingBuffer(3));
 
       fillChannelWith(inputs[0], [0, 1, 2, 3, 4]);
@@ -231,7 +232,7 @@ describe('Flow control functions', () => {
       go(function* () {
         yield sleep();
         yield sleep();
-        for(let i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
           expect([2, 3, 4, 7, 8, 9, 12, 13, 14]).to.include(yield take(output));
         }
         done();
@@ -242,11 +243,9 @@ describe('Flow control functions', () => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs);
 
-      go(function* () {
-        for (let ch of inputs) {
-          close(ch);
-        }
-      });
+      for (const ch of inputs) {
+        close(ch);
+      }
 
       go(function* () {
         expect(yield take(output)).to.equal(CLOSED);
@@ -408,7 +407,7 @@ describe('Flow control functions', () => {
 
       it('will not untap a channel that isn\'t tapping', () => {
         const input = chan();
-        const output1 = tap(input);
+        tap(input);
         const output2 = chan();
 
         expect(input[TAPS].length).to.equal(1);
