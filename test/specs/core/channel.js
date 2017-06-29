@@ -1,8 +1,10 @@
-const { expect } = require('../helper');
+/* eslint-disable max-lines */
+const { expect } = require('../../helper');
 
-const { fixed, dropping, sliding } = require('../../src/core/buffers');
-const { chan, close, CLOSED } = require('../../src/core/channel');
-const { go, sleep, put, take } = require('../../src/generator/operations');
+const { fixed, dropping, sliding } = require('../../../src/core/buffers');
+const { chan, close, CLOSED } = require('../../../src/core/channel');
+const { go, sleep, put, take } = require('../../../src/generator/operations');
+const p = require('../../../src/core/protocol').protocols;
 
 const t = require('xduce');
 
@@ -69,7 +71,7 @@ describe('CSP channel', () => {
     }
   });
 
-  describe('buffer option', () => {
+  describe('buffer argument', () => {
     it('defaults to being unbuffered', (done) => {
       const ch = chan();
       expect(ch.buffered).to.be.false;
@@ -191,7 +193,7 @@ describe('CSP channel', () => {
     });
   });
 
-  describe('transducers option', () => {
+  describe('transducers argument', () => {
     const even = (x) => x % 2 === 0;
 
     it('can modify values on the channel before they\'re taken', (done) => {
@@ -291,6 +293,110 @@ describe('CSP channel', () => {
         const value2 = yield take(out);
         expect(value1 === 'closed' || value2 === 'closed').to.be.true;
         expect(value1 === 'closed' && value2 === 'closed').to.be.false;
+        done();
+      });
+    });
+  });
+
+  describe('handler argument', () => {
+    const stepErrorTransducer = (xform) => ({
+      [p.step]() { throw Error('step error'); },
+      [p.result](value) { return xform[p.result](value); }
+    });
+
+    const resultErrorTransducer = (xform) => ({
+      [p.step](acc, input) { return xform[p.step](acc, input); },
+      [p.result]() { throw Error('result error'); }
+    });
+
+    const oneTimeStepErrorTransducer = (xform) => ({
+      count: 0,
+      [p.step](acc, input) {
+        if (this.count++ === 0) {
+          throw Error('step error');
+        }
+        return xform[p.step](acc, input);
+      },
+      [p.result](value) { return xform[p.result](value); }
+    });
+
+    const mustBe1729Transducer = (xform) => ({
+      [p.step](acc, input) {
+        if (input !== 1729) { throw Error('not 1729!'); }
+        return xform[p.step](acc, input);
+      },
+      [p.result](value) { return xform[p.result](value); }
+    });
+
+    it('provides a way to handle an error that happens in the step function of a transducer', (done) => {
+      const exh = (ex) => {
+        expect(ex.message).to.equal('step error');
+        done();
+      };
+
+      const ch = chan(1, stepErrorTransducer, exh);
+      go(function* () {
+        yield put(ch, 1);
+      });
+
+      go(function* () {
+        // The step function runs when a channel is taken from, so
+        yield take(ch);
+      });
+    });
+
+    it('provides a way to handle an error that happens in the result function of a transducer', (done) => {
+      const exh = (ex) => {
+        expect(ex.message).to.equal('result error');
+        done();
+      };
+
+      const ch = chan(1, resultErrorTransducer, exh);
+
+      go(function* () {
+        yield put(ch, 1);
+      });
+
+      go(function* () {
+        yield take(ch);
+        // The result function doesn't run until the channel is closed, so we have to call close to make this work
+        close(ch);
+      });
+    });
+
+    it('provides a default handler that simply makes nothing available', (done) => {
+      const ch = chan(1, oneTimeStepErrorTransducer);
+
+      go(function* () {
+        yield put(ch, 1);
+        yield put(ch, 1729);
+      });
+
+      go(function* () {
+        // The one-time error transducer throws an error the first time, for the 1, which is ignored
+        // The second put, with 1729, completes successfully
+        expect(yield take(ch)).to.equal(1729);
+        done();
+      });
+    });
+
+    it('puts its return value onto the channel in place of whatever caused the error', (done) => {
+      const exh = () => 2317;
+      const ch = chan(1, mustBe1729Transducer, exh);
+
+      go(function* () {
+        yield put(ch);
+        yield put(ch, 1729);
+        yield put(ch, 42);
+        yield put(ch, 27);
+      });
+
+      go(function* () {
+        // only the put that actually put 1729 doens't error, the error handler returns 2317 for the others
+        expect(yield take(ch)).to.equal(2317);
+        expect(yield take(ch)).to.equal(1729);
+        expect(yield take(ch)).to.equal(2317);
+        expect(yield take(ch)).to.equal(2317);
         done();
       });
     });
