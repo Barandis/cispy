@@ -1,7 +1,7 @@
-const { expect } = require('../helper');
+const { expect } = require('../../helper');
 
-const { chan, close, CLOSED } = require('../../src/core/channel');
-const { go, put, take } = require('../../src/generator/operations');
+const { chan, close, CLOSED } = require('../../../src/core/channel');
+const { go, put, take } = require('../../../src/generator/operations');
 
 const t = require('xduce');
 

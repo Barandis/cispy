@@ -1,14 +1,13 @@
-const { expect } = require('../helper');
+/* eslint-disable max-lines */
+const { expect } = require('../../helper');
 const sinon = require('sinon');
 
-const { chan, timeout, close, CLOSED, DEFAULT } = require('../../src/core/channel');
-const { putAsync, takeAsync } = require('../../src/core/operations');
-const { config, SET_TIMEOUT } = require('../../src/core/dispatcher');
-const { go, sleep, put, take, alts } = require('../../src/generator/operations');
-const { process } = require('../../src/generator/process');
+const { chan, close, CLOSED, DEFAULT } = require('../../../src/core/channel');
+const { putAsync, takeAsync } = require('../../../src/core/operations');
+const { config, SET_TIMEOUT } = require('../../../src/core/dispatcher');
+const { go, goSafe, sleep, put, take, alts, takeOrThrow } = require('../../../src/generator/operations');
 
 describe('Core CSP', () => {
-
   // Annoyingly, it appears that setImmediate isn't working with Sinon's fake timers (or lolex's, for that matter).
   // Timing tests all fail when using them. I have tested that these work as expected when using normal (non-faked),
   // timers, but in order to execute these tests in a reasonable amount of time, the delays have to be so short as to
@@ -19,7 +18,7 @@ describe('Core CSP', () => {
     let clock;
 
     before(() => config({dispatchMethod: SET_TIMEOUT}));
-    beforeEach(() => clock = sinon.useFakeTimers());
+    beforeEach(() => (clock = sinon.useFakeTimers()));
     afterEach(() => clock.restore());
     after(() => config({dispatchMethod: null}));
 
@@ -36,63 +35,6 @@ describe('Core CSP', () => {
 
       clock.tick(300);
       expect(spy).to.be.called;
-    });
-  });
-
-  describe('timeout', () => {
-    let clock;
-
-    before(() => config({dispatchMethod: SET_TIMEOUT}));
-    beforeEach(() => clock = sinon.useFakeTimers());
-    afterEach(() => clock.restore());
-    after(() => config({dispatchMethod: null}));
-
-    it('creates a channel that closes after a certain amount of time', (done) => {
-      const spy = sinon.spy();
-      const ch = timeout(500);
-
-      go(function* () {
-        yield take(ch);
-        spy();
-      });
-
-      go(function* () {
-        expect(spy).not.to.be.called;
-
-        clock.tick(250);
-        expect(spy).not.to.be.called;
-
-        clock.tick(300);
-        expect(spy).to.be.called;
-
-        done();
-      });
-    });
-
-    it('marks itself as a timeout channel', () => {
-      expect(timeout(0).timeout).to.be.true;
-    });
-
-    it('is useful in limiting how long an alts call will wait', (done) => {
-      const spy = sinon.spy();
-      const chs = [chan(), chan(), timeout(500)];
-
-      go(function* () {
-        yield alts(chs);
-        spy();
-      });
-
-      go(function* () {
-        expect(spy).not.to.be.called;
-
-        clock.tick(250);
-        expect(spy).not.to.be.called;
-
-        clock.tick(300);
-        expect(spy).to.be.called;
-
-        done();
-      });
     });
   });
 
@@ -212,11 +154,9 @@ describe('Core CSP', () => {
           yield put(ch, CLOSED);
           expect.fail();
         });
-      }
-      catch (ex) {
+      } catch (ex) {
         expect(ex.message).to.equal('Cannot put CLOSED on a channel');
-      }
-      finally {
+      } finally {
         done();
       }
     });
@@ -225,7 +165,7 @@ describe('Core CSP', () => {
       const ch = chan();
       go(function* () { yield take(ch); });
 
-      go(function*() {
+      go(function* () {
         expect(yield put(ch, 1729)).to.be.true;
         done();
       });
@@ -263,12 +203,12 @@ describe('Core CSP', () => {
 
   describe('alts', () => {
     function numTrue(array) {
-      return array.filter(x => x).length;
+      return array.filter((x) => x).length;
     }
 
     let chs;
 
-    beforeEach(() => chs = [chan(), chan(), chan()]);
+    beforeEach(() => (chs = [chan(), chan(), chan()]));
 
     it('accepts a value off exactly one channel at a time', (done) => {
       go(function* () { yield put(chs[0], 0); });
@@ -356,11 +296,9 @@ describe('Core CSP', () => {
           yield alts([]);
           expect.fail();
         });
-      }
-      catch (ex) {
+      } catch (ex) {
         expect(ex.message).to.equal('Alts called with no operations');
-      }
-      finally {
+      } finally {
         done();
       }
     });
@@ -437,122 +375,99 @@ describe('Core CSP', () => {
     });
   });
 
-  describe('go', () => {
-    it('can accept arguments for the supplied process', (done) => {
-      const ch = chan();
-
-      go(function* (x, y) {
-        yield put(ch, x - y);
-      }, 1729, 10);
-
-      go(function* () {
-        expect(yield take(ch)).to.equal(1719);
-        done();
-      });
-    });
-
-    it('returns a channel that receives the return value from the process and then closes when the value is taken',
-        (done) => {
-      const ch = go(function* () { return 1729; });
-
-      go(function* () {
-        expect(yield take(ch)).to.equal(1729);
-        expect(yield take(ch)).to.equal(CLOSED);
-        done();
-      });
-    });
-
-    it('closes the return value if the process return value is CLOSED', (done) => {
-      const ch = go(function* () { return CLOSED; });
-
-      go(function* () {
-        expect(yield take(ch)).to.equal(CLOSED);
-        done();
-      });
-    });
-  });
-
-  describe('close', () => {
-    it('does nothing if the channel is already closed', () => {
-      const ch = chan();
-      close(ch);
-      expect(ch.closed).to.be.true;
-      close(ch);
-      expect(ch.closed).to.be.true;
-    });
-
-    it('causes any pending and future puts to return false', (done) => {
+  describe('takeOrThrow', () => {
+    it('acts like a take if no error object is taken from the channel', (done) => {
       const ch = chan();
 
       go(function* () {
-        // pending
-        expect(yield put(ch, 1)).to.be.false;
-        // future
-        expect(yield put(ch, 1)).to.be.false;
-        done();
-      });
-
-      go(function* () {
-        yield sleep();
-        close(ch);
-      });
-    });
-
-    it('still lets buffered puts return true until the buffer is full', (done) => {
-      const ch = chan(1);
-
-      go(function* () {
-        // buffered
-        expect(yield put(ch, 1)).to.be.true;
-        // pending
-        expect(yield put(ch, 1)).to.be.false;
-        // future
-        expect(yield put(ch, 1)).to.be.false;
-        done();
-      });
-
-      go(function* () {
-        yield sleep();
-        close(ch);
-      });
-    });
-
-    it('causes any pending and future takes to return CLOSED', (done) => {
-      const ch = chan();
-
-      go(function* () {
-        // pending
-        expect(yield take(ch)).to.equal(CLOSED);
-        // future
-        expect(yield take(ch)).to.equal(CLOSED);
-        done();
-      });
-
-      go(function* () {
-        yield sleep();
-        close(ch);
-      });
-    });
-
-    it('lets buffered values return before returning CLOSED', (done) => {
-      const ch = chan(1);
-      const ctrl = chan();
-
-      go(function* () {
-        // channel has a value put onto it and is closed before the ctrl
-        // channel says go
-        yield take(ctrl);
-        // buffered
-        expect(yield take(ch)).to.equal(1729);
-        // future
-        expect(yield take(ch)).to.equal(CLOSED);
+        expect(yield takeOrThrow(ch)).to.equal(1729);
         done();
       });
 
       go(function* () {
         yield put(ch, 1729);
-        close(ch);
-        yield put(ctrl);
+      });
+    });
+
+    it('throws the error back into the process if an error object is taken from the channel', (done) => {
+      // We have to use a handler to catch errors that come after the first yield
+      // Hence making goSafe in the first place
+      const ch = chan();
+      const ctrl = chan();
+      const spy = sinon.spy();
+      const err = Error('test error');
+
+      const exh = (ex) => {
+        expect(ex).to.equal(err);
+        spy();
+        putAsync(ctrl);
+      };
+
+      goSafe(function* () {
+        yield takeOrThrow(ch);
+      }, exh);
+
+      go(function* () {
+        yield put(ch, err);
+      });
+
+      go(function* () {
+        yield take(ctrl);
+        expect(spy).to.be.calledOnce;
+        done();
+      });
+    });
+
+    it('lets the process continue running if the process catches the error', (done) => {
+      const ch = chan();
+      const spy = sinon.spy();
+      const err = Error('test error');
+
+      const proc = go(function* () {
+        try {
+          yield takeOrThrow(ch);
+        } catch (ex) {
+          expect(ex.message).to.equal('test error');
+          spy();
+        }
+        return 1729;
+      });
+
+      go(function* () {
+        yield put(ch, err);
+      });
+
+      go(function* () {
+        expect(yield take(proc)).to.equal(1729);
+        expect(spy).to.be.calledOnce;
+        done();
+      });
+    });
+
+    it('allows the process to make further yields if it catches the error', (done) => {
+      const ch = chan();
+      const spy = sinon.spy();
+      const err = Error('test error');
+
+      const proc = go(function* () {
+        try {
+          yield takeOrThrow(ch);
+        } catch (ex) {
+          expect(ex.message).to.equal('test error');
+          spy();
+        }
+        expect(yield take(ch)).to.equal(1729);
+      });
+
+      go(function* () {
+        yield put(ch, err);
+        yield put(ch, 1729);
+      });
+
+      go(function* () {
+        yield take(proc);
+        expect(spy).to.be.calledOnce;
+        done();
       });
     });
   });
@@ -570,23 +485,6 @@ describe('Core CSP', () => {
         expect(yield take(ch)).to.equal(1723);
         done();
       });
-    });
-  });
-
-  describe('finished process', () => {
-    it('returns when trying to run it again', (done) => {
-      const gen = function* () {
-        return 1729;
-      };
-
-      const onFinish = function (value) {
-        expect(value).to.equal(1729);
-        expect(proc.run()).to.be.undefined;
-        done();
-      };
-
-      const proc = process(gen(), null, onFinish);
-      proc.run();
     });
   });
 });
