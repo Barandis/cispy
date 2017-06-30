@@ -415,7 +415,7 @@ describe('Generator-based flow control functions', () => {
         expect(input[TAPS].length).to.equal(1);
       });
 
-      it('restores normal operation tot he tapped channel if the last tap is removed', (done) => {
+      it('restores normal operation to the tapped channel if the last tap is removed', (done) => {
         const input = chan();
         const output = tap(input);
         const ctrl = chan();

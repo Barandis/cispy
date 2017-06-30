@@ -210,6 +210,7 @@ describe('Promise-based flow control functions', () => {
 
       (async () => {
         for (let i = 0; i < 15; ++i) {
+          await sleep();
           const index = await take(output);
           values[index] = true;
           await sleep();

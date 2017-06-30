@@ -270,6 +270,7 @@ describe('Promise functions', () => {
           await alts([[chs[0], 0], [chs[1], 1], [chs[2], 2]]);
           await sleep();
           expect(numTrue(called)).to.equal(i);
+          await sleep();
         }
         done();
       })();
@@ -364,6 +365,7 @@ describe('Promise functions', () => {
         for (let i = 0; i < 3; ++i) {
           await alts([chs[0], [chs[1], 1], chs[2]]);
           spy();
+          await sleep();
         }
       }
 
@@ -371,6 +373,7 @@ describe('Promise functions', () => {
         await sleep();
         expect(spy).not.to.be.called;
         await put(chs[0], 0);
+        await sleep();
         await sleep();
         expect(spy).to.be.called;
         done();
