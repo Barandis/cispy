@@ -32,24 +32,36 @@
 // These functions convert channels into other kinds of data, or vice versa.
 
 const { chan, close, CLOSED } = require('../../core/channel');
+const { putAsync } = require('../../core/operations');
 const { put, take } = require('../operations');
 
 // Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
-// the reduction function can also be supplied. This is an async function that returns a promise that resolves to the
-// result of the reduction, but it will not resolve until the input channel is closed (this is the only way to know
-// when all of the data needed for the reduction is present on the channel)'
+// the reduction function can also be supplied. A channel is returned; that channel receives exactly one value, which
+// is the reduced result, and it closes after that value is taken.
+//
+// This could be implemented as an async function returning a promise that resolves to the reduced result, but that
+// would be different from the semantics of the generator-based function. Also, there is some question as to whether
+// it's a good idea for a process to communicate through any other means than via a channel.
 //
 // This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
 // can result in a single scalar value.
-async function reduce(fn, ch, init) {
-  let result = init;
-  for (;;) {
-    const value = await take(ch);
-    if (value === CLOSED) {
-      return result;
+function reduce(fn, ch, init) {
+  const output = chan();
+
+  async function loop() {
+    let acc = init;
+    for (;;) {
+      const value = await take(ch);
+      if (value === CLOSED) {
+        putAsync(output, acc, () => close(output));
+        return;
+      }
+      acc = fn(acc, value);
     }
-    result = fn(result, value);
   }
+
+  loop();
+  return output;
 }
 
 // Puts all of the values in the input array onto the supplied channel. If no channel is supplied (if only an array is
@@ -62,19 +74,22 @@ async function reduce(fn, ch, init) {
 function onto(ch, array) {
   const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
 
-  (async () => {
+  async function loop() {
     for (const item of arr) {
       await put(chnl, item);
     }
     close(chnl);
-  })();
+  }
+
+  loop();
   return chnl;
 }
 
 // Moves all of the values on a channel into the supplied array. If no array is supplied (if the only parameter passed
-// is a channel), then a new and empty array is created to contain the values. This function is async; the promise it
-// returns resolves with the resulting array once the input channel has closed.
-async function into(array, ch) {
+// is a channel), then a new and empty array is created to contain the values. A channel is returned that will have the
+// array put onto it when the input channel closes; this output channel closes automatically when the array is taken
+// from it.
+function into(array, ch) {
   const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
   const init = arr.slice();
 

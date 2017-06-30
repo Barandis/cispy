@@ -1,18 +1,23 @@
 const { expect } = require('../../../helper');
 
-const { chan, close, put, take, util } = require('../../../../src/promise');
+const { chan, close, put, take, takeAsync, util } = require('../../../../src/promise');
 
 const { reduce, onto, into } = util;
 
-function fillChannel(channel, count, cl) {
-  (async () => {
-    for (let i = 1; i <= count; ++i) {
-      await put(channel, i);
-    }
-    if (cl) {
-      close(channel);
-    }
-  })();
+async function fillChannel(channel, count, cl) {
+  for (let i = 1; i <= count; ++i) {
+    await put(channel, i);
+  }
+  if (cl) {
+    close(channel);
+  }
+}
+
+async function join(num, end, done) {
+  for (let i = 0; i < num; ++i) {
+    await take(end);
+  }
+  done();
 }
 
 async function expectChannel(channel, expected, end, start) {
@@ -31,20 +36,41 @@ async function expectChannel(channel, expected, end, start) {
 
 describe('Promise-based channel conversion functions', () => {
   describe('reduce', () => {
-    it('returns the reduction value of the input channel', async () => {
+    it('creates a one-value channel with the reduction value of the input channel', (done) => {
       const input = chan();
+      const output = reduce((acc, input) => acc + input, input, 0);
 
       fillChannel(input, 5, true);
-      const value = await reduce((acc, input) => acc + input, input, 0);
 
-      expect(value).to.equal(15);
+      takeAsync(output, (value) => {
+        expect(value).to.equal(15);
+        expect(output.closed).to.be.true;
+        done();
+      });
+    });
+
+    it('works to collapse channels into arrays', (done) => {
+      const input = chan();
+      const output = reduce((acc, input) => {
+        acc.push(input);
+        return acc;
+      }, input, []);
+
+      fillChannel(input, 5, true);
+
+      takeAsync(output, (value) => {
+        expect(value).to.deep.equal([1, 2, 3, 4, 5]);
+        expect(output.closed).to.be.true;
+        done();
+      });
     });
   });
 
   describe('onto', () => {
-    it('puts the values from an array onto a channel', async () => {
+    it('puts the values from an array onto a channel', (done) => {
       const output = chan();
       const array = [1, 2, 3, 4, 5];
+      const ctrl = chan();
 
       (async () => {
         await put(output, -1);
@@ -52,18 +78,23 @@ describe('Promise-based channel conversion functions', () => {
         onto(output, array);
       })();
 
-      await expectChannel(output, [-1, 0, 1, 2, 3, 4, 5]);
+      expectChannel(output, [-1, 0, 1, 2, 3, 4, 5], ctrl);
+      join(1, ctrl, done);
     });
 
-    it('defaults to a new channel if given only an array', async () => {
+    it('defaults to a new channel if given only an array', (done) => {
       const output = onto([1, 2, 3, 4, 5]);
-      await expectChannel(output, [1, 2, 3, 4, 5]);
+      const ctrl = chan();
+
+      expectChannel(output, [1, 2, 3, 4, 5], ctrl);
+      join(1, ctrl, done);
     });
   });
 
   describe('into', () => {
-    it('returns an array containing the input channel values', async () => {
+    it('returns a channel with an array containing the input channel values', (done) => {
       const input = chan();
+      const output = into([1, 2, 3, 4, 5], input);
 
       (async () => {
         await put(input, 6);
@@ -71,12 +102,16 @@ describe('Promise-based channel conversion functions', () => {
         close(input);
       })();
 
-      const output = await into([1, 2, 3, 4, 5], input);
-      expect(output).to.deep.equal([1, 2, 3, 4, 5, 6, 7]);
+      takeAsync(output, (value) => {
+        expect(value).to.deep.equal([1, 2, 3, 4, 5, 6, 7]);
+        expect(output.closed).to.be.true;
+        done();
+      });
     });
 
-    it('will create a new array if none is supplied', async () => {
+    it('will create a new array if none is supplied', (done) => {
       const input = chan();
+      const output = into(input);
 
       (async () => {
         await put(input, 6);
@@ -84,8 +119,11 @@ describe('Promise-based channel conversion functions', () => {
         close(input);
       })();
 
-      const output = await into(input);
-      expect(output).to.deep.equal([6, 7]);
+      takeAsync(output, (value) => {
+        expect(value).to.deep.equal([6, 7]);
+        expect(output.closed).to.be.true;
+        done();
+      });
     });
   });
 });
