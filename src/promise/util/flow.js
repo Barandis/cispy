@@ -222,12 +222,11 @@ function tapped(src) {
 // In essence, this is intended to be a temporary tap of one already existing channel into another, and when the tap is
 // removed, the channels are just as they were before.
 function tap(src, dest = chan()) {
-  const taps = src[protocols.taps];
-  if (!taps) {
+  if (!src[protocols.taps]) {
     tapped(src);
   }
-  if (!~taps.indexOf(dest)) {
-    taps.push(dest);
+  if (!~src[protocols.taps].indexOf(dest)) {
+    src[protocols.taps].push(dest);
   }
   return dest;
 }

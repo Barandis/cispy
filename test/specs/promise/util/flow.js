@@ -8,76 +8,71 @@ const {
   fixedBuffer,
   droppingBuffer,
   slidingBuffer,
-  go,
   put,
   take,
   sleep,
-  util } = require('../../../../src/cispy');
+  util } = require('../../../../src/promise');
 
 const { pipe, partition, merge, split, tap, untap, untapAll, map } = util;
-
-const TAPS = '@@multitap/taps';
 
 const even = (x) => x % 2 === 0;
 const sum3 = (a, b, c) => a + b + c;
 
-function fillChannel(channel, count, cl) {
-  go(function* () {
-    for (let i = 1; i <= count; ++i) {
-      yield put(channel, i);
-    }
-    if (cl) {
-      close(channel);
-    }
-  });
+async function fillChannel(channel, count, cl) {
+  for (let i = 1; i <= count; ++i) {
+    await put(channel, i);
+  }
+  if (cl) {
+    close(channel);
+  }
 }
 
-function fillChannelWith(channel, array, cl) {
-  go(function* () {
-    for (const i of array) {
-      yield put(channel, i);
-    }
-    if (cl) {
-      close(channel);
-    }
-  });
+async function fillChannelWith(channel, array, cl) {
+  for (const i of array) {
+    await put(channel, i);
+  }
+  if (cl) {
+    close(channel);
+  }
 }
 
-function expectChannel(channel, expected, end, start) {
-  go(function* () {
-    if (start) {
-      yield take(start);
-    }
-    const values = [];
-    for (let i = 0, count = expected.length; i < count; ++i) {
-      values.push(yield take(channel));
-    }
-    expect(values).to.deep.equal(expected);
-    yield put(end);
-  });
+async function expectChannel(channel, expected, end, start) {
+  if (start) {
+    await take(start);
+  }
+  const values = [];
+  for (let i = 0, count = expected.length; i < count; ++i) {
+    values.push(await take(channel));
+  }
+  expect(values).to.deep.equal(expected);
+  if (end) {
+    await put(end);
+  }
 }
 
-function join(num, end, done) {
-  go(function* () {
-    for (let i = 0; i < num; ++i) {
-      yield take(end);
-    }
-    done();
-  });
+async function join(num, end, done) {
+  for (let i = 0; i < num; ++i) {
+    await take(end);
+  }
+  done();
 }
 
-describe('Generator-based flow control functions', () => {
+describe('Promise-based flow control functions', () => {
   describe('pipe', () => {
     it('feeds all of the values from one channel to another', (done) => {
       const input = chan();
       const output = pipe(input, chan());
 
-      go(function* () {
-        expect(yield take(output)).to.equal(1729);
+      (async () => {
+        expect(await take(output)).to.equal(1729);
+        expect(await take(output)).to.equal(2317);
         done();
-      });
+      })();
 
-      go(function* () { yield put(input, 1729); });
+      (async () => {
+        await put(input, 1729);
+        await put(input, 2317);
+      })();
     });
 
     it('closes the output channel when the input channel closes', (done) => {
@@ -85,10 +80,10 @@ describe('Generator-based flow control functions', () => {
       const output = chan();
       pipe(input, output);
 
-      go(function* () {
-        expect(yield take(output)).to.equal(CLOSED);
+      (async () => {
+        expect(await take(output)).to.equal(CLOSED);
         done();
-      });
+      })();
 
       close(input);
     });
@@ -98,16 +93,18 @@ describe('Generator-based flow control functions', () => {
       const output = chan();
       pipe(input, output, true);
 
-      go(function* () {
-        expect(yield take(output)).to.equal(1729);
+      (async () => {
+        expect(await take(output)).to.equal(1729);
         done();
-      });
+      })();
 
-      go(function* () {
+      (async () => {
         close(input);
-        yield sleep();
-        yield put(output, 1729);
-      });
+        // This ensures that the take happens AFTER the close but
+        // BEFORE the put
+        await sleep();
+        await await put(output, 1729);
+      })();
     });
 
     it('breaks the pipe when the output channel closes', (done) => {
@@ -117,92 +114,92 @@ describe('Generator-based flow control functions', () => {
       const finished = chan();
       pipe(input, output);
 
-      go(function* () {
-        // First put piped to soon-to-be closed channel and is lost
-        yield put(input, 1729);
+      (async () => {
+        // First put to soon-to-be closed channel and is lost
+        await put(input, 1729);
         // Signal second process to close channel
-        yield put(start);
+        await put(start);
         // Second put taken by third process
-        yield put(input, 1723);
-      });
+        await put(input, 2317);
+      })();
 
-      go(function* () {
-        yield take(start);
+      (async () => {
+        await take(start);
         // Close the output, break the pipe
         close(output);
         // Signal the third process to take input
-        yield put(finished);
-      });
+        await put(finished);
+      })();
 
-      go(function* () {
-        yield take(finished);
-        expect(yield take(input)).to.equal(1723);
+      (async () => {
+        await take(finished);
+        expect(await take(input)).to.equal(2317);
         done();
-      });
+      })();
     });
   });
 
   describe('partition', () => {
     it('creates two output channels, splitting them by predicate', (done) => {
       const input = chan();
-      const outputs = partition(even, input);
+      const [evens, odds] = partition(even, input);
       const ctrl = chan();
 
       fillChannel(input, 10);
 
-      expectChannel(outputs[0], [2, 4, 6, 8, 10], ctrl);
-      expectChannel(outputs[1], [1, 3, 5, 7, 9], ctrl);
+      expectChannel(evens, [2, 4, 6, 8, 10], ctrl);
+      expectChannel(odds, [1, 3, 5, 7, 9], ctrl);
 
       join(2, ctrl, done);
     });
 
     it('accepts buffers to back the output channels', (done) => {
       const input = chan();
-      const outputs = partition(even, input, slidingBuffer(3), droppingBuffer(3));
+      const [evens, odds] = partition(even, input, slidingBuffer(3), droppingBuffer(3));
       const start = chan();
       const end = chan();
 
-      go(function* () {
+      (async () => {
         for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
-          yield put(input, i);
-          yield sleep();
+          await put(input, i);
+          await sleep();
         }
-        yield put(start);
-        yield put(start);
-      });
+        await put(start);
+        await put(start);
+      })();
 
-      expectChannel(outputs[0], [6, 8, 10], end, start);
-      expectChannel(outputs[1], [1, 3, 5], end, start);
+      expectChannel(evens, [6, 8, 10], end, start);
+      expectChannel(odds, [1, 3, 5], end, start);
 
       join(2, end, done);
     });
 
-    it('closes the output channels when the input is closed', (done) => {
+    it('closes the output channels when the input channel is closed', (done) => {
       const input = chan();
-      const outputs = partition(even, input);
+      const [evens, odds] = partition(even, input);
       const end = chan();
 
-      go(function* () {
-        expect(yield take(outputs[0])).to.equal(CLOSED);
-        yield put(end);
-      });
+      (async () => {
+        expect(await take(evens)).to.equal(CLOSED);
+        await put(end);
+      })();
 
-      go(function* () {
-        expect(yield take(outputs[1])).to.equal(CLOSED);
-        yield put(end);
-      });
+      (async () => {
+        expect(await take(odds)).to.equal(CLOSED);
+        await put(end);
+      })();
 
-      go(function* () {
+      (async () => {
         close(input);
-        yield take(end);
-        yield take(end);
+        await take(end);
+        await take(end);
         done();
-      });
+      })();
     });
   });
 
   describe('merge', () => {
-    it('combines several input channels into one channel', (done) => {
+    it('combines several input channels into one output channel', (done) => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs);
       const values = Array(15).fill(false);
@@ -211,14 +208,15 @@ describe('Generator-based flow control functions', () => {
       fillChannelWith(inputs[1], [5, 6, 7, 8, 9]);
       fillChannelWith(inputs[2], [10, 11, 12, 13, 14]);
 
-      go(function* () {
+      (async () => {
         for (let i = 0; i < 15; ++i) {
-          const index = yield take(output);
+          const index = await take(output);
           values[index] = true;
+          await sleep();
         }
         expect(values.every((x) => x)).to.be.true;
         done();
-      });
+      })();
     });
 
     it('accepts a buffer to back the output channel', (done) => {
@@ -229,14 +227,14 @@ describe('Generator-based flow control functions', () => {
       fillChannelWith(inputs[1], [5, 6, 7, 8, 9]);
       fillChannelWith(inputs[2], [10, 11, 12, 13, 14]);
 
-      go(function* () {
-        yield sleep();
-        yield sleep();
-        for (let i = 0; i < 3; i++) {
-          expect([2, 3, 4, 7, 8, 9, 12, 13, 14]).to.include(yield take(output));
+      (async () => {
+        await sleep();
+        await sleep();
+        for (let i = 0; i < 3; ++i) {
+          expect([2, 3, 4, 7, 8, 9, 12, 13, 14]).to.include(await take(output));
         }
         done();
-      });
+      })();
     });
 
     it('closes the output when all inputs have been closed', (done) => {
@@ -247,10 +245,10 @@ describe('Generator-based flow control functions', () => {
         close(ch);
       }
 
-      go(function* () {
-        expect(yield take(output)).to.equal(CLOSED);
+      (async () => {
+        expect(await take(output)).to.equal(CLOSED);
         done();
-      });
+      })();
     });
   });
 
@@ -292,14 +290,14 @@ describe('Generator-based flow control functions', () => {
       const start = chan();
       const end = chan();
 
-      go(function* () {
+      (async () => {
         for (let i = 1; i <= 5; ++i) {
-          yield put(input, i);
+          await put(input, i);
         }
-        yield put(start);
-        yield put(start);
-        yield put(start);
-      });
+        await put(start);
+        await put(start);
+        await put(start);
+      })();
 
       expectChannel(outputs[0], [1, 2, 3, 4, 5], end, start);
       expectChannel(outputs[1], [1, 2, 3], end, start);
@@ -308,19 +306,19 @@ describe('Generator-based flow control functions', () => {
       join(3, end, done);
     });
 
-    it('closes all outputs when the input closes', (done) => {
+    it('closes all output when the input closes', (done) => {
       const input = chan();
       const outputs = split(input, 3);
 
-      go(function* () {
+      (async () => {
         close(input);
-        yield sleep();
-        yield sleep();
+        await sleep();
+        await sleep();
         for (let i = 0, count = outputs.length; i < count; ++i) {
           expect(outputs[i].closed).to.be.true;
         }
         done();
-      });
+      })();
     });
   });
 
@@ -330,8 +328,6 @@ describe('Generator-based flow control functions', () => {
         const input = chan();
         const output = tap(input);
         const ctrl = chan();
-
-        expect(input).to.have.property(TAPS);
 
         fillChannel(input, 5);
         expectChannel(output, [1, 2, 3, 4, 5], ctrl);
@@ -343,8 +339,6 @@ describe('Generator-based flow control functions', () => {
         const outputs = [tap(input), tap(input), tap(input)];
         const ctrl = chan();
 
-        expect(input).to.have.property(TAPS);
-
         fillChannel(input, 5);
 
         expectChannel(outputs[0], [1, 2, 3, 4, 5], ctrl);
@@ -354,26 +348,25 @@ describe('Generator-based flow control functions', () => {
         join(3, ctrl, done);
       });
 
-      it('will not tap with the same channel more than once', () => {
+      it('will not tap with the same channel more than once', (done) => {
         const input = chan();
         const output = chan();
+        const ctrl = chan();
         tap(input, output);
         tap(input, output);
 
-        expect(input[TAPS].length).to.equal(1);
+        fillChannel(input, 5);
+        expectChannel(output, [1, 2, 3, 4, 5], ctrl);
+        join(1, ctrl, done);
       });
 
-      it('will not close tapping channels when tapped channel is closed', (done) => {
+      it('will not close tapping channels when tapped channel is closed', () => {
         const input = chan();
         const outputs = [tap(input), tap(input)];
 
-        go(function* () {
-          close(input);
-          yield sleep();
-          expect(outputs[0].closed).to.be.false;
-          expect(outputs[1].closed).to.be.false;
-          done();
-        });
+        close(input);
+        expect(outputs[0].closed).to.be.false;
+        expect(outputs[1].closed).to.be.false;
       });
     });
 
@@ -389,33 +382,36 @@ describe('Generator-based flow control functions', () => {
         expectChannel(outputs[0], [1, 2, 3, 4, 5], ctrl);
         expectChannel(outputs[2], [1, 2, 3, 4, 5], ctrl);
 
-        go(function* () {
+        (async () => {
           for (let i = 1; i <= 5; ++i) {
-            expect(yield take(outputs[1])).to.equal(-i);
+            expect(await take(outputs[1])).to.equal(-i);
           }
           done();
-        });
+        })();
 
-        go(function* () {
-          yield take(ctrl);
-          yield take(ctrl);
+        (async () => {
+          await take(ctrl);
+          await take(ctrl);
           for (let i = 1; i <= 5; ++i) {
-            yield put(outputs[1], -i);
+            await put(outputs[1], -i);
           }
-        });
+        })();
       });
 
-      it('will not untap a channel that isn\'t tapping', () => {
+      it('will not untap a channel that isn\'t tapping', (done) => {
         const input = chan();
-        tap(input);
+        const output1 = tap(input);
         const output2 = chan();
+        const ctrl = chan();
 
-        expect(input[TAPS].length).to.equal(1);
         untap(input, output2);
-        expect(input[TAPS].length).to.equal(1);
+
+        fillChannel(input, 5);
+        expectChannel(output1, [1, 2, 3, 4, 5], ctrl);
+        join(1, ctrl, done);
       });
 
-      it('restores normal operation tot he tapped channel if the last tap is removed', (done) => {
+      it('restores normal operation to the tapped channel if the last tap is removed', (done) => {
         const input = chan();
         const output = tap(input);
         const ctrl = chan();
@@ -428,22 +424,9 @@ describe('Generator-based flow control functions', () => {
         expectChannel(input, [1, 2, 3, 4, 5], ctrl);
         expectChannel(output, [-1, -2, -3, -4, -5], ctrl);
 
-        go(function* () {
-          yield take(ctrl);
-          yield take(ctrl);
-          expect(input).not.to.have.property(TAPS);
-          done();
-        });
-      });
-
-      it('will not add tap properties to input if it wasn\'t tapped already', () => {
-        const input = chan();
-        const output = chan();
-        untap(input, output);
-        expect(input).not.to.have.property(TAPS);
+        join(2, ctrl, done);
       });
     });
-
     describe('untapAll', () => {
       it('removes all taps from the tapped channel', (done) => {
         const input = chan();
@@ -456,12 +439,6 @@ describe('Generator-based flow control functions', () => {
         fillChannel(input, 5);
         expectChannel(input, [1, 2, 3, 4, 5], ctrl);
         join(1, ctrl, done);
-      });
-
-      it('will not add tap properties to input if it wasn\'t already tapped', () => {
-        const input = chan();
-        untapAll(input);
-        expect(input).not.to.have.property(TAPS);
       });
     });
   });
@@ -488,14 +465,14 @@ describe('Generator-based flow control functions', () => {
       fillChannel(inputs[1], 5);
       fillChannel(inputs[2], 5);
 
-      go(function* () {
-        yield sleep();
-        yield sleep();
+      (async () => {
+        await sleep();
+        await sleep();
         for (let i = 1; i <= 3; ++i) {
-          expect(yield take(output)).to.equal((i + 2) * 3);
+          expect(await take(output)).to.equal((i + 2) * 3);
         }
         done();
-      });
+      })();
     });
 
     it('closes the output when the first input closes', (done) => {
@@ -503,24 +480,24 @@ describe('Generator-based flow control functions', () => {
       const output = map(sum3, inputs);
       const ctrl = chan();
 
-      go(function* () {
+      (async () => {
         for (let i = 1; i <= 5; ++i) {
-          yield put(inputs[0], i);
+          await put(inputs[0], i);
         }
-      });
+      })();
 
-      go(function* () {
+      (async () => {
         for (let i = 1; i <= 3; ++i) {
-          yield put(inputs[1], i);
+          await put(inputs[1], i);
         }
         close(inputs[1]);
-      });
+      })();
 
-      go(function* () {
+      (async () => {
         for (let i = 1; i <= 5; ++i) {
-          yield put(inputs[2], i);
+          await put(inputs[2], i);
         }
-      });
+      })();
 
       expectChannel(output, [3, 6, 9, CLOSED, CLOSED], ctrl);
       join(1, ctrl, done);
