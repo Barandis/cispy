@@ -1,4 +1,17 @@
 /* eslint-disable max-lines */
+
+// ********************************************************************************************************************
+// IMPORTANT NOTE
+//
+// These tests are currently non-deterministic, because I don't yet have a way to fake timers in the context of native
+// promises. These tests are largely done with actual small delays, which means that normal, short delays in execution
+// can cause them to fail. They're good enough for me to check as I'm coding, but they're not good enough to run in a
+// CI environment or just for someone who wants to run the tests to ensure correctness.
+//
+// For this reason, I'm calling `skip` on all tests of promise-based channels until I work out how to make these tests
+// deterministic.
+// ********************************************************************************************************************
+
 const { expect } = require('../../../helper');
 
 const {
@@ -57,7 +70,7 @@ async function join(num, end, done) {
   done();
 }
 
-describe('Promise-based flow control functions', () => {
+describe.skip('Promise-based flow control functions', () => {
   describe('pipe', () => {
     it('feeds all of the values from one channel to another', (done) => {
       const input = chan();
