@@ -41,7 +41,7 @@ const { go, put, take } = require('../operations');
 // This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
 // can result in a single scalar value.
 function reduce(fn, ch, init) {
-  return go(function* () {
+  return go(function*() {
     let result = init;
     for (;;) {
       const value = yield take(ch);
@@ -59,7 +59,7 @@ function reduce(fn, ch, init) {
 function onto(ch, array) {
   const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
 
-  go(function* () {
+  go(function*() {
     for (const item of arr) {
       yield put(chnl, item);
     }
@@ -75,10 +75,14 @@ function into(array, ch) {
   const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
   const init = arr.slice();
 
-  return reduce((acc, input) => {
-    acc.push(input);
-    return acc;
-  }, chnl, init);
+  return reduce(
+    (acc, input) => {
+      acc.push(input);
+      return acc;
+    },
+    chnl,
+    init
+  );
 }
 
 module.exports = {

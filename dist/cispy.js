@@ -4720,7 +4720,6 @@ function process(gen, exh, onFinish) {
           case SLEEP:
             {
               var delay = item.data.delay;
-
               if (delay === 0) {
                 setTimeout(function () {
                   return _this.continue();

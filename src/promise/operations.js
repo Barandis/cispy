@@ -35,7 +35,7 @@ const { putAsync, takeAsync, altsAsync } = require('../core/operations');
 // multiple puts (or put operations from `alts`) queued on the channel and waiting, they will be processed in order as
 // take requests happen.
 function put(channel, value) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     putAsync(channel, value, resolve);
   });
 }
@@ -44,7 +44,7 @@ function put(channel, value) {
 // channel to be taken, or when the channel closes. The promise resolves to the value that was put, or to `CLOSED` if
 // the channel is/was closed.
 function take(channel) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     takeAsync(channel, resolve);
   });
 }
@@ -53,7 +53,7 @@ function take(channel) {
 // is an error object, the returned promise is rejected with that error.
 function takeOrThrow(channel) {
   return new Promise((resolve, reject) => {
-    takeAsync(channel, (result) => {
+    takeAsync(channel, result => {
       if (Error.prototype.isPrototypeOf(result)) {
         reject(result);
       } else {
@@ -85,7 +85,7 @@ function takeOrThrow(channel) {
 // causes its value to become the return value (with a channel of DEFAULT) if all operations block before completing.
 // In this case all of the operations are discarded.
 function alts(ops, options = {}) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     altsAsync(ops, resolve, options);
   });
 }
@@ -98,7 +98,7 @@ function alts(ops, options = {}) {
 // resolve. This allows an async function to relinquish its control and cause itself to be immediately queued back up to
 // be run after all of the other waiting functions (and the event loop) have a chance to run.
 function sleep(delay = 0) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     if (delay === 0) {
       setTimeout(resolve, 0);
     } else {

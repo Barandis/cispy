@@ -150,11 +150,11 @@ module.exports = {
     }],
 
     // ECMAScript 6
-    'arrow-parens': [ERROR, 'always'],
+    'arrow-parens': [ERROR, 'as-needed'],
     'arrow-spacing': [ERROR],
     'generator-star-spacing': [ERROR, {
       'before': false,
-      'after': true
+      'after': false
     }],
     'no-duplicate-imports': [ERROR],
     'no-useless-computed-key': [ERROR],

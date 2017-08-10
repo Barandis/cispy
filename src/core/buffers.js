@@ -83,7 +83,7 @@ function queue() {
     // passed that item. This is not exactly a general purpose queue operation, but we need it with channels that will
     // occasionally want to get rid of inactive handlers.
     filter(fn) {
-      for (let i = 0, {count} = this; i < count; ++i) {
+      for (let i = 0, { count } = this; i < count; ++i) {
         const item = this.dequeue();
         if (fn(item)) {
           this.enqueue(item);
@@ -134,19 +134,22 @@ function base(size) {
 // stored. `full` returns `true` any time that the size is reached or exceeded, so it's entirely possible to call
 // `remove` on a full buffer and have it still be full.
 function fixed(size) {
-  return Object.assign(Object.create(base(size), {
-    full: {
-      get() {
-        return this.queue.count >= this.size;
+  return Object.assign(
+    Object.create(base(size), {
+      full: {
+        get() {
+          return this.queue.count >= this.size;
+        }
+      }
+    }),
+    {
+      add(...items) {
+        for (const item of items) {
+          this.queue.enqueue(item);
+        }
       }
     }
-  }), {
-    add(...items) {
-      for (const item of items) {
-        this.queue.enqueue(item);
-      }
-    }
-  });
+  );
 }
 
 // A buffer implementation that drops newly added items when the buffer is full.
@@ -155,21 +158,24 @@ function fixed(size) {
 // `full` because it can always be added to without exceeding the size, even if that `adding` doesn't result in a new
 // item actually appearing in the buffer.
 function dropping(size) {
-  return Object.assign(Object.create(base(size), {
-    full: {
-      get() {
-        return false;
+  return Object.assign(
+    Object.create(base(size), {
+      full: {
+        get() {
+          return false;
+        }
       }
-    }
-  }), {
-    add(...items) {
-      for (const item of items) {
-        if (this.queue.count < this.size) {
-          this.queue.enqueue(item);
+    }),
+    {
+      add(...items) {
+        for (const item of items) {
+          if (this.queue.count < this.size) {
+            this.queue.enqueue(item);
+          }
         }
       }
     }
-  });
+  );
 }
 
 // A buffer implementation that drops the oldest item when an item is added to a full buffer.
@@ -179,22 +185,25 @@ function dropping(size) {
 // the size, the oldest item in the buffer is silently dropped if the buffer is full when added to. `full` is always
 // `false`.
 function sliding(size) {
-  return Object.assign(Object.create(base(size), {
-    full: {
-      get() {
-        return false;
-      }
-    }
-  }), {
-    add(...items) {
-      for (const item of items) {
-        if (this.queue.count === this.size) {
-          this.queue.dequeue();
+  return Object.assign(
+    Object.create(base(size), {
+      full: {
+        get() {
+          return false;
         }
-        this.queue.enqueue(item);
+      }
+    }),
+    {
+      add(...items) {
+        for (const item of items) {
+          if (this.queue.count === this.size) {
+            this.queue.dequeue();
+          }
+          this.queue.enqueue(item);
+        }
       }
     }
-  });
+  );
 }
 
 module.exports = {

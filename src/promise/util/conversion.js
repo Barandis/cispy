@@ -93,10 +93,14 @@ function into(array, ch) {
   const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
   const init = arr.slice();
 
-  return reduce((acc, input) => {
-    acc.push(input);
-    return acc;
-  }, chnl, init);
+  return reduce(
+    (acc, input) => {
+      acc.push(input);
+      return acc;
+    },
+    chnl,
+    init
+  );
 }
 
 module.exports = {
