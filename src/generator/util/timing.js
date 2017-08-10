@@ -57,19 +57,21 @@ function isNumber(x) {
 function debounce(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
-  const opts = Object.assign({leading: false, trailing: true, maxDelay: 0, cancel: chan()},
-                             (isNumber(delay) ? options : delay) || {});
+  const opts = Object.assign(
+    { leading: false, trailing: true, maxDelay: 0, cancel: chan() },
+    (isNumber(delay) ? options : delay) || {}
+  );
 
   const dest = chan(buf);
-  const {leading, trailing, maxDelay, cancel} = opts;
+  const { leading, trailing, maxDelay, cancel } = opts;
 
-  go(function* () {
+  go(function*() {
     let timer = chan();
     let max = chan();
     let current = CLOSED;
 
     for (;;) {
-      const {value, channel} = yield alts([src, timer, max, cancel]);
+      const { value, channel } = yield alts([src, timer, max, cancel]);
 
       if (channel === cancel) {
         close(dest);
@@ -136,18 +138,20 @@ function debounce(src, buffer, delay, options) {
 function throttle(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
-  const opts = Object.assign({leading: true, trailing: true, cancel: chan()},
-                             (isNumber(delay) ? options : delay) || {});
+  const opts = Object.assign(
+    { leading: true, trailing: true, cancel: chan() },
+    (isNumber(delay) ? options : delay) || {}
+  );
 
   const dest = chan(buf);
-  const {leading, trailing, cancel} = opts;
+  const { leading, trailing, cancel } = opts;
 
-  go(function* () {
+  go(function*() {
     let timer = chan();
     let current = CLOSED;
 
     for (;;) {
-      const {value, channel} = yield alts([src, timer, cancel]);
+      const { value, channel } = yield alts([src, timer, cancel]);
 
       if (channel === cancel) {
         close(dest);

@@ -4,7 +4,7 @@ All notable changes to the library will be documented in this file.
 
 ## [Unreleased]
 ### Added
-- an entire new promise-based implementation of processes. This is completely agnostic to channels; channels have not had to change to accommodate these functions. These are best used with the `async`/`await` keywords from ES7, which are seeing relatively wide implementation, though they will work fine with straight promises as well. Since the JS engine handles promises, there is no need for custom process machinery, so `go`, `goSafe`, and `spawn` are not necessary.
+- an entire new promise-based implementation of processes. This is completely agnostic to channels; channels have not had to change to accommodate these functions. These are best used with the `async`/`await` keywords from ES7, which are seeing relatively wide implementation, though they will work fine with straight promises as well (though it's very clunky that way). Since the JS engine handles promises, there is no need for custom process machinery, so `go`, `goSafe`, and `spawn` are not necessary. It also means that testing is difficult because Sinon fake timers don't deal well with native promises, so tests have been written and executed but are marked as skipped in the github repository so they don't blow up CI.
 - a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
 - a `goSafe` function to create processes that carry a handler to deal with errors that are thrown from the process itself, even if the process has no `try`/`catch` to deal with them.
 - a `takeOrThrow` function as an alternative to `take`. If `takeOrThrow` takes an error object off a channel, then it will throw that error right at that point (inside the process). How that error is handled depends on whether it's caught within the process and/or whether the process was created with `goSafe`.
@@ -21,6 +21,7 @@ All notable changes to the library will be documented in this file.
 - Babel's stage-0 preset was replaced with stage-3. Stage-3 features are very likely to be in ES2017, while some stage-0 features are quite unlikely. There isn't anything in stage-3 that isn't possible natively in current Node.js with the `--harmony` flag, and that isn't possible with stage-0. (The only changes were the replacement of two `::`s with `call`.)
 - buffers have been flattened in the API. Rather than having a `buffers` object with `fixed`, `dropping`, and `sliding` functions, there are now top-level `fixedBuffer`, `droppingBuffer`, and `slidingBuffer` functions. This is more akin to core.async, it makes it harder to make code unclear, and it's a personal preference anyway.
 - internally, the project structure has changed significantly. Module organization makes more sense now, and it's much easier to have multiple versions and multiple ways to access.
+- began using [https://github.com/prettier/prettier](prettier) for code formatting. A couple of the ES6-related eslint rules have changed for this reason.
 
 ## [0.8.1] 2017-03-15
 ### Added

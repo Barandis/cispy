@@ -105,7 +105,7 @@ function altsAsync(ops, callback, options) {
   const active = box(true);
 
   function createAltsHandler(channel) {
-    return altsHandler(active, (value) => {
+    return altsHandler(active, value => {
       callback({ value, channel });
     });
   }

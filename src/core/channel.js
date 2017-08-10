@@ -218,7 +218,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
       // the put to let it wait for a take to become available. Puts whose handlers have gone inactive (because they
       // were part of an ALTS instruction) are periodically purged.
       if (this.dirtyPuts > this.maxDirty) {
-        this.puts.filter((putter) => putter.handler.active);
+        this.puts.filter(putter => putter.handler.active);
         this.dirtyPuts = 0;
       } else {
         this.dirtyPuts++;
@@ -295,7 +295,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
       // still open, the take is queued to be processed when a put is available. Takes whose handlers have gone inactive
       // as the result of alts processing are periodically purged.
       if (this.dirtyTakes > this.maxDirty) {
-        this.takes.filter((taker) => taker.active);
+        this.takes.filter(taker => taker.active);
         this.dirtyTakes = 0;
       } else {
         this.dirtyTakes++;

@@ -76,7 +76,7 @@ function config(opts) {
 }
 
 let running = false;
-let queued  = false;
+let queued = false;
 
 // Uses a combination of available methods and the dispatchMethod option to determine which of hte three dispatch
 // methods should be used.

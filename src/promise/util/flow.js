@@ -111,7 +111,7 @@ function merge(srcs, buffer = 0) {
       if (inputs.length === 0) {
         break;
       }
-      const {value, channel} = await alts(inputs);
+      const { value, channel } = await alts(inputs);
       if (value === CLOSED) {
         const index = inputs.indexOf(channel);
         inputs.splice(index, 1);
@@ -272,8 +272,8 @@ function map(fn, srcs, buffer = 0) {
   let count;
 
   for (let i = 0; i < srcLen; ++i) {
-    callbacks[i] = ((index) => {
-      return (value) => {
+    callbacks[i] = (index => {
+      return value => {
         values[index] = value;
         if (--count === 0) {
           putAsync(temp, values.slice());

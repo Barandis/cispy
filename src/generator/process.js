@@ -37,9 +37,9 @@ const { dispatch } = require('../core/dispatcher');
 // explicitly supported by the Process object itself. Other instructions like putAsync and takeAsync are handled
 // outside of the process and do not have process instructions.
 
-const TAKE  = 'take';
-const PUT   = 'put';
-const ALTS  = 'alts';
+const TAKE = 'take';
+const PUT = 'put';
+const ALTS = 'alts';
 const SLEEP = 'sleep';
 
 // A unique value used to tag an object as an instruction. Since there's no access to this value outside of this module,
@@ -166,31 +166,31 @@ function process(gen, exh, onFinish) {
         // Handle any of the instructions, which are the only meaningful yield outputs inside a process.
         switch (item.op) {
           case PUT: {
-            const {channel, value} = item.data;
-            putAsync(channel, value, (status) => this.continue(status));
+            const { channel, value } = item.data;
+            putAsync(channel, value, status => this.continue(status));
             break;
           }
 
           case TAKE: {
-            const {channel, except} = item.data;
-            takeAsync(channel, (value) => this.continue(value, except));
+            const { channel, except } = item.data;
+            takeAsync(channel, value => this.continue(value, except));
             break;
           }
 
           case ALTS: {
-            const {ops, options} = item.data;
-            altsAsync(ops, (result) => this.continue(result), options);
+            const { ops, options } = item.data;
+            altsAsync(ops, result => this.continue(result), options);
             break;
           }
 
           case SLEEP: {
-            const {delay} = item.data;
+            const delay = item.data.delay;
             if (delay === 0) {
               setTimeout(() => this.continue(), 0);
             } else {
               const ch = chan();
               setTimeout(() => ch.close(), delay);
-              takeAsync(ch, (value) => this.continue(value));
+              takeAsync(ch, value => this.continue(value));
             }
             break;
           }

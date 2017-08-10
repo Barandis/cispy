@@ -38,13 +38,13 @@ const { putAsync } = require('../core/operations');
 // restarted, with the returned value from the channel becoming the value of the `yield` expression. If the unblocking
 // was the result of the channel closing, then the value of that `yield` expression will be CLOSED.
 function take(channel) {
-  return instruction(TAKE, {channel, except: false});
+  return instruction(TAKE, { channel, except: false });
 }
 
 // Works exactly like `take`, except that if the value that is taken off the channel is an `Error` object, that error
 // is thrown back into the process. At that point it acts exactly like any other thrown error.
 function takeOrThrow(channel) {
-  return instruction(TAKE, {channel, except: true});
+  return instruction(TAKE, { channel, except: true });
 }
 
 // Puts the value onto the specified channel. If there is no process ready to take this value, this function will block
@@ -56,7 +56,7 @@ function takeOrThrow(channel) {
 // closes. The process is then restarted, and either `true` (if there was a take) or `false` (if the channel was
 // closed) will become the value of the `yield` expression.
 function put(channel, value) {
-  return instruction(PUT, {channel, value});
+  return instruction(PUT, { channel, value });
 }
 
 // Processes an arbitrary number of puts and takes (represented by the operations array). When the first operation
@@ -83,7 +83,7 @@ function put(channel, value) {
 // causes its value to become the return value (with a channel of DEFAULT) if all operations block before completing.
 // In this case all of the operations are discarded.
 function alts(ops, options = {}) {
-  return instruction(ALTS, {ops, options});
+  return instruction(ALTS, { ops, options });
 }
 
 // Blocks the process until some amount of time has elapsed. This is done by creating a local channel that isn't
@@ -99,7 +99,7 @@ function alts(ops, options = {}) {
 // `yield`, it will stop the execution of the process until a the required amount of time has passed. The process is
 // then restarted automatically.
 function sleep(delay = 0) {
-  return instruction(SLEEP, {delay});
+  return instruction(SLEEP, { delay });
 }
 
 // Creates a process from a generator (not a generator function) and runs it. The process is then left to its own
@@ -112,7 +112,7 @@ function sleep(delay = 0) {
 // Since this requires a generator and not a generator function, it isn't used nearly as much as `go`.
 function spawn(gen, exh) {
   const ch = chan(fixed(1));
-  process(gen, exh, (value) => {
+  process(gen, exh, value => {
     if (value === CLOSED) {
       ch.close();
     } else {

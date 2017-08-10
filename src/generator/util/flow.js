@@ -54,7 +54,7 @@ function isNumber(x) {
 // Because of the option to keep the destination channel open after the source channel closes, pipe can be used to
 // convert an automatically-closing channel into one that remains open.
 function pipe(src, dest, keepOpen) {
-  go(function* () {
+  go(function*() {
     for (;;) {
       const value = yield take(src);
       if (value === CLOSED) {
@@ -78,7 +78,7 @@ function partition(fn, src, tBuffer = 0, fBuffer = 0) {
   const tDest = chan(tBuffer);
   const fDest = chan(fBuffer);
 
-  go(function* () {
+  go(function*() {
     for (;;) {
       const value = yield take(src);
       if (value === CLOSED) {
@@ -100,12 +100,12 @@ function merge(srcs, buffer = 0) {
   const dest = chan(buffer);
   const inputs = srcs.slice();
 
-  go(function* () {
+  go(function*() {
     for (;;) {
       if (inputs.length === 0) {
         break;
       }
-      const {value, channel} = yield alts(inputs);
+      const { value, channel } = yield alts(inputs);
       if (value === CLOSED) {
         const index = inputs.indexOf(channel);
         inputs.splice(index, 1);
@@ -145,7 +145,7 @@ function split(src, ...buffers) {
     }
   }
 
-  go(function* () {
+  go(function*() {
     for (;;) {
       const value = yield take(src);
       if (value === CLOSED) {
@@ -180,7 +180,7 @@ function tapped(src) {
     }
   }
 
-  go(function* () {
+  go(function*() {
     for (;;) {
       const value = yield take(src);
       if (value === CLOSED || src[protocols.taps].length === 0) {
@@ -259,8 +259,8 @@ function map(fn, srcs, buffer = 0) {
   let count;
 
   for (let i = 0; i < srcLen; ++i) {
-    callbacks[i] = ((index) => {
-      return (value) => {
+    callbacks[i] = (index => {
+      return value => {
         values[index] = value;
         if (--count === 0) {
           putAsync(temp, values.slice());
@@ -269,7 +269,7 @@ function map(fn, srcs, buffer = 0) {
     })(i);
   }
 
-  go(function* () {
+  go(function*() {
     for (;;) {
       count = srcLen;
       for (let i = 0; i < srcLen; ++i) {

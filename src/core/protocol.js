@@ -44,11 +44,11 @@ const protocols = {
   iterator: symbol ? Symbol.iterator : '@@iterator',
 
   // Reduction protocols
-  init:     generateKey('transducer/init'),
-  step:     generateKey('transducer/step'),
-  result:   generateKey('transducer/result'),
-  reduced:  generateKey('transducer/reduced'),
-  value:    generateKey('transducer/value')
+  init: generateKey('transducer/init'),
+  step: generateKey('transducer/step'),
+  result: generateKey('transducer/result'),
+  reduced: generateKey('transducer/reduced'),
+  value: generateKey('transducer/value')
 };
 
 module.exports = { protocols };
