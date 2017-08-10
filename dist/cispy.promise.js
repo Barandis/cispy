@@ -88,7 +88,7 @@ if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
 /***/ (function(module, exports, __webpack_require__) {
 
 var store      = __webpack_require__(37)('wks')
-  , uid        = __webpack_require__(25)
+  , uid        = __webpack_require__(24)
   , Symbol     = __webpack_require__(2).Symbol
   , USE_SYMBOL = typeof Symbol == 'function';
 
@@ -144,7 +144,7 @@ module.exports = !__webpack_require__(12)(function(){
 
 var global    = __webpack_require__(2)
   , core      = __webpack_require__(0)
-  , ctx       = __webpack_require__(23)
+  , ctx       = __webpack_require__(22)
   , hide      = __webpack_require__(10)
   , PROTOTYPE = 'prototype';
 
@@ -215,11 +215,7 @@ var _defineProperty2 = __webpack_require__(73);
 
 var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-var _assign = __webpack_require__(21);
-
-var _assign2 = _interopRequireDefault(_assign);
-
-var _symbol = __webpack_require__(22);
+var _symbol = __webpack_require__(21);
 
 var _symbol2 = _interopRequireDefault(_symbol);
 
@@ -274,12 +270,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // channel, it's first run through the transformer and the transformed value is the one actually put into the channel's
 // buffer. This avoids both of the problems noted above.
 
-var _require = __webpack_require__(18),
+var _require = __webpack_require__(19),
     queue = _require.queue,
     fixed = _require.fixed,
     EMPTY = _require.EMPTY;
 
-var _require2 = __webpack_require__(29),
+var _require2 = __webpack_require__(28),
     dispatch = _require2.dispatch;
 
 var p = __webpack_require__(64).protocols;
@@ -364,7 +360,7 @@ function channel(buffer, xform) {
       _ref$maxQueued = _ref.maxQueued,
       maxQueued = _ref$maxQueued === undefined ? MAX_QUEUED : _ref$maxQueued;
 
-  return (0, _assign2.default)({
+  return {
     takes: queue(),
     puts: queue(),
     buffer: buffer,
@@ -385,270 +381,270 @@ function channel(buffer, xform) {
 
     get timeout() {
       return !!timeout;
-    }
-  }, { put: putImpl, take: takeImpl, close: closeImpl });
-}
+    },
 
-// Puts a value on the channel. The specified handler is used to control whether the put is active and what to do after
-// the put completes. A put can become inactive if it was part of an `alts` call and some other operation specified in
-// that call has already completed.
-//
-// This value is given to a take handler immediately if there's one waiting. Otherwise the value and handler are queued
-// together to wait for a take.
-function putImpl(value, handler) {
-  var _this = this;
+    // Puts a value on the channel. The specified handler is used to control whether the put is active and what to do
+    // after the put completes. A put can become inactive if it was part of an `alts` call and some other operation
+    // specified in that call has already completed.
+    //
+    // This value is given to a take handler immediately if there's one waiting. Otherwise the value and handler are
+    // queued together to wait for a take.
+    put: function put(value, handler) {
+      var _this = this;
 
-  if (value === CLOSED) {
-    throw Error('Cannot put CLOSED on a channel');
-  }
-
-  if (this.closed) {
-    handler.commit();
-    return box(false);
-  }
-
-  var taker = void 0,
-      callback = void 0;
-
-  // Push the incoming value through the buffer, even if there's already a taker waiting for the value. This is to make
-  // sure that the transducer step function has a chance to act on the value (which could change the value or make it
-  // unavailable altogether) before the taker sees it.
-  //
-  // If this channel is unbuffered this process is skipped (there can't be a transformer on an unbuffered channel
-  // anyway). If the buffer is full, the transformation is deferred until later when the buffer is not full.
-  if (this.buffer && !this.buffer.full) {
-    handler.commit();
-    var done = isReduced(this.xform[p.step](this.buffer, value));
-
-    for (;;) {
-      if (this.buffer.count === 0) {
-        break;
+      if (value === CLOSED) {
+        throw Error('Cannot put CLOSED on a channel');
       }
-      taker = this.takes.dequeue();
-      if (taker === EMPTY) {
-        break;
+
+      if (this.closed) {
+        handler.commit();
+        return box(false);
       }
-      if (taker.active) {
-        (function () {
-          callback = taker.commit();
-          var val = _this.buffer.remove();
-          if (callback) {
-            dispatch(function () {
-              return callback(val);
-            });
+
+      var taker = void 0,
+          callback = void 0;
+
+      // Push the incoming value through the buffer, even if there's already a taker waiting for the value. This is to
+      // make sure that the transducer step function has a chance to act on the value (which could change the value or
+      // make it unavailable altogether) before the taker sees it.
+      //
+      // If this channel is unbuffered this process is skipped (there can't be a transformer on an unbuffered channel
+      // anyway). If the buffer is full, the transformation is deferred until later when the buffer is not full.
+      if (this.buffer && !this.buffer.full) {
+        handler.commit();
+        var done = isReduced(this.xform[p.step](this.buffer, value));
+
+        for (;;) {
+          if (this.buffer.count === 0) {
+            break;
           }
-        })();
-      }
-    }
-
-    if (done) {
-      this.close();
-    }
-    return box(true);
-  }
-
-  // This next loop happens if the channel is unbuffered and there is at least one pending take. It processes the next
-  // pending take immediately. (Buffered channels break out of the loop immediately, because in order for a buffered
-  // channel to reach this point, its buffer must have been full. This means there are no pending takes and the first
-  // one pulled will be EMPTY.)
-  for (;;) {
-    taker = this.takes.dequeue();
-    if (taker === EMPTY) {
-      break;
-    }
-    if (taker.active) {
-      handler.commit();
-      callback = taker.commit();
-      if (callback) {
-        dispatch(function () {
-          return callback(value);
-        });
-      }
-      return box(true);
-    }
-  }
-
-  // If there are no pending takes on an unbuffered channel, or on a buffered channel with a full buffer, we queue the
-  // put to let it wait for a take to become available. Puts whose handlers have gone inactive (because they were part
-  // of an ALTS instruction) are periodically purged.
-  if (this.dirtyPuts > this.maxDirty) {
-    this.puts.filter(function (putter) {
-      return putter.handler.active;
-    });
-    this.dirtyPuts = 0;
-  } else {
-    this.dirtyPuts++;
-  }
-
-  if (this.puts.count >= this.maxQueued) {
-    throw Error('No more than ' + this.maxQueuedO + ' pending puts are allowed on a single channel');
-  }
-  this.puts.enqueue(putBox(handler, value));
-
-  return null;
-}
-
-function takeImpl(handler) {
-  var putter = void 0,
-      putHandler = void 0,
-      callback = void 0;
-
-  // Happens when this is a buffered channel and the buffer is not empty (an empty buffer means there are no pending
-  // puts). We immediately process any puts that were queued when there were no pending takes, up until the buffer is
-  // filled with put values.
-  if (this.buffer && this.buffer.count > 0) {
-    handler.commit();
-    var value = this.buffer.remove();
-
-    for (;;) {
-      if (this.buffer.full) {
-        break;
-      }
-      putter = this.puts.dequeue();
-      if (putter === EMPTY) {
-        break;
-      }
-
-      putHandler = putter.handler;
-      if (putHandler.active) {
-        callback = putHandler.commit();
-        if (callback) {
-          dispatch(function () {
-            return callback(true);
-          });
+          taker = this.takes.dequeue();
+          if (taker === EMPTY) {
+            break;
+          }
+          if (taker.active) {
+            (function () {
+              callback = taker.commit();
+              var val = _this.buffer.remove();
+              if (callback) {
+                dispatch(function () {
+                  return callback(val);
+                });
+              }
+            })();
+          }
         }
-        if (isReduced(this.xform[p.step](this.buffer, putter.value))) {
+
+        if (done) {
           this.close();
         }
+        return box(true);
       }
-    }
-    return box(value);
-  }
 
-  // This loop runs on an unbuffered channel if there are any pending puts. It processes the next pending put
-  // immediately. (Buffered channels skip this section because in order to have come this far, the channel's buffer
-  // must have been empty. This means there are no pending puts, so the first pending put pulled will be EMPTY.)
-  for (;;) {
-    putter = this.puts.dequeue();
-    if (putter === EMPTY) {
-      break;
-    }
-    putHandler = putter.handler;
-    if (putHandler.active) {
-      callback = putHandler.commit();
-      if (callback) {
-        dispatch(function () {
-          return callback(true);
-        });
-      }
-      return box(putter.value);
-    }
-  }
-
-  // If we've exhausted all of our pending puts and the channel is marked closed, we can finally return the fact that
-  // the channel is closed. This ensures that any puts that were already pending on the channel are still processed
-  // before closure, even if the channel was closed before that could happen.
-  if (this.closed) {
-    handler.commit();
-    return box(CLOSED);
-  }
-
-  // If an unbuffered channel or a buffered channel with an empty buffer has no pending puts, and if the channel is
-  // still open, the take is queued to be processed when a put is available. Takes whose handlers have gone inactive as
-  // the result of alts processing are periodically purged.
-  if (this.dirtyTakes > this.maxDirty) {
-    this.takes.filter(function (taker) {
-      return taker.active;
-    });
-    this.dirtyTakes = 0;
-  } else {
-    this.dirtyTakes++;
-  }
-
-  if (this.takes.count >= this.maxQueued) {
-    throw Error('No more than ' + this.maxQueued + ' pending takes are allowed on a single channel');
-  }
-  this.takes.enqueue(handler);
-
-  return null;
-}
-
-// Closes the channel, if it isn't already closed. This immediately returns any buffered values to pending takes. If
-// there are no buffered values (or if they've already been taken by other takes), then all of the rest of the takes
-// are completed with the value of `CLOSED`. Any pending puts are completed with the value of `false`.
-//
-// Note that the buffer is not emptied if there are still values remaining after all of the pending takes have been
-// handled. The channel will still provide those values to any future takes, though no new values may be added to the
-// channel. Once the buffer is depleted, any future take will return CLOSED.
-function closeImpl() {
-  var _this2 = this;
-
-  if (this._closed) {
-    return;
-  }
-  this._closed = true;
-
-  var taker = void 0,
-      putter = void 0,
-      callback = void 0;
-
-  // If there is a buffer and it has at least one value in it, send those values to any pending takes that might be
-  // queued.
-  if (this.buffer) {
-    this.xform[p.result](this.buffer);
-    for (;;) {
-      if (this.buffer.count === 0) {
-        break;
-      }
-      taker = this.takes.dequeue();
-      if (taker === EMPTY) {
-        break;
-      }
-      if (taker.active) {
-        (function () {
+      // This next loop happens if the channel is unbuffered and there is at least one pending take. It processes the
+      // next pending take immediately. (Buffered channels break out of the loop immediately, because in order for a
+      // buffered channel to reach this point, its buffer must have been full. This means there are no pending takes and
+      // the first one pulled will be EMPTY.)
+      for (;;) {
+        taker = this.takes.dequeue();
+        if (taker === EMPTY) {
+          break;
+        }
+        if (taker.active) {
+          handler.commit();
           callback = taker.commit();
-          var value = _this2.buffer.remove();
           if (callback) {
             dispatch(function () {
               return callback(value);
             });
           }
-        })();
+          return box(true);
+        }
       }
-    }
-  }
 
-  // Once the buffer is empty (or if there never was a buffer), send CLOSED to all remaining queued takes.
-  for (;;) {
-    taker = this.takes.dequeue();
-    if (taker === EMPTY) {
-      break;
-    }
-    if (taker.active) {
-      callback = taker.commit();
-      if (callback) {
-        dispatch(function () {
-          return callback(CLOSED);
+      // If there are no pending takes on an unbuffered channel, or on a buffered channel with a full buffer, we queue
+      // the put to let it wait for a take to become available. Puts whose handlers have gone inactive (because they
+      // were part of an ALTS instruction) are periodically purged.
+      if (this.dirtyPuts > this.maxDirty) {
+        this.puts.filter(function (putter) {
+          return putter.handler.active;
         });
+        this.dirtyPuts = 0;
+      } else {
+        this.dirtyPuts++;
       }
-    }
-  }
 
-  // Send `false` to any remaining queued puts.
-  for (;;) {
-    putter = this.puts.dequeue();
-    if (putter === EMPTY) {
-      break;
-    }
-    if (putter.handler.active) {
-      callback = putter.handler.commit();
-      if (callback) {
-        dispatch(function () {
-          return callback(false);
+      if (this.puts.count >= this.maxQueued) {
+        throw Error('No more than ' + this.maxQueuedO + ' pending puts are allowed on a single channel');
+      }
+      this.puts.enqueue(putBox(handler, value));
+
+      return null;
+    },
+    take: function take(handler) {
+      var putter = void 0,
+          putHandler = void 0,
+          callback = void 0;
+
+      // Happens when this is a buffered channel and the buffer is not empty (an empty buffer means there are no pending
+      // puts). We immediately process any puts that were queued when there were no pending takes, up until the buffer
+      // is filled with put values.
+      if (this.buffer && this.buffer.count > 0) {
+        handler.commit();
+        var value = this.buffer.remove();
+
+        for (;;) {
+          if (this.buffer.full) {
+            break;
+          }
+          putter = this.puts.dequeue();
+          if (putter === EMPTY) {
+            break;
+          }
+
+          putHandler = putter.handler;
+          if (putHandler.active) {
+            callback = putHandler.commit();
+            if (callback) {
+              dispatch(function () {
+                return callback(true);
+              });
+            }
+            if (isReduced(this.xform[p.step](this.buffer, putter.value))) {
+              this.close();
+            }
+          }
+        }
+        return box(value);
+      }
+
+      // This loop runs on an unbuffered channel if there are any pending puts. It processes the next pending put
+      // immediately. (Buffered channels skip this section because in order to have come this far, the channel's buffer
+      // must have been empty. This means there are no pending puts, so the first pending put pulled will be EMPTY.)
+      for (;;) {
+        putter = this.puts.dequeue();
+        if (putter === EMPTY) {
+          break;
+        }
+        putHandler = putter.handler;
+        if (putHandler.active) {
+          callback = putHandler.commit();
+          if (callback) {
+            dispatch(function () {
+              return callback(true);
+            });
+          }
+          return box(putter.value);
+        }
+      }
+
+      // If we've exhausted all of our pending puts and the channel is marked closed, we can finally return the fact
+      // that the channel is closed. This ensures that any puts that were already pending on the channel are still
+      // processed before closure, even if the channel was closed before that could happen.
+      if (this.closed) {
+        handler.commit();
+        return box(CLOSED);
+      }
+
+      // If an unbuffered channel or a buffered channel with an empty buffer has no pending puts, and if the channel is
+      // still open, the take is queued to be processed when a put is available. Takes whose handlers have gone inactive
+      // as the result of alts processing are periodically purged.
+      if (this.dirtyTakes > this.maxDirty) {
+        this.takes.filter(function (taker) {
+          return taker.active;
         });
+        this.dirtyTakes = 0;
+      } else {
+        this.dirtyTakes++;
+      }
+
+      if (this.takes.count >= this.maxQueued) {
+        throw Error('No more than ' + this.maxQueued + ' pending takes are allowed on a single channel');
+      }
+      this.takes.enqueue(handler);
+
+      return null;
+    },
+
+
+    // Closes the channel, if it isn't already closed. This immediately returns any buffered values to pending takes. If
+    // there are no buffered values (or if they've already been taken by other takes), then all of the rest of the takes
+    // are completed with the value of `CLOSED`. Any pending puts are completed with the value of `false`.
+    //
+    // Note that the buffer is not emptied if there are still values remaining after all of the pending takes have been
+    // handled. The channel will still provide those values to any future takes, though no new values may be added to
+    // the channel. Once the buffer is depleted, any future take will return CLOSED.
+    close: function close() {
+      var _this2 = this;
+
+      if (this._closed) {
+        return;
+      }
+      this._closed = true;
+
+      var taker = void 0,
+          putter = void 0,
+          callback = void 0;
+
+      // If there is a buffer and it has at least one value in it, send those values to any pending takes that might be
+      // queued.
+      if (this.buffer) {
+        this.xform[p.result](this.buffer);
+        for (;;) {
+          if (this.buffer.count === 0) {
+            break;
+          }
+          taker = this.takes.dequeue();
+          if (taker === EMPTY) {
+            break;
+          }
+          if (taker.active) {
+            (function () {
+              callback = taker.commit();
+              var value = _this2.buffer.remove();
+              if (callback) {
+                dispatch(function () {
+                  return callback(value);
+                });
+              }
+            })();
+          }
+        }
+      }
+
+      // Once the buffer is empty (or if there never was a buffer), send CLOSED to all remaining queued takes.
+      for (;;) {
+        taker = this.takes.dequeue();
+        if (taker === EMPTY) {
+          break;
+        }
+        if (taker.active) {
+          callback = taker.commit();
+          if (callback) {
+            dispatch(function () {
+              return callback(CLOSED);
+            });
+          }
+        }
+      }
+
+      // Send `false` to any remaining queued puts.
+      for (;;) {
+        putter = this.puts.dequeue();
+        if (putter === EMPTY) {
+          break;
+        }
+        if (putter.handler.active) {
+          callback = putter.handler.commit();
+          if (callback) {
+            dispatch(function () {
+              return callback(false);
+            });
+          }
+        }
       }
     }
-  }
+  };
 }
 
 // The default exception handler, used when no exception handler is supplied to handleException, wrapTransformer, or
@@ -762,7 +758,7 @@ module.exports = {
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isObject = __webpack_require__(16);
+var isObject = __webpack_require__(17);
 module.exports = function(it){
   if(!isObject(it))throw TypeError(it + ' is not an object!');
   return it;
@@ -846,6 +842,205 @@ module.exports = function(bitmap, value){
 
 /***/ }),
 /* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _slicedToArray2 = __webpack_require__(43);
+
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/*
+ * Copyright (c) 2017 Thomas Otterson
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// operations.js
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var _require = __webpack_require__(6),
+    box = _require.box,
+    isBox = _require.isBox,
+    DEFAULT = _require.DEFAULT;
+
+// These two handlers are used by channels to track execution of instructions (put, take, and alts). They provide two
+// pieces of information: the function to call when a put or take unblocks (because a value sent to put has been taken,
+// or a take has accepted a value that has been put) and whether or not the handler is still active.
+//
+// The function is a callback that actually defines the difference between put/take and putAsync/takeAsync:
+// while the unblocked calls use the callback passed to the function, put and take simply continue the process where it
+// left off. (This is why put and take only work inside go functions, because otherwise there's no process to continue.)
+// The alts instruction always continues the process upon completion; there is no unblocked version of alts.
+//
+// This function is provided as the return value of the commit method. Calling commit has no extra effect with put and
+// take instructions, but for alts, it also marks the handler as no longer being active. This means that only one of
+// the operations passed to alts can be completed, because after the first one, the handler is no longer active and
+// will not be allowed to process a second operation.
+//
+// If a put or take (or equivalent alts operation) cannot be immediately completed because there isn't a corresponding
+// pending take or put, the handler is queued to be run when a new take or put becomes available.
+
+
+function opHandler(fn) {
+  return {
+    fn: fn,
+    active: true,
+
+    commit: function commit() {
+      return this.fn;
+    }
+  };
+}
+
+function altsHandler(active, fn) {
+  return {
+    a: active,
+    fn: fn,
+
+    get active() {
+      return this.a.value;
+    },
+
+    commit: function commit() {
+      this.a.value = false;
+      return this.fn;
+    }
+  };
+}
+
+// Creates an array of values from 0 to n - 1, shuffled randomly. Used to randomly determine the priority of operations
+// in an alts call.
+function randomArray(n) {
+  var a = [];
+  for (var k = 0; k < n; ++k) {
+    a.push(k);
+  }
+  for (var j = n - 1; j > 0; --j) {
+    var i = Math.floor(Math.random() * (j + 1));
+    var temp = a[j];
+    a[j] = a[i];
+    a[i] = temp;
+  }
+  return a;
+}
+
+// Processes the operations in an alts function call. This works in the same way as `takeAsync` and `putAsync`
+// except that each operation (each of which can be either a put or a take on any channel) is queued in a random order
+// onto its channel and only the first to complete returns a value (the other ones become invalidated then and are
+// discarded).
+//
+// The callback receives an object instead of a value. This object has two properties: `value` is the value that was
+// returned from the channel, and `channel` is the channel onto which the successful operation was queued.
+//
+// The `options` parameter is the same as the options parameter in `alts`.
+function altsAsync(ops, callback, options) {
+  var count = ops.length;
+  if (count === 0) {
+    throw Error('Alts called with no operations');
+  }
+
+  var priority = !!options.priority;
+  var indices = priority ? [] : randomArray(count);
+
+  var active = box(true);
+
+  function createAltsHandler(channel) {
+    return altsHandler(active, function (value) {
+      callback({ value: value, channel: channel });
+    });
+  }
+
+  var result = void 0;
+
+  for (var i = 0; i < count; ++i) {
+    // Choose an operation randomly (or not randomly if priority is specified)
+    var op = ops[priority ? i : indices[i]];
+    var channel = void 0,
+        value = void 0;
+
+    // Put every operation onto its channel, one at a time
+    if (Array.isArray(op)) {
+      var _op = (0, _slicedToArray3.default)(op, 2);
+
+      channel = _op[0];
+      value = _op[1];
+
+      result = channel.put(value, createAltsHandler(channel));
+    } else {
+      channel = op;
+      result = channel.take(createAltsHandler(channel));
+    }
+
+    // We check for Box here because a box from a channel indicates that the value is immediately available (i.e., that
+    // there was no need to block to get the value). If this happens, we can call our callback immediately with that
+    // value and channel and stop queueing other operations.
+    if (isBox(result)) {
+      callback({
+        value: result.value,
+        channel: channel
+      });
+      break;
+    }
+  }
+
+  // If none of the operations immediately returned values (i.e., they all blocked), and we have set a default option,
+  // then return the value of the default option rather than waiting for the queued operations to complete.
+  if (!isBox(result) && options.hasOwnProperty('default')) {
+    if (active.value) {
+      active.value = false;
+      callback({
+        value: options.default,
+        channel: DEFAULT
+      });
+    }
+  }
+}
+
+// Puts a value onto a channel. When the value is successfully taken off the channel by another process or when
+// the channel closes, the callback fires if it exists.
+function putAsync(channel, value, callback) {
+  var result = channel.put(value, opHandler(callback));
+  if (result && callback) {
+    callback(result.value);
+  }
+}
+
+// Takes a value off a channel. When the value becomes available, it is passed to the callback.
+function takeAsync(channel, callback) {
+  var result = channel.take(opHandler(callback));
+  if (result && callback) {
+    callback(result.value);
+  }
+}
+
+module.exports = {
+  altsAsync: altsAsync,
+  putAsync: putAsync,
+  takeAsync: takeAsync
+};
+
+/***/ }),
+/* 16 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -855,7 +1050,7 @@ module.exports = function(it){
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 module.exports = function(it){
@@ -863,7 +1058,7 @@ module.exports = function(it){
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -886,7 +1081,7 @@ __webpack_require__(51)(String, 'String', function(iterated){
 });
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -900,11 +1095,11 @@ var _create = __webpack_require__(67);
 
 var _create2 = _interopRequireDefault(_create);
 
-var _assign = __webpack_require__(21);
+var _assign = __webpack_require__(29);
 
 var _assign2 = _interopRequireDefault(_assign);
 
-var _symbol = __webpack_require__(22);
+var _symbol = __webpack_require__(21);
 
 var _symbol2 = _interopRequireDefault(_symbol);
 
@@ -1196,205 +1391,6 @@ module.exports = {
 };
 
 /***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _slicedToArray2 = __webpack_require__(43);
-
-var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/*
- * Copyright (c) 2017 Thomas Otterson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// operations.js
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var _require = __webpack_require__(6),
-    box = _require.box,
-    isBox = _require.isBox,
-    DEFAULT = _require.DEFAULT;
-
-// These two handlers are used by channels to track execution of instructions (put, take, and alts). They provide two
-// pieces of information: the function to call when a put or take unblocks (because a value sent to put has been taken,
-// or a take has accepted a value that has been put) and whether or not the handler is still active.
-//
-// The function is a callback that actually defines the difference between put/take and putAsync/takeAsync:
-// while the unblocked calls use the callback passed to the function, put and take simply continue the process where it
-// left off. (This is why put and take only work inside go functions, because otherwise there's no process to continue.)
-// The alts instruction always continues the process upon completion; there is no unblocked version of alts.
-//
-// This function is provided as the return value of the commit method. Calling commit has no extra effect with put and
-// take instructions, but for alts, it also marks the handler as no longer being active. This means that only one of
-// the operations passed to alts can be completed, because after the first one, the handler is no longer active and
-// will not be allowed to process a second operation.
-//
-// If a put or take (or equivalent alts operation) cannot be immediately completed because there isn't a corresponding
-// pending take or put, the handler is queued to be run when a new take or put becomes available.
-
-
-function opHandler(fn) {
-  return {
-    fn: fn,
-    active: true,
-
-    commit: function commit() {
-      return this.fn;
-    }
-  };
-}
-
-function altsHandler(active, fn) {
-  return {
-    a: active,
-    fn: fn,
-
-    get active() {
-      return this.a.value;
-    },
-
-    commit: function commit() {
-      this.a.value = false;
-      return this.fn;
-    }
-  };
-}
-
-// Creates an array of values from 0 to n - 1, shuffled randomly. Used to randomly determine the priority of operations
-// in an alts call.
-function randomArray(n) {
-  var a = [];
-  for (var k = 0; k < n; ++k) {
-    a.push(k);
-  }
-  for (var j = n - 1; j > 0; --j) {
-    var i = Math.floor(Math.random() * (j + 1));
-    var temp = a[j];
-    a[j] = a[i];
-    a[i] = temp;
-  }
-  return a;
-}
-
-// Processes the operations in an alts function call. This works in the same way as `takeAsync` and `putAsync`
-// except that each operation (each of which can be either a put or a take on any channel) is queued in a random order
-// onto its channel and only the first to complete returns a value (the other ones become invalidated then and are
-// discarded).
-//
-// The callback receives an object instead of a value. This object has two properties: `value` is the value that was
-// returned from the channel, and `channel` is the channel onto which the successful operation was queued.
-//
-// The `options` parameter is the same as the options parameter in `alts`.
-function altsAsync(ops, callback, options) {
-  var count = ops.length;
-  if (count === 0) {
-    throw Error('Alts called with no operations');
-  }
-
-  var priority = !!options.priority;
-  var indices = priority ? [] : randomArray(count);
-
-  var active = box(true);
-
-  function createAltsHandler(channel) {
-    return altsHandler(active, function (value) {
-      callback({ value: value, channel: channel });
-    });
-  }
-
-  var result = void 0;
-
-  for (var i = 0; i < count; ++i) {
-    // Choose an operation randomly (or not randomly if priority is specified)
-    var op = ops[priority ? i : indices[i]];
-    var channel = void 0,
-        value = void 0;
-
-    // Put every operation onto its channel, one at a time
-    if (Array.isArray(op)) {
-      var _op = (0, _slicedToArray3.default)(op, 2);
-
-      channel = _op[0];
-      value = _op[1];
-
-      result = channel.put(value, createAltsHandler(channel));
-    } else {
-      channel = op;
-      result = channel.take(createAltsHandler(channel));
-    }
-
-    // We check for Box here because a box from a channel indicates that the value is immediately available (i.e., that
-    // there was no need to block to get the value). If this happens, we can call our callback immediately with that
-    // value and channel and stop queueing other operations.
-    if (isBox(result)) {
-      callback({
-        value: result.value,
-        channel: channel
-      });
-      break;
-    }
-  }
-
-  // If none of the operations immediately returned values (i.e., they all blocked), and we have set a default option,
-  // then return the value of the default option rather than waiting for the queued operations to complete.
-  if (!isBox(result) && options.hasOwnProperty('default')) {
-    if (active.value) {
-      active.value = false;
-      callback({
-        value: options.default,
-        channel: DEFAULT
-      });
-    }
-  }
-}
-
-// Puts a value onto a channel. When the value is successfully taken off the channel by another process or when
-// the channel closes, the callback fires if it exists.
-function putAsync(channel, value, callback) {
-  var result = channel.put(value, opHandler(callback));
-  if (result && callback) {
-    callback(result.value);
-  }
-}
-
-// Takes a value off a channel. When the value becomes available, it is passed to the callback.
-function takeAsync(channel, callback) {
-  var result = channel.take(opHandler(callback));
-  if (result && callback) {
-    callback(result.value);
-  }
-}
-
-module.exports = {
-  altsAsync: altsAsync,
-  putAsync: putAsync,
-  takeAsync: takeAsync
-};
-
-/***/ }),
 /* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1404,16 +1400,10 @@ module.exports = { "default": __webpack_require__(76), __esModule: true };
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = { "default": __webpack_require__(78), __esModule: true };
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
 module.exports = { "default": __webpack_require__(83), __esModule: true };
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // optional / simple context binding
@@ -1438,13 +1428,13 @@ module.exports = function(fn, that, length){
 };
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports) {
 
 exports.f = {}.propertyIsEnumerable;
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports) {
 
 var id = 0
@@ -1454,13 +1444,13 @@ module.exports = function(key){
 };
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports) {
 
 module.exports = true;
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var def = __webpack_require__(3).f
@@ -1472,7 +1462,7 @@ module.exports = function(it, tag, stat){
 };
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(105);
@@ -1490,7 +1480,7 @@ for(var collections = ['NodeList', 'DOMTokenList', 'MediaList', 'StyleSheetList'
 }
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1547,7 +1537,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /* global MessageChannel */
 
-var buffers = __webpack_require__(18);
+var buffers = __webpack_require__(19);
 
 var queue = buffers.queue();
 var EMPTY = buffers.EMPTY;
@@ -1695,6 +1685,12 @@ module.exports = {
 };
 
 /***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(78), __esModule: true };
+
+/***/ }),
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1715,7 +1711,7 @@ module.exports = function(it){
 /* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isObject = __webpack_require__(16)
+var isObject = __webpack_require__(17)
   , document = __webpack_require__(2).document
   // in old IE typeof document.createElement is 'object'
   , is = isObject(document) && isObject(document.createElement);
@@ -1790,7 +1786,7 @@ exports.f = Object.getOwnPropertySymbols;
 /***/ (function(module, exports, __webpack_require__) {
 
 var shared = __webpack_require__(37)('keys')
-  , uid    = __webpack_require__(25);
+  , uid    = __webpack_require__(24);
 module.exports = function(key){
   return shared[key] || (shared[key] = uid(key));
 };
@@ -1832,7 +1828,7 @@ module.exports = function(it){
 /***/ (function(module, exports, __webpack_require__) {
 
 // 7.1.1 ToPrimitive(input [, PreferredType])
-var isObject = __webpack_require__(16);
+var isObject = __webpack_require__(17);
 // instead of the ES6 spec version, we didn't implement @@toPrimitive case
 // and the second argument - flag - preferred type is a string
 module.exports = function(it, S){
@@ -1850,7 +1846,7 @@ module.exports = function(it, S){
 
 var global         = __webpack_require__(2)
   , core           = __webpack_require__(0)
-  , LIBRARY        = __webpack_require__(26)
+  , LIBRARY        = __webpack_require__(25)
   , wksExt         = __webpack_require__(42)
   , defineProperty = __webpack_require__(3).f;
 module.exports = function(name){
@@ -1926,7 +1922,7 @@ exports.default = function () {
 /***/ (function(module, exports, __webpack_require__) {
 
 // getting tag from 19.1.3.6 Object.prototype.toString()
-var cof = __webpack_require__(15)
+var cof = __webpack_require__(16)
   , TAG = __webpack_require__(1)('toStringTag')
   // ES3 wrong here
   , ARG = cof(function(){ return arguments; }()) == 'Arguments';
@@ -2001,7 +1997,7 @@ module.exports = !__webpack_require__(4) && !__webpack_require__(12)(function(){
 /***/ (function(module, exports, __webpack_require__) {
 
 // fallback for non-array-like ES3 and non-enumerable old V8 strings
-var cof = __webpack_require__(15);
+var cof = __webpack_require__(16);
 module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
   return cof(it) == 'String' ? it.split('') : Object(it);
 };
@@ -2012,14 +2008,14 @@ module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
 
 "use strict";
 
-var LIBRARY        = __webpack_require__(26)
+var LIBRARY        = __webpack_require__(25)
   , $export        = __webpack_require__(5)
   , redefine       = __webpack_require__(54)
   , hide           = __webpack_require__(10)
   , has            = __webpack_require__(8)
   , Iterators      = __webpack_require__(11)
   , $iterCreate    = __webpack_require__(91)
-  , setToStringTag = __webpack_require__(27)
+  , setToStringTag = __webpack_require__(26)
   , getPrototypeOf = __webpack_require__(99)
   , ITERATOR       = __webpack_require__(1)('iterator')
   , BUGGY          = !([].keys && 'next' in [].keys()) // Safari has buggy iterators w/o `next`
@@ -2126,7 +2122,7 @@ module.exports = __webpack_require__(10);
 /* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ctx                = __webpack_require__(23)
+var ctx                = __webpack_require__(22)
   , invoke             = __webpack_require__(89)
   , html               = __webpack_require__(48)
   , cel                = __webpack_require__(32)
@@ -2165,7 +2161,7 @@ if(!setTask || !clearTask){
     delete queue[id];
   };
   // Node.js 0.8-
-  if(__webpack_require__(15)(process) == 'process'){
+  if(__webpack_require__(16)(process) == 'process'){
     defer = function(id){
       process.nextTick(ctx(run, id, 1));
     };
@@ -2217,8 +2213,8 @@ var global         = __webpack_require__(2)
   , META           = __webpack_require__(94).KEY
   , $fails         = __webpack_require__(12)
   , shared         = __webpack_require__(37)
-  , setToStringTag = __webpack_require__(27)
-  , uid            = __webpack_require__(25)
+  , setToStringTag = __webpack_require__(26)
+  , uid            = __webpack_require__(24)
   , wks            = __webpack_require__(1)
   , wksExt         = __webpack_require__(42)
   , wksDefine      = __webpack_require__(41)
@@ -2357,10 +2353,10 @@ if(!USE_NATIVE){
   $GOPD.f = $getOwnPropertyDescriptor;
   $DP.f   = $defineProperty;
   __webpack_require__(52).f = gOPNExt.f = $getOwnPropertyNames;
-  __webpack_require__(24).f  = $propertyIsEnumerable;
+  __webpack_require__(23).f  = $propertyIsEnumerable;
   __webpack_require__(35).f = $getOwnPropertySymbols;
 
-  if(DESCRIPTORS && !__webpack_require__(26)){
+  if(DESCRIPTORS && !__webpack_require__(25)){
     redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
   }
 
@@ -2516,7 +2512,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var _require = __webpack_require__(6),
     chan = _require.chan;
 
-var _require2 = __webpack_require__(19),
+var _require2 = __webpack_require__(15),
     putAsync = _require2.putAsync,
     takeAsync = _require2.takeAsync,
     altsAsync = _require2.altsAsync;
@@ -2693,7 +2689,7 @@ var _for = __webpack_require__(70);
 
 var _for2 = _interopRequireDefault(_for);
 
-var _symbol = __webpack_require__(22);
+var _symbol = __webpack_require__(21);
 
 var _symbol2 = _interopRequireDefault(_symbol);
 
@@ -2901,7 +2897,7 @@ exports.default = function (arr) {
 /* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(17);
+__webpack_require__(18);
 __webpack_require__(104);
 module.exports = __webpack_require__(0).Array.from;
 
@@ -2909,16 +2905,16 @@ module.exports = __webpack_require__(0).Array.from;
 /* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(28);
-__webpack_require__(17);
+__webpack_require__(27);
+__webpack_require__(18);
 module.exports = __webpack_require__(102);
 
 /***/ }),
 /* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(28);
-__webpack_require__(17);
+__webpack_require__(27);
+__webpack_require__(18);
 module.exports = __webpack_require__(103);
 
 /***/ }),
@@ -2976,8 +2972,8 @@ module.exports = __webpack_require__(0).Symbol;
 /* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(17);
-__webpack_require__(28);
+__webpack_require__(18);
+__webpack_require__(27);
 module.exports = __webpack_require__(42).f('iterator');
 
 /***/ }),
@@ -3033,7 +3029,7 @@ module.exports = function(object, index, value){
 // all enumerable object keys, includes symbols
 var getKeys = __webpack_require__(13)
   , gOPS    = __webpack_require__(35)
-  , pIE     = __webpack_require__(24);
+  , pIE     = __webpack_require__(23);
 module.exports = function(it){
   var result     = getKeys(it)
     , getSymbols = gOPS.f;
@@ -3072,7 +3068,7 @@ module.exports = function(fn, args, that){
 /***/ (function(module, exports, __webpack_require__) {
 
 // 7.2.2 IsArray(argument)
-var cof = __webpack_require__(15);
+var cof = __webpack_require__(16);
 module.exports = Array.isArray || function isArray(arg){
   return cof(arg) == 'Array';
 };
@@ -3085,7 +3081,7 @@ module.exports = Array.isArray || function isArray(arg){
 
 var create         = __webpack_require__(34)
   , descriptor     = __webpack_require__(14)
-  , setToStringTag = __webpack_require__(27)
+  , setToStringTag = __webpack_require__(26)
   , IteratorPrototype = {};
 
 // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
@@ -3123,8 +3119,8 @@ module.exports = function(object, el){
 /* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var META     = __webpack_require__(25)('meta')
-  , isObject = __webpack_require__(16)
+var META     = __webpack_require__(24)('meta')
+  , isObject = __webpack_require__(17)
   , has      = __webpack_require__(8)
   , setDesc  = __webpack_require__(3).f
   , id       = 0;
@@ -3186,7 +3182,7 @@ var meta = module.exports = {
 // 19.1.2.1 Object.assign(target, source, ...)
 var getKeys  = __webpack_require__(13)
   , gOPS     = __webpack_require__(35)
-  , pIE      = __webpack_require__(24)
+  , pIE      = __webpack_require__(23)
   , toObject = __webpack_require__(39)
   , IObject  = __webpack_require__(50)
   , $assign  = Object.assign;
@@ -3238,7 +3234,7 @@ module.exports = __webpack_require__(4) ? Object.defineProperties : function def
 /* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var pIE            = __webpack_require__(24)
+var pIE            = __webpack_require__(23)
   , createDesc     = __webpack_require__(14)
   , toIObject      = __webpack_require__(9)
   , toPrimitive    = __webpack_require__(40)
@@ -3364,7 +3360,7 @@ module.exports = __webpack_require__(0).isIterable = function(it){
 
 "use strict";
 
-var ctx            = __webpack_require__(23)
+var ctx            = __webpack_require__(22)
   , $export        = __webpack_require__(5)
   , toObject       = __webpack_require__(39)
   , call           = __webpack_require__(61)
@@ -4458,7 +4454,7 @@ module.exports = { "default": __webpack_require__(125), __esModule: true };
 "use strict";
 
 
-var _assign = __webpack_require__(21);
+var _assign = __webpack_require__(29);
 
 var _assign2 = _interopRequireDefault(_assign);
 
@@ -4522,96 +4518,6 @@ var _asyncToGenerator2 = __webpack_require__(72);
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
-// Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
-// the reduction function can also be supplied. This is an async function that returns a promise that resolves to the
-// result of the reduction, but it will not resolve until the input channel is closed (this is the only way to know
-// when all of the data needed for the reduction is present on the channel)'
-//
-// This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
-// can result in a single scalar value.
-var reduce = function () {
-  var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(fn, ch, init) {
-    var result, value;
-    return _regenerator2.default.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            result = init;
-
-          case 1:
-            _context.next = 3;
-            return take(ch);
-
-          case 3:
-            value = _context.sent;
-
-            if (!(value === CLOSED)) {
-              _context.next = 6;
-              break;
-            }
-
-            return _context.abrupt('return', result);
-
-          case 6:
-            result = fn(result, value);
-
-          case 7:
-            _context.next = 1;
-            break;
-
-          case 9:
-          case 'end':
-            return _context.stop();
-        }
-      }
-    }, _callee, this);
-  }));
-
-  return function reduce(_x, _x2, _x3) {
-    return _ref.apply(this, arguments);
-  };
-}();
-
-// Puts all of the values in the input array onto the supplied channel. If no channel is supplied (if only an array is
-// passed), then a new buffered channel of the same length of the array is created. Either way, the channel is returned
-// and will close when the last array value has been taken.
-//
-// This is NOT an async function. It returns a channel, and a channel-returning function can immediately return a
-// channel even if the channel doesn't have all of the results on it yet. (In fact, unless it's a buffered channel, it
-// *cannot* have all values on it until some are taken.)
-
-
-// Moves all of the values on a channel into the supplied array. If no array is supplied (if the only parameter passed
-// is a channel), then a new and empty array is created to contain the values. This function is async; the promise it
-// returns resolves with the resulting array once the input channel has closed.
-var into = function () {
-  var _ref5 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(array, ch) {
-    var _ref6, _ref7, arr, chnl, init;
-
-    return _regenerator2.default.wrap(function _callee3$(_context3) {
-      while (1) {
-        switch (_context3.prev = _context3.next) {
-          case 0:
-            _ref6 = Array.isArray(array) ? [array, ch] : [[], array], _ref7 = (0, _slicedToArray3.default)(_ref6, 2), arr = _ref7[0], chnl = _ref7[1];
-            init = arr.slice();
-            return _context3.abrupt('return', reduce(function (acc, input) {
-              acc.push(input);
-              return acc;
-            }, chnl, init));
-
-          case 3:
-          case 'end':
-            return _context3.stop();
-        }
-      }
-    }, _callee3, this);
-  }));
-
-  return function into(_x4, _x5) {
-    return _ref5.apply(this, arguments);
-  };
-}();
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
@@ -4652,91 +4558,190 @@ var _require = __webpack_require__(6),
     close = _require.close,
     CLOSED = _require.CLOSED;
 
-var _require2 = __webpack_require__(59),
-    put = _require2.put,
-    take = _require2.take;
+var _require2 = __webpack_require__(15),
+    putAsync = _require2.putAsync;
 
+var _require3 = __webpack_require__(59),
+    put = _require3.put,
+    take = _require3.take;
+
+// Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
+// the reduction function can also be supplied. A channel is returned; that channel receives exactly one value, which
+// is the reduced result, and it closes after that value is taken.
+//
+// This could be implemented as an async function returning a promise that resolves to the reduced result, but that
+// would be different from the semantics of the generator-based function. Also, there is some question as to whether
+// it's a good idea for a process to communicate through any other means than via a channel.
+//
+// This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
+// can result in a single scalar value.
+
+
+function reduce(fn, ch, init) {
+  var loop = function () {
+    var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
+      var acc, value;
+      return _regenerator2.default.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              acc = init;
+
+            case 1:
+              _context.next = 3;
+              return take(ch);
+
+            case 3:
+              value = _context.sent;
+
+              if (!(value === CLOSED)) {
+                _context.next = 7;
+                break;
+              }
+
+              putAsync(output, acc, function () {
+                return close(output);
+              });
+              return _context.abrupt('return');
+
+            case 7:
+              acc = fn(acc, value);
+
+            case 8:
+              _context.next = 1;
+              break;
+
+            case 10:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, _callee, this);
+    }));
+
+    return function loop() {
+      return _ref.apply(this, arguments);
+    };
+  }();
+
+  var output = chan();
+
+  loop();
+  return output;
+}
+
+// Puts all of the values in the input array onto the supplied channel. If no channel is supplied (if only an array is
+// passed), then a new buffered channel of the same length of the array is created. Either way, the channel is returned
+// and will close when the last array value has been taken.
+//
+// This is NOT an async function. It returns a channel, and a channel-returning function can immediately return a
+// channel even if the channel doesn't have all of the results on it yet. (In fact, unless it's a buffered channel, it
+// *cannot* have all values on it until some are taken.)
 function onto(ch, array) {
-  var _this = this;
+  var loop = function () {
+    var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2() {
+      var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, item;
+
+      return _regenerator2.default.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _iteratorNormalCompletion = true;
+              _didIteratorError = false;
+              _iteratorError = undefined;
+              _context2.prev = 3;
+              _iterator = (0, _getIterator3.default)(arr);
+
+            case 5:
+              if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                _context2.next = 12;
+                break;
+              }
+
+              item = _step.value;
+              _context2.next = 9;
+              return put(chnl, item);
+
+            case 9:
+              _iteratorNormalCompletion = true;
+              _context2.next = 5;
+              break;
+
+            case 12:
+              _context2.next = 18;
+              break;
+
+            case 14:
+              _context2.prev = 14;
+              _context2.t0 = _context2['catch'](3);
+              _didIteratorError = true;
+              _iteratorError = _context2.t0;
+
+            case 18:
+              _context2.prev = 18;
+              _context2.prev = 19;
+
+              if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+              }
+
+            case 21:
+              _context2.prev = 21;
+
+              if (!_didIteratorError) {
+                _context2.next = 24;
+                break;
+              }
+
+              throw _iteratorError;
+
+            case 24:
+              return _context2.finish(21);
+
+            case 25:
+              return _context2.finish(18);
+
+            case 26:
+              close(chnl);
+
+            case 27:
+            case 'end':
+              return _context2.stop();
+          }
+        }
+      }, _callee2, this, [[3, 14, 18, 26], [19,, 21, 25]]);
+    }));
+
+    return function loop() {
+      return _ref4.apply(this, arguments);
+    };
+  }();
 
   var _ref2 = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array],
       _ref3 = (0, _slicedToArray3.default)(_ref2, 2),
       chnl = _ref3[0],
       arr = _ref3[1];
 
-  (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2() {
-    var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, item;
-
-    return _regenerator2.default.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            _iteratorNormalCompletion = true;
-            _didIteratorError = false;
-            _iteratorError = undefined;
-            _context2.prev = 3;
-            _iterator = (0, _getIterator3.default)(arr);
-
-          case 5:
-            if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-              _context2.next = 12;
-              break;
-            }
-
-            item = _step.value;
-            _context2.next = 9;
-            return put(chnl, item);
-
-          case 9:
-            _iteratorNormalCompletion = true;
-            _context2.next = 5;
-            break;
-
-          case 12:
-            _context2.next = 18;
-            break;
-
-          case 14:
-            _context2.prev = 14;
-            _context2.t0 = _context2['catch'](3);
-            _didIteratorError = true;
-            _iteratorError = _context2.t0;
-
-          case 18:
-            _context2.prev = 18;
-            _context2.prev = 19;
-
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-
-          case 21:
-            _context2.prev = 21;
-
-            if (!_didIteratorError) {
-              _context2.next = 24;
-              break;
-            }
-
-            throw _iteratorError;
-
-          case 24:
-            return _context2.finish(21);
-
-          case 25:
-            return _context2.finish(18);
-
-          case 26:
-            close(chnl);
-
-          case 27:
-          case 'end':
-            return _context2.stop();
-        }
-      }
-    }, _callee2, _this, [[3, 14, 18, 26], [19,, 21, 25]]);
-  }))();
+  loop();
   return chnl;
+}
+
+// Moves all of the values on a channel into the supplied array. If no array is supplied (if the only parameter passed
+// is a channel), then a new and empty array is created to contain the values. A channel is returned that will have the
+// array put onto it when the input channel closes; this output channel closes automatically when the array is taken
+// from it.
+function into(array, ch) {
+  var _ref5 = Array.isArray(array) ? [array, ch] : [[], array],
+      _ref6 = (0, _slicedToArray3.default)(_ref5, 2),
+      arr = _ref6[0],
+      chnl = _ref6[1];
+
+  var init = arr.slice();
+
+  return reduce(function (acc, input) {
+    acc.push(input);
+    return acc;
+  }, chnl, init);
 }
 
 module.exports = {
@@ -4768,7 +4773,7 @@ var _asyncToGenerator2 = __webpack_require__(72);
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
-var _symbol = __webpack_require__(22);
+var _symbol = __webpack_require__(21);
 
 var _symbol2 = _interopRequireDefault(_symbol);
 
@@ -4818,7 +4823,7 @@ var _require = __webpack_require__(6),
     close = _require.close,
     CLOSED = _require.CLOSED;
 
-var _require2 = __webpack_require__(19),
+var _require2 = __webpack_require__(15),
     putAsync = _require2.putAsync,
     takeAsync = _require2.takeAsync;
 
@@ -5336,12 +5341,11 @@ function tapped(src) {
 function tap(src) {
   var dest = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : chan();
 
-  var taps = src[protocols.taps];
-  if (!taps) {
+  if (!src[protocols.taps]) {
     tapped(src);
   }
-  if (!~taps.indexOf(dest)) {
-    taps.push(dest);
+  if (!~src[protocols.taps].indexOf(dest)) {
+    src[protocols.taps].push(dest);
   }
   return dest;
 }
@@ -5528,7 +5532,7 @@ var _asyncToGenerator2 = __webpack_require__(72);
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
-var _assign = __webpack_require__(21);
+var _assign = __webpack_require__(29);
 
 var _assign2 = _interopRequireDefault(_assign);
 
@@ -5898,8 +5902,8 @@ module.exports = {
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(63);
-__webpack_require__(17);
-__webpack_require__(28);
+__webpack_require__(18);
+__webpack_require__(27);
 __webpack_require__(132);
 module.exports = __webpack_require__(0).Promise;
 
@@ -5917,7 +5921,7 @@ module.exports = function(it, Constructor, name, forbiddenField){
 /* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ctx         = __webpack_require__(23)
+var ctx         = __webpack_require__(22)
   , call        = __webpack_require__(61)
   , isArrayIter = __webpack_require__(60)
   , anObject    = __webpack_require__(7)
@@ -5952,7 +5956,7 @@ var global    = __webpack_require__(2)
   , Observer  = global.MutationObserver || global.WebKitMutationObserver
   , process   = global.process
   , Promise   = global.Promise
-  , isNode    = __webpack_require__(15)(process) == 'process';
+  , isNode    = __webpack_require__(16)(process) == 'process';
 
 module.exports = function(){
   var head, last, notify;
@@ -6067,12 +6071,12 @@ module.exports = function(O, D){
 
 "use strict";
 
-var LIBRARY            = __webpack_require__(26)
+var LIBRARY            = __webpack_require__(25)
   , global             = __webpack_require__(2)
-  , ctx                = __webpack_require__(23)
+  , ctx                = __webpack_require__(22)
   , classof            = __webpack_require__(44)
   , $export            = __webpack_require__(5)
-  , isObject           = __webpack_require__(16)
+  , isObject           = __webpack_require__(17)
   , aFunction          = __webpack_require__(47)
   , anInstance         = __webpack_require__(126)
   , forOf              = __webpack_require__(127)
@@ -6296,7 +6300,7 @@ if(!USE_NATIVE){
 }
 
 $export($export.G + $export.W + $export.F * !USE_NATIVE, {Promise: $Promise});
-__webpack_require__(27)($Promise, PROMISE);
+__webpack_require__(26)($Promise, PROMISE);
 __webpack_require__(130)(PROMISE);
 Wrapper = __webpack_require__(0)[PROMISE];
 
@@ -6403,7 +6407,7 @@ $export($export.S + $export.F * !(USE_NATIVE && __webpack_require__(62)(function
 // functions are defined here (go, spawn, chan). All three types of buffers are also supplied, along with the special
 // values CLOSED, EMPTY, and DEFAULT.
 
-var _require = __webpack_require__(18),
+var _require = __webpack_require__(19),
     fixed = _require.fixed,
     sliding = _require.sliding,
     dropping = _require.dropping,
@@ -6416,12 +6420,12 @@ var _require2 = __webpack_require__(6),
     CLOSED = _require2.CLOSED,
     DEFAULT = _require2.DEFAULT;
 
-var _require3 = __webpack_require__(19),
+var _require3 = __webpack_require__(15),
     putAsync = _require3.putAsync,
     takeAsync = _require3.takeAsync,
     altsAsync = _require3.altsAsync;
 
-var _require4 = __webpack_require__(29),
+var _require4 = __webpack_require__(28),
     config = _require4.config,
     SET_IMMEDIATE = _require4.SET_IMMEDIATE,
     MESSAGE_CHANNEL = _require4.MESSAGE_CHANNEL,
