@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>FixedBuffer - Documentation</title>
+    <title>cispy/util - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">FixedBuffer</h1>
+    <h1 class="page-title">cispy/util</h1>
     
 
     
@@ -39,11 +39,8 @@
 
 <header>
     
-        <h2>
-            <span class="ancestors"><a href="module-cispy_core_buffers.html">cispy/core/buffers</a>~</span>
         
-        FixedBuffer
-        </h2>
+            
         
     
 </header>
@@ -52,13 +49,24 @@
     <div class="container-overview">
     
         
+            <div class="description"><p>A series of functions meant to operate on the channels that the rest of this library creates and manages.</p>
+<p>All of the functions that are here cannot be done with transducers because of the limitations on transducers
+themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
+(You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)</p></div>
+        
+
+        
+            
+
+
+
 
 <dl class="details">
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line258">line 258</a>
+        <a href="generator_util_index.js.html">generator/util/index.js</a>, <a href="generator_util_index.js.html#line22">line 22</a>
     </li></ul></dd>
     
 
@@ -96,28 +104,34 @@
 
 
 
-        
-            <div class="description"><p>A buffer implementation that never discards buffered items when a new item is added.</p>
-<p>This buffer has a concept of <em>full</em>, but it's a soft limit. If the size of the buffer is exceeded, added items are
-still stored. <a href="module-cispy_core_buffers-FixedBuffer.html#full">full</a> returns <code>true</code> any time that the size is
-reached or exceeded, so it's entirely possible to call <a href="module-cispy_core_buffers-Buffer.html#remove">remove</a> on a
-full buffer and have it still be full.</p></div>
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         
     
     </div>
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="module-cispy_core_buffers-Buffer.html">module:cispy/core/buffers~Buffer</a></li>
-    </ul>
-
 
     
 
@@ -128,14 +142,29 @@ full buffer and have it still be full.</p></div>
      
 
     
+        <h3 class="subsection-title">Namespaces</h3>
+
+        <dl>
+            <dt><a href="module-cispy_util-CispyUtil.html">CispyUtil</a></dt>
+            <dd></dd>
+        </dl>
+    
 
     
-        <h3 class="subsection-title">Members</h3>
+
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
 
         
-            
-<h4 class="name" id="full"><span class="type-signature">(readonly) </span>full<span class="type-signature"> :number</span></h4>
+                
 
+    
+
+    <h4 class="name" id="~reducerFunction"><span class="type-signature"></span>reducerFunction<span class="signature">(acc, value)</span><span class="type-signature"> &rarr; {*}</span></h4>
+
+    
 
 
 
@@ -145,7 +174,7 @@ full buffer and have it still be full.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line274">line 274</a>
+        <a href="generator_util_index.js.html">generator/util/index.js</a>, <a href="generator_util_index.js.html#line45">line 45</a>
     </li></ul></dd>
     
 
@@ -185,91 +214,7 @@ full buffer and have it still be full.</p></div>
 
 
 <div class="description">
-    <p>Whether or not the buffer has as many or more items stored as its
-<a href="module-cispy_core_buffers-Buffer.html#size">size</a>.</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="add"><span class="type-signature"></span>add<span class="signature">(&hellip;items)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line290">line 290</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>Adds one or more items to the buffer. These items will be added even if the buffer is full.</p>
+    <p>A function used to reduce a collection of values into a single value via a reducer function.</p>
 </div>
 
 
@@ -295,8 +240,6 @@ full buffer and have it still be full.</p></div>
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -309,7 +252,7 @@ full buffer and have it still be full.</p></div>
 
         <tr>
             
-                <td class="name"><code>items</code></td>
+                <td class="name"><code>acc</code></td>
             
 
             <td class="type">
@@ -322,20 +265,34 @@ full buffer and have it still be full.</p></div>
             </td>
 
             
-                <td class="attributes">
-                
 
-                
+            
 
+            <td class="description last"><p>The accumulated value from the prior reduction step. If this is the first reduction step, this will
+    be set to some initial value (either an explicit value or the first value of the collection).</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
                 
-                    &lt;repeatable><br>
-                
-                </td>
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
             
 
             
 
-            <td class="description last"><p>The items to be added to the buffer.</p></td>
+            <td class="description last"><p>The next value of the collection.</p></td>
         </tr>
 
     
@@ -355,11 +312,31 @@ full buffer and have it still be full.</p></div>
 
 
 
-
+<h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>The result of reducing the next value into the current accumulated value.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
+
+
+    </dd>
+</dl>
+
     
 
+
+            
     
 
     

@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CispyUtil - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cispy.html">cispy</a><ul class='methods'><li data-type='method'><a href="module-cispy.html#~alts">alts</a></li><li data-type='method'><a href="module-cispy.html#~altsAsync">altsAsync</a></li><li data-type='method'><a href="module-cispy.html#~chan">chan</a></li><li data-type='method'><a href="module-cispy.html#~close">close</a></li><li data-type='method'><a href="module-cispy.html#~config">config</a></li><li data-type='method'><a href="module-cispy.html#~droppingBuffer">droppingBuffer</a></li><li data-type='method'><a href="module-cispy.html#~fixedBuffer">fixedBuffer</a></li><li data-type='method'><a href="module-cispy.html#~go">go</a></li><li data-type='method'><a href="module-cispy.html#~goSafe">goSafe</a></li><li data-type='method'><a href="module-cispy.html#~put">put</a></li><li data-type='method'><a href="module-cispy.html#~putAsync">putAsync</a></li><li data-type='method'><a href="module-cispy.html#~sleep">sleep</a></li><li data-type='method'><a href="module-cispy.html#~slidingBuffer">slidingBuffer</a></li><li data-type='method'><a href="module-cispy.html#~spawn">spawn</a></li><li data-type='method'><a href="module-cispy.html#~take">take</a></li><li data-type='method'><a href="module-cispy.html#~takeAsync">takeAsync</a></li><li data-type='method'><a href="module-cispy.html#~takeOrThrow">takeOrThrow</a></li><li data-type='method'><a href="module-cispy.html#~timeout">timeout</a></li></ul></li><li><a href="module-cispy_core_buffers.html">cispy/core/buffers</a></li><li><a href="module-cispy_core_channel.html">cispy/core/channel</a></li><li><a href="module-cispy_util.html">cispy/util</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-cispy_core_buffers-Buffer.html">Buffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Buffer.html#remove">remove</a></li></ul></li><li><a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-DroppingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-FixedBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-Queue.html">Queue</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#dequeue">dequeue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#enqueue">enqueue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#filter">filter</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#peek">peek</a></li></ul></li><li><a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-SlidingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_channel-Channel.html">Channel</a></li><li><a href="module-cispy_util-CispyUtil.html">CispyUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.reduce">reduce</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">CispyUtil</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-cispy_util.html">cispy/util</a>~</span>
+        
+        CispyUtil
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_util_index.js.html">generator/util/index.js</a>, <a href="generator_util_index.js.html#line32">line 32</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+        
+            <div class="description"><p>A set of utility functions using generators (processes) to work with channels.</p>
+<p>These are all accessed through the <code>cispy.util</code> namespace; e.g.,
+<code><a href="module-cispy_util-CispyUtil.html#.reduce">reduce</a></code> can be called like this:</p>
+<pre class="prettyprint source"><code>const output = cispy.util.reduce((acc, value) => acc + value, ch, 0);</code></pre></div>
+        
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".into"><span class="type-signature">(static) </span>into<span class="signature">(array<span class="signature-attributes">opt</span>, ch)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_util_conversion.js.html">generator/util/conversion.js</a>, <a href="generator_util_conversion.js.html#line171">line 171</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Moves all of the values on a channel into the supplied array. If no array is supplied (if the only parameter passed
+is a channel), then a new and empty array is created to contain the values. A channel is returned; the resulting
+channel will hold the resulting array and will close immediately upon that array being taken from it.</p>
+<pre class="prettyprint source"><code>const {chan, go, put, take, close, util} = cispy;
+const {into} = util;
+
+const input = chan();
+const output = into(input);
+
+go(function*() {
+  yield put(input, 1);
+  yield put(input, 2);
+  yield put(input, 3);
+  close(input);
+});
+
+go(function*() {
+  const result = yield take(output);
+  console.log(result);                 // -> [1, 2, 3]
+});</code></pre><p>Note that the input channel <em>must</em> be closed at some point, or no value will ever appear on the output channel. The
+closing of the channel is what signifies that all of the values needed to make the array are now available.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>array</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The array to put the channel values into. If this is not present, a new, empty array will be
+    created.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ch</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The channel from which values are taken to put into the array.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A channel that will, when the input channel closes, have the array of
+    channel values put onto it. When this array is taken, the channel will automatically close.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".onto"><span class="type-signature">(static) </span>onto<span class="signature">(ch<span class="signature-attributes">opt</span>, array)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_util_conversion.js.html">generator/util/conversion.js</a>, <a href="generator_util_conversion.js.html#line124">line 124</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Puts all of the values in the input array onto the supplied channel. If no channel is supplied (if only an array is
+passed), then a new buffered channel of the same length of the array is created. Either way, the channel is returned
+and will close when the last array value has been taken.</p>
+<pre class="prettyprint source"><code>const {chan, go, take, util} = cispy;
+const {onto} = util;
+
+const input = [1, 2, 3];
+const output = onto(input);
+
+go(function*() {
+  console.log(yield take(output));     // -> 1
+  console.log(yield take(output));     // -> 2
+  console.log(yield take(output));     // -> 3
+  console.log(output.closed);          // -> true
+});</code></pre>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>ch</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The channel onto which to put all of the array elements. If this is
+    not present, a new channel will be created.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>array</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The array of values to be put onto the channel.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>the channel onto which the array elements are put. This is the same as
+    the input channel, but if no input channel is specified, this will be a new channel. It will close when the final
+    value is taken from it.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".reduce"><span class="type-signature">(static) </span>reduce<span class="signature">(fn, ch, init)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_util_conversion.js.html">generator/util/conversion.js</a>, <a href="generator_util_conversion.js.html#line83">line 83</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
+the reduction function can also be supplied. The single value that comes out of this reduction (which cannot
+complete until the input channel is closed) is put into a channel that is returned. This returned channel will close
+automatically after the value is taken from it.</p>
+<p>This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
+can result in a single scalar value.</p>
+<pre class="prettyprint source"><code>const {chan, go, put, take, close, util} = cispy;
+const {reduce} = util;
+
+const input = chan();
+const output = reduce((acc, value) => acc + value, input, 0);
+
+go(function*() {
+  yield put(input, 1);
+  yield put(input, 2);
+  yield put(input, 3);
+  close(input);
+});
+
+go(function*() {
+  const result = yield take(output);
+  console.log(output);                  // -> 6
+});</code></pre><p>Note that the input channel <em>must</em> be closed at some point, or no value will ever appear on the output channel. The
+closing of the channel is what signifies that the reduction should be completed.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_util.html#~reducerFunction">module:cispy/util~reducerFunction</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The reducer function responsible for turning the series of channel
+    values into a single output value.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ch</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The channel whose values are being reduced into a single output value.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>init</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The initial value to feed into the reducer function for the first reduction step.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A channel that will, when the input channel closes, have the reduced
+    value put into it. When this value is taken, the channel will automatically close.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

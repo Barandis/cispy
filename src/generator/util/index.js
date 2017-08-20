@@ -19,9 +19,38 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// cispy.js
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * A series of functions meant to operate on the channels that the rest of this library creates and manages.
+ *
+ * All of the functions that are here cannot be done with transducers because of the limitations on transducers
+ * themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
+ * (You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)
+ *
+ * @module cispy/util
+ */
+
+/**
+ * A set of utility functions using generators (processes) to work with channels.
+ *
+ * These are all accessed through the `cispy.util` namespace; e.g.,
+ * `{@link module:cispy/util~CispyUtil.reduce|reduce}` can be called like this:
+ *
+ * ```
+ * const output = cispy.util.reduce((acc, value) => acc + value, ch, 0);
+ * ```
+ *
+ * @namespace CispyUtil
+ */
+
+/**
+ * A function used to reduce a collection of values into a single value via a reducer function.
+ *
+ * @callback reducerFunction
+ * @param {*} acc The accumulated value from the prior reduction step. If this is the first reduction step, this will
+ *     be set to some initial value (either an explicit value or the first value of the collection).
+ * @param {*} value The next value of the collection.
+ * @return {*} The result of reducing the next value into the current accumulated value.
+ */
 
 const conversion = require('./conversion');
 const flow = require('./flow');

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>cispy/core/buffers - Documentation</title>
+    <title>generator/util/index.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,149 +27,78 @@
 
 <div id="main">
     
-    <h1 class="page-title">cispy/core/buffers</h1>
+    <h1 class="page-title">generator/util/index.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        
-            
-        
-    
-</header>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * Copyright (c) 2017 Thomas Otterson
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Provides several types of buffers usable in buffered channels. These are all built on a small, efficient queue (also
-provided) which is in turn backed by a JavaScript array.</p></div>
-        
+/**
+ * A series of functions meant to operate on the channels that the rest of this library creates and manages.
+ *
+ * All of the functions that are here cannot be done with transducers because of the limitations on transducers
+ * themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
+ * (You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)
+ *
+ * @module cispy/util
+ */
 
-        
-            
+/**
+ * A set of utility functions using generators (processes) to work with channels.
+ *
+ * These are all accessed through the `cispy.util` namespace; e.g.,
+ * `{@link module:cispy/util~CispyUtil.reduce|reduce}` can be called like this:
+ *
+ * ```
+ * const output = cispy.util.reduce((acc, value) => acc + value, ch, 0);
+ * ```
+ *
+ * @namespace CispyUtil
+ */
 
+/**
+ * A function used to reduce a collection of values into a single value via a reducer function.
+ *
+ * @callback reducerFunction
+ * @param {*} acc The accumulated value from the prior reduction step. If this is the first reduction step, this will
+ *     be set to some initial value (either an explicit value or the first value of the collection).
+ * @param {*} value The next value of the collection.
+ * @return {*} The result of reducing the next value into the current accumulated value.
+ */
 
+const conversion = require('./conversion');
+const flow = require('./flow');
+const timing = require('./timing');
 
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line22">line 22</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-        <h3 class="subsection-title">Namespaces</h3>
-
-        <dl>
-            <dt><a href="module-cispy_core_buffers-Buffer.html">Buffer</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-cispy_core_buffers-Queue.html">Queue</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+module.exports = Object.assign({}, conversion, flow, timing);
+</code></pre>
+        </article>
+    </section>
 
 
 
