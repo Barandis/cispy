@@ -200,10 +200,27 @@ function sleep(delay = 0) {
   });
 }
 
+/**
+ * **Invokes an async function acting as a process.**
+ *
+ * This is purely a convenience function, driven by the fact that it's necessary to use an IIFE to invoke an inline
+ * async function, and that's not very aesthetically pleasing. It does no more than invoke the passed function, but that
+ * at least releases us from the need to put the empty parentheses after the function definition.
+ *
+ * @memberOf module:cispy/promise~CispyPromise
+ * @param {function} fn The async function being used as a process.
+ * @param {...*} args Arguments that are sent to the async function when it's invoked.
+ * @return {Promise} The promise returned by the async function.
+ */
+function go(fn, ...args) {
+  return fn(...args);
+}
+
 module.exports = {
   put,
   take,
   takeOrThrow,
   alts,
-  sleep
+  sleep,
+  go
 };
