@@ -37,3 +37,21 @@ h1, h2 {
 .proc-3 {
   color: blue;
 }
+
+#combination {
+  border: 1px solid black;
+  background-color: lightgray;
+  margin: 1em auto;
+  width: 600px;
+  height: 240px;
+  text-align: center;
+}
+#status {
+  font-size: 38.4px;
+  padding-top: 48px;
+}
+button {
+  width: 75px;
+  padding: 0.5em;
+  margin-top: 1em;
+}

@@ -2,33 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Intro to Cispy Channels and Processes</title>
-  <link rel="stylesheet" href="css/intro.css">
+  <title>Intro to Cispy Channels for Async Functions</title>
+  <link rel="stylesheet" href="css/examples.css">
   <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.4.0/styles/default.min.css">
   <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.4.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
 
-  <h1>Intro to Cispy Channels and Processes</h1>
+  <h1>Intro to Cispy Channels for Async Functions</h1>
 
   <p>
-  Here are a few basic examples to show how to use CSP and what it can do. All of these are basically ports of
-  examples at <a href="http://swannodette.github.io/2013/07/12/communicating-sequential-processes">
+  Here are a few basic examples to show how to use channels with async functions. This page is a duplicate of the
+  <a href="intro.html">regular intro example page</a> except that instead of using Cispy processes, it uses ES2017
+  async functions with the implementation of Cispy channels for async functions. As before, this is in large part a port
+  of the examples at <a href="http://swannodette.github.io/2013/07/12/communicating-sequential-processes">
   http://swannodette.github.io/2013/07/12/communicating-sequential-processes</a>, which is written using Clojure's
   core.async but which translates nicely.
   </p>
 
-  <h2>Basic processes and channels</h2>
+  <h2>A note on terminology</h2>
 
   <p>
-  To get things started, here's a basic example to illustrate channel and process creation, as well as how to
-  communicate between processes.
+  <em>Processes</em> in the CSP world are the lightweight processes created by the <code>go</code> function. There are
+  no actual processes in that sense in this introduction; only <em>channels</em> are used with async functions, not
+  processes. However, the async functions in these examples are used in exactly the same way that processes are, as
+  small, self-contained bits of code that run in isolation and communicate with channels. For that reason, I will use
+  <em>processes</em> here to refer to async functions that act like processes.
+  </p>
+
+  <h2>Basic async functions and channels</h2>
+
+  <p>
+  To get things started, here's a basic example to illustrate how to communicate between async functions. Of course,
+  you can communicate between async functions by simply updating the values of shared variables, but that leads to all
+  kinds of problems with non-determinism. Channels are a <em>safe</em> way to communicate between functions.
   </p>
   <p>
-  This example actually does something astonishing: it coordinates three different processes, all of them running at
-  different speeds, by using a fourth process which also displays the results of the coordination. Here's the end
-  result:
+  This example coordinates three different functions, all of them running at different speeds, by using a fourth
+  function which also displays the results of the coordination. Here's the end result:
   <p>
 
   <div id="processes"></div>
@@ -41,51 +53,49 @@
   </p>
 
   <pre><code class="javascript">
-  var ch = chan();
+  const ch = chan();
 
-  go(function* () {
+  go(async () => {
     while (true) {
-      yield sleep(250);
-      yield put(ch, 1);
+      await sleep(250);
+      await put(ch, 1);
     }
   });
 
-  go(function* () {
+  go(async () => {
     while (true) {
-      yield sleep(1000);
-      yield put(ch, 2);
+      await sleep(1000);
+      await put(ch, 2);
     }
   });
 
-  go(function* () {
+  go(async () => {
     while (true) {
-      yield sleep(1500);
-      yield put(ch, 3);
+      await sleep(1500);
+      await put(ch, 3);
     }
   });
   </code></pre>
 
   <p>
-  If you've never worked with generators in JavaScript, some of this will look pretty foreign to you. What's the
-  <code>*</code> after those <code>function</code> keywords mean? What is <code>yield</code>? The answer is that they're
-  part of <em>generator functions</em>, a new feature in ES6 that gives us the power to create blockable processes.
+  Functions with the <code>async</code> keyword are a new feature to ES2017, though every modern browser already
+  implements them (if the example isn't working for you, your browser may be out of date). They use the same generator
+  functionality that Cispy processes do behind the scenes, so they can be used in a very similar manner: to create
+  code that can be suspended and restarted (i.e., blocked).
   </p>
   <p>
-  A generator function looks just like a regular function, except that it has that <code>*</code> and allows the use of
-  <code>yield</code>. Aside from that it's just a regular function (as far as we're concerned), but it's precisely the
-  <code>yield</code> that we need to make processes work. <code>yield</code> causes a generator function to pause and
-  let other functions that are ready to run have their turn. A generator function that has <code>yield</code>ed cannot
-  restart itself, but external code can make it restart right where it left off. This is what cispy does: it manages
-  yielding generator functions, giving them special instructions (like <code>sleep</code> and <code>put</code> in this
-  snippet) to control coordination with channels, and restarting the generator function when the proper conditions have
-  been met (mostly, when a value that has been put onto a channel is taken off by another process, and vice versa).
+  The <code>async</code> functions act as separate processes, and they allow the use of the <code>await</code> keyword
+  inside of them. <code>await</code> causes the function to pause, waiting for the result of the function that comes
+  right after it (in these cases, either <code>sleep</code> or <code>put</code>). In the meantime, it releases control
+  of the engine to allow other functions to run while it waits. When the awaited function returns a value, the
+  <code>async</code> function is resumed from where it left off.
   </p>
   <p>
   In our code, a channel is first created with <code>chan</code>. Then three processes are created with <code>go</code>,
-  which takes one of those generator functions and executes the code in it as a separate process. Each of these
-  processes calls <code>yield sleep</code>, which blocks the process and does not allow it to unblock until some number
-  of milliseconds have elapsed. After that time passes, the process will unblock and call <code>yield put</code> to put
-  a value onto the already-created channel. (<code>yield put</code> also blocks until the value that was put onto a
+  which takes one of those async functions and executes the code in it as a separate process. Each of these
+  processes calls <code>await sleep</code>, which blocks the process and does not allow it to unblock until some number
+  of milliseconds have elapsed. After that time passes, the process will unblock and call <code>await put</code> to put
+  a value onto the already-created channel. (<code>await put</code> also blocks until the value that was put onto a
   channel is taken off by some other process, but in this example that will be happening instantly.)
   </p>
   <p>
@@ -106,13 +116,13 @@
   </p>
 
   <pre><code class="javascript">
-  go(function* () {
-    var processDiv = document.querySelector('#processes');
-    var lines = [];
+  go(async () => {
+    const processDiv = document.querySelector('#processes');
+    const lines = [];
 
     while (true) {
-      var index = yield take(ch);
-      lines.unshift('&lt;div class="proc-' + index + '"&gt;Process ' + index + '&lt;/div&gt;');
+      const index = await take(ch);
+      lines.unshift(`&lt;div class="proc-${index}"&gt;Process ${index}&lt;/div&gt;`);
       if (lines.length > 10) {
         lines.pop();
       }
@@ -122,9 +132,9 @@
   </code></pre>
 
   <p>
-  Here we create a fourth process, also with the local event loop running continuously. It blocks with <code>yield
+  Here we create a fourth process, also with the local event loop running continuously. It blocks with <code>await
   take</code> as it waits for the other three processes to put a value on the channel. When one of those values appears,
-  the process unblocks and the value of the <code>yield take</code> expression becomes that value (assigned here to
+  the process unblocks and the value of the <code>await take</code> expression becomes that value (assigned here to
   <code>index</code>). It processes that value into a line of HTML. It also keeps track of the prior HTML lines to make
   sure that there isn't ever more than ten of them, and then it pushes all of those lines to the output
   <code>div</code>.
@@ -146,11 +156,8 @@
   </p>
 
   <pre><code class="javascript">
-  function listen(el, type, ch) {
-    ch = ch || chan();
-    el.addEventListener(type, function (event) {
-      putRaw(ch, event);
-    });
+  function listen(el, type, ch = chan()) {
+    el.addEventListener(type, event => putAsync(ch, event));
     return ch;
   }
   </code></pre>
@@ -161,17 +168,17 @@
   </p>
   <p>
   It takes three parameters: a DOM element, an event type, and a channel. The channel is optional; if it is not passed,
-  then the first line of the function body generates a new channel and assigns it to the same <code>ch</code> variable.
+  then the default value for the parameter creates a new channel and assigns it to the same <code>ch</code> variable.
   </p>
   <p>
   The element's <code>addEventListener</code> function property is invoked, sending the event type, to add a handler
   for any event of that type on that element. When such an element fires, the callback function (which takes the event
-  object generated by the event) is fired. This uses a new cispy function, <code>putRaw</code>, to put the event
-  object onto the same channel that was passed in/created. <code>putRaw</code> is just like <code>put</code> except
-  that it can be called outside a process. In place of blocking (which can't be done outside of a process), it accepts
-  a callback as a third parameter that is invoked when some process takes the value from the channel. (In our case,
-  our only purpose is to put the event on the channel; since we don't care to have anything else happen, we don't even
-  pass a callback to <code>putRaw</code>.)
+  object generated by the event) is fired. This uses a new cispy function, <code>putAsync</code>, to put the event
+  object onto the same channel that was passed in/created. <code>putAsync</code> is just like <code>put</code> except
+  that it can be called outside an async function. In place of blocking (which can't be done outside of an async
+  function), it accepts a callback as a third parameter that is invoked when some process takes the value from the
+  channel. (In our case, our only purpose is to put the event on the channel; since we don't care to have anything else
+  happen, we don't even pass a callback to <code>putAsync</code>.)
   </p>
   <p>
   At the end, the channel, whether passed in or created, will be returned. The event handler attached to the listened-to
@@ -182,24 +189,22 @@
   </p>
 
   <pre><code class="javascript">
-  go(function* () {
-    var el = document.querySelector('#events');
-    var mouseCh = listen(el, 'mousemove');
-    var clickCh = listen(el, 'click');
-    var mousePos = [0, 0];
-    var clickPos = [0, 0];
+  go(async () => {
+    const el = document.querySelector('#events');
+    const mouseCh = listen(el, 'mousemove');
+    const clickCh = listen(el, 'click');
+    let mousePos = [0, 0];
+    let clickPos = [0, 0];
 
     while (true) {
-      var v = yield alts([mouseCh, clickCh]);
-      var event = v.value;
+      const v = await alts([mouseCh, clickCh]);
+      const event = v.value;
       if (v.channel === mouseCh) {
         mousePos = [event.layerX || event.clientX, event.layerY || event.clientY];
-      }
-      else {
+      } else {
         clickPos = [event.layerX || event.clientX, event.layerY || event.clientY];
       }
-      el.innerHTML = mousePos[0] + ', ' + mousePos[1] + ' : ' +
-                     clickPos[0] + ', ' + clickPos[1];
+      el.innerHTML = `${mousePos[0]}, ${mousePos[1]} : ${clickPos[0]}, ${clickPos[1]}`;
     }
   });
   </code></pre>
@@ -210,7 +215,7 @@
   variables to track the coordinates of the mouse when these events happen is also initialized.
   </p>
   <p>
-  That leaves us with <em>two</em> channels to pay attnetion to, and we do that with <code>yield alts</code>. This
+  That leaves us with <em>two</em> channels to pay attention to, and we do that with <code>await alts</code>. This
   function takes an array of channels to take from, and it blocks until the first of these channels produces a value
   (<code>alts</code> can also perform puts, but that's beyond this simple demo). When it unblocks, it returns an
   object instead of a value, with the properties <code>value</code> (containing the value taken from a channel) and
@@ -241,22 +246,22 @@
   relative to the top left of the page before it even gets taken off the channel.
   </p>
   <p>
-  We're going to use a <code>map</code> transformer to change what's coming into the channel to what we actually
-  <em>want</em> on the channel. The particular transformer that we'll use is in my
-  <a href="https://github.com/Barandis/xduce">xduce</a> library, though the <code>map</code> transformer from any
-  transducer library should work just fine. This transformer, like the regular functional <code>map</code>, requires a
+  We're going to use a <code>map</code> transducer to change what's coming into the channel to what we actually
+  <em>want</em> on the channel. The particular transducer that we'll use is in my
+  <a href="https://github.com/Barandis/xduce">xduce</a> library, though the <code>map</code> transducer from any
+  transducer library should work just fine. This transducer, like the regular functional <code>map</code>, requires a
   function that takes an input and maps it to the output we want. Since our input is going to be the object put onto
   the channel - an event - we can create a function like this.
   </p>
 
   <pre><code class="javascript">
   function coordinates(el) {
-    var top = el.offsetTop;
-    var left = el.offsetLeft;
-    return function (event) {
-      var x = event.layerX || event.clientX;
-      var y = event.layerY || event.clientY;
-      return { x: x + left, y: y + top };
+    const top = el.offsetTop;
+    const left = el.offsetLeft;
+    return event => {
+      const x = (event.layerX || event.clientX) + left;
+      const y = (event.layerY || event.clientY) + top;
+      return { x, y };
     };
   }
   </code></pre>
@@ -277,38 +282,36 @@
   function we might want.
   </p>
   <p>
-  Here is our new event loop process, modified to take advantage of the <code>map</code> transformer.
+  Here is our new event loop process, modified to take advantage of the <code>map</code> transducer.
   </p>
 
   <pre><code class="javascript">
-  go(function* () {
-    var el = document.querySelector('#transducers');
-    var mouseCh = listen(el, 'mousemove', chan(1, map(coordinates(el))));
-    var clickCh = listen(el, 'click', chan(1, map(coordinates(el))));
-    var mousePos = { x: 0, y: 0 };
-    var clickPos = { x: 0, y: 0 };
+  go(async () => {
+    const el = document.querySelector('#transducers');
+    const mouseCh = listen(el, 'mousemove', chan(1, map(coordinates(el))));
+    const clickCh = listen(el, 'click', chan(1, map(coordinates(el))));
+    let mousePos = { x: 0, y: 0 };
+    let clickPos = { x: 0, y: 0 };
 
     while (true) {
-      var v = yield alts([mouseCh, clickCh])
+      const v = await alts([mouseCh, clickCh])
       if (v.channel === mouseCh) {
         mousePos = v.value;
-      }
-      else {
+      } else {
         clickPos = v.value;
       }
-      el.innerHTML = mousePos.x + ', ' + mousePos.y + ' : ' +
-                     clickPos.x + ', ' + clickPos.y;
+      el.innerHTML = `${mousePos.x}, ${mousePos.y} : ${clickPos.x}, ${clickPos.y}`;
     }
   });
   </code></pre>
 
   <p>
   There are three basic differences between this loop and the one we used in our last example: we're storing our
-  coordinates as objects instead of arrays, <code>yield alts</code> is returning a plain object instead of an event
+  coordinates as objects instead of arrays, <code>await alts</code> is returning a plain object instead of an event
   object, and we're passing a third parameter to <code>listen</code>.
   <p>
   <p>
-  The first two are just nice-to-haves. Our transformer, using the function generated by <code>coordinates</code>, will be
+  The first two are just nice-to-haves. Our transducer, using the function generated by <code>coordinates</code>, will be
   causing the values taken from the event channels to be simple objects instead of event objects. Since we can make
   these objects look however we want by adjusting <code>coordinates</code>, we've chosen to make them coordinates objects,
   with <code>x</code> and <code>y</code> as their properties. This lends itself very well to an application that is
@@ -322,11 +325,11 @@
   </p>
   <p>
   In this case, we customize it by passing a couple of parameters to <code>chan</code>, something we have not done
-  before. The <code>map</code> transformer, fueled by a function coming from <code>coordinates</code>, is the second
+  before. The <code>map</code> transducer, fueled by a function coming from <code>coordinates</code>, is the second
   parameter. So what is the first parameter, the <code>1</code>? That's the specification for a <em>buffer</em> which
   stores values in the channel. By default, channels are unbuffered. Passing the <code>1</code> means that the channel
   will be backed by a buffer that can store one value. Buffers are useful and can have some desirable effects, but the
-  real reason we're using one here is because you cannot put a transformer on an unbuffered channel.
+  real reason we're using one here is because you cannot put a transducer on an unbuffered channel.
   </p>
   <p>
   The result is in the gray box below. It works exactly the same as the last example, except that the coordinates are
@@ -361,8 +364,8 @@
   </p>
 
   <pre><code class="javascript">
-  var el = document.querySelector('#debounce');
-  var mouseCh = debounce(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
+  const el = document.querySelector('#debounce');
+  const mouseCh = debounce(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
   </code></pre>
 
   <p>
@@ -394,8 +397,8 @@
   </p>
 
   <pre><code class="javascript">
-  var el = document.querySelector('#throttle');
-  var mouseCh = throttle(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
+  const el = document.querySelector('#throttle');
+  const mouseCh = throttle(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
   </code></pre>
 
   <p>
@@ -410,30 +413,42 @@
 
   <div id="throttle"></div>
 
-  <h2>Callbacks? Promises? FRP?</h2>
+  <h2>Okay, so why even use Cispy processes?</h2>
 
   <p>
-  Maybe the best way to appreciate these examples is to consider what would be required to do them using other methods
-  of concurrency.  Out of all of this code dealing with events, pauses, and passing asynchronous data back and forth,
-  there is one single callback, which is the second parameter to <code>addEventListener</code>, a function on a
-  built-in JavaScript object. (<code>putRaw</code> can take a callback as its third parameter, but we don't need it
-  here.) Even that callback is hidden away in the <code>listen</code> function, never to be seen again. For anyone
-  who's spent a lot of time working with asynchronous JavaScript code, the release from Callback Hell is a huge relief.
+  Cispy was begun before <code>async</code>/<code>await</code> became a thing, and when async functions began to get
+  implemented in browsers, it created some questions. If one of the key reasons why processes were so good was that
+  they had a great syntax, were they still necessary with the much improved syntax of
+  <code>async</code>/<code>await</code> now available? Since they're a built-in part of the JavaScript engine now,
+  aren't async functions better to use than a system that is implemented outside of the engine?
   </p>
   <p>
-  Promises are an improvement over pure callbacks, in that they're a veneer over some of the ugliness. But in the end
-  the callback is simply moved into the <code>then()</code> function, and while it's nicer to use a promise-returning
-  function than it is a callback-accepting function, neither of them are returning actual data the way a <code>yield
-  take</code> does.
+  The answer is that it depends. Async functions are built into the engine, but since they <em>are</em> built into the
+  engine, there's much less opportunity to control them. One of the big plusses for Cispy processes is not that they
+  <em>should</em> communicate via channels, but that it's the <em>only way for them to communicate</em>. Using
+  <code>yield</code> for something that is not a Cispy channel function (<code>put</code>, <code>take</code>, etc.)
+  does nothing at all. You don't have the opportunity as a programmer to do something wrong.
   </p>
   <p>
-  All of the examples other than the first - and particularly the last three, with their <code>map</code> transformers
-  - look an awful lot like Functional Reactive Programming (FRP). The channels act like streams and the
-  <code>yield alts</code> play the role of observers. But again, there aren't any callbacks to deal with, and CSP
-  channels and processes afford a <em>lot</em> more control over asynchronous coordination than FRP can.
+  Async functions, on the other hand, allow <code>await</code> to be successfully used with <em>any</em> function call,
+  even ones that don't return promises in the first place. This leaves the opportunity to dilute the purity of the
+  "process" by allowing it to have side effects that might not be able to be easily foreseen. It is highly recommended
+  that, when using Cispy channels to communicate between async functions, that the programmer be a good citizen about it
+  and only <code>await</code> on Cispy channel functions. Some discipline is required.
+  </p>
+  <p>
+  From a purely theoretical standpoint, Cispy processes do one thing and do it well. Async functions are much more
+  flexible and can do <em>lots</em> of things. It's generally acknowledged that code that does one thing and one thing
+  only is good code, and Cispy processes do that. Async functions <em>can</em> do that, but again, it requires some
+  programmer discipline to not go off track and start doing all sorts of non-process-related stuff.
+  </p>
+  <p>
+  In the end, I view async functions with channels as an <em>option</em>. If you're on board with limiting yourself
+  somewhat in your use of async functions when you use them with channels, then go for it. If you prefer the safety and
+  purity of Cispy processes, then more power to you.
   </p>
 
-  <script src="../../lib/cispy.js"></script>
-  <script src="../../node_modules/xduce/lib/xduce.js"></script>
-  <script src="js/intro.js"></script>
+  <script src="js/cispy.promise.js"></script>
+  <script src="js/xduce.js"></script>
+  <script src="js/intro-promise.js"></script>
 </body>

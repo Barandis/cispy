@@ -205,7 +205,7 @@
   variables to track the coordinates of the mouse when these events happen is also initialized.
   </p>
   <p>
-  That leaves us with <em>two</em> channels to pay attnetion to, and we do that with <code>yield alts</code>. This
+  That leaves us with <em>two</em> channels to pay attention to, and we do that with <code>yield alts</code>. This
   function takes an array of channels to take from, and it blocks until the first of these channels produces a value
   (<code>alts</code> can also perform puts, but that's beyond this simple demo). When it unblocks, it returns an
   object instead of a value, with the properties <code>value</code> (containing the value taken from a channel) and
@@ -424,6 +424,13 @@
   - look an awful lot like Functional Reactive Programming (FRP). The channels act like streams and the
   <code>yield alts</code> play the role of observers. But again, there aren't any callbacks to deal with, and CSP
   channels and processes afford a <em>lot</em> more control over asynchronous coordination than FRP can.
+  </p>
+  <p>
+  The advent of ES2017 has brought us a new concurrency tool: <em>async functions</em>. The new <em>async</em> and
+  <em>await</em> keywords use a combination of promises and generators to create an interface that is vastly better
+  than promises alone. What async functions do <em>not</em> offer is a standard way to communicate between running
+  async functions - so Cispy has recently added a channel implementation that uses async functions in place of
+  processes. See <a href="intro-promise.html">the promise intro example page</a> for an introduction.
   </p>
 
   <script src="js/cispy.js"></script>
