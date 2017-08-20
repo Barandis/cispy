@@ -20,7 +20,9 @@
  */
 
 /**
- * Provides basic channel operations for puts, takes, and alts.
+ * Provides basic channel operations for puts, takes, and alts. These operations are not dependent upon the way channels
+ * are accessed; i.e., they are independent of processes, generators, and promises. They require the use of only the
+ * channel itself.
  *
  * @module cispy/core/operations
  * @private
@@ -129,38 +131,35 @@ function randomArray(n) {
 }
 
 /**
- * A callback invoked by {@link module:cispy/core/operastions~altsAsync} when an operation completes.
+ * **Completes the first operation among the provided operations that comes available, without blocking.**
  *
- * @callback altsCallback
- * @param {*} obj.value The value returned from the channel. For a take, this is the value taken from the channel. For a
- *     put, it's `true` if the put was successful or `false` if the channel was closed before the put completed.
- * @param {module:cispy/core/channel~Channel} obj.channel The channel upon which the completed operation acted.
- * @private
- */
-
-/**
- * Processes the operations in an alts function call. This works in the same way as `takeAsync` and `putAsync`
- * except that each operation (each of which can be either a put or a take on any channel) is queued in a random order
- * onto its channel and only the first to complete returns a value (the other ones become invalidated then and are
- * discarded).
+ * This means that a call to `altsAsync` does not go into a `yield` expression, and it is not necessary to use it
+ * inside a process. Rather than blocking until an operation completes, this one returns immediately and then invokes
+ * the callback (if provided) as soon as one of the supplied operations completes. It can be regarded as a
+ * non-blocking version of generator-based `{@link module:cispy~Cispy.alts|alts}` or promise-based
+ * `{@link module:cispy/promise~CispyPromise.alts|alts}`.
  *
- * The callback receives an object instead of a value. This object has two properties: `value` is the value that was
- * returned from the channel, and `channel` is the channel onto which the successful operation was queued.
+ * This function uses an operations list that's identical to the one used by `{@link module:cispy~alts|alts}`. It's
+ * an array of values; if a value is a channel, then that operation is a take on that channel, while if it's a
+ * two-element array of channel and value, then that operation is a put of that value onto that channel. All options
+ * that are available to `{@link module:cispy~Cispy.alts|alts}` are also available here.
  *
- * The `options` parameter is the same as the options parameter in `alts`.
+ * The callback is a function of one parameter, which in this case is an object with `value` and `channel` properties.
  *
- * @param {Object[]} ops The operations governed by the alts operation. The first of
- *     these to complete is successful; the rest are discarded. Each element of the array represents an operation. If
- *     the element is a channel, then it's a take operation on that channel. If the element is a two-element array of
- *     channel and value, then it's a put operation putting that value on that channel.
- * @param {module:cispy/core/operations~altsCallback} callback A function called when one of the operations completes.
- * @param {boolean} [options.priority=false] Indicates the priority given to listed operations. If this is `true`, then
- *     operations listed first in the array have priority over those listed later, if multiple operations will complete
- *     immediately without blocking. If this is `false`, then the priority is random.
- * @param {*} [options.default] The value to return from this call if all operations block. This behavior *only* happens
- *     if this option is present; otherwise, the call blocks until an operation completes. If this *is* present, the
- *     channel provided to the callback is {@link module:cispy~DEFAULT|DEFAULT}.
- * @private
+ * @memberOf module:cispy~Cispy
+ * @param {Object[]} operations A collection of elements that correspond to take and put operations. A take operation
+ *     is signified by an element that is a channel (which is the channel to be taken from). A put operation is
+ *     specified by an element that is itself a two-element array, which has a channel followed by a value (which is
+ *     the channel and value to be put).
+ * @param {module:cispy~altsCallback} callback A function that gets invoked when one of the operations completes.
+ * @param {Object} [options={}] An optional object which can change the behavior of `alts` through two properties.
+ * @param {boolean} [options.priority=false] If `true`, then the priority of operations to complete when more than one
+ *     is immediately available is a priority according to position within the operations array (earlier positions
+ *     have the higher priority). If `false` or not present, the priorty of operation completion is random.
+ * @param {*} [options.default] If set and all of the operations initially block, the `alts` call completes
+ *     immediately with the value of this option (the channel will be `{@link module:cispy~Cispy.DEFAULT|DEFAULT})`. If
+ *     not set, the `alts` call will block until one of the operations completes and that value and channel will be the
+ *     ones returned.
  */
 function altsAsync(ops, callback, options) {
   const count = ops.length;
@@ -221,22 +220,28 @@ function altsAsync(ops, callback, options) {
 }
 
 /**
- * A function called when a put or a take completes.
+ * **Puts a value onto a channel without blocking.**
  *
- * @callback opCallback
- * @param {*} value The value that comes from the operation call. If it's a take, this is the value taken from the
- *     channel. If it's a put, this is `true` if the put succeeded or `false` if the channel closed.
- * @private
- */
-
-/**
- * Puts a value onto a channel. When the value is successfully taken off the channel by another process or when
- * the channel closes, the callback fires if it exists.
+ * This means that a call to `putAsync` does not go into a `yield` expression, and it is not necessary to use it
+ * inside a process. Rather than blocking until the put value is taken by another process, this one returns
+ * immediately and then invokes the callback (if provided) when the put value is taken. It can be seen as a
+ * non-blocking version of generator-based `{@link module:cispy~Cispy.put|put}` or promise-based
+ * `{@link module:cispy/promise~CispyPromise.put|put}`.
  *
- * @param {module:cispy/core/channel~Channel} channel The channel onto which a value is being put.
- * @param {*} value The value being put onto the channel.
- * @param {module:cispy/core/operations~opCallback} [callback] The function called when the put completes.
- * @private
+ * While the primary use of this function is to put values onto channels in contexts where being inside a process is
+ * impossible (for example, in a DOM element's event handler), it can still be used inside processes at times when
+ * it's important to make sure that the process doesn't block from the put.
+ *
+ * The callback is a function of one parameter. The parameter that's supplied to the callback is the same as what is
+ * supplied to `yield put`: `true` if the value was taken, or `false` if the channel was closed. If the callback isn't
+ * present, nothing will happen after the value is taken.
+ *
+ * @memberOf module:cispy~Cispy
+ * @param {module:cispy/core/channel~Channel} channel The channel that the value is being put onto.
+ * @param {*} [value] The value being put onto the channel.
+ * @param {module:cispy~nbCallback} [callback] A function that gets invoked either when the value is taken by another
+ *     process or when the channel is closed. This function can take one parameter, which is `true` in the former case
+ *     and `false` in the latter.
  */
 function putAsync(channel, value, callback) {
   const result = channel.put(value, opHandler(callback));
@@ -246,10 +251,27 @@ function putAsync(channel, value, callback) {
 }
 
 /**
- * Takes a value off a channel. When the value becomes available, it is passed to the callback.
+ * **Takes a value from a channel without blocking.**
  *
- * @param  {module:cispy/core/channel~Channel} channel The channel from which a value is being taken.
- * @param  {module:cispy/core/operations~opCallback} [callback] The function called when the take completes.
+ * This means that a call to `takeAsync` does not go into a `yield` expression, and it is not necessary to use it
+ * inside a process. Rather than blocking until a value becomes available on the channel to be taken, this one returns
+ * immediately and then invokes the callback (if provided) when a value becomes available. It can be regarded as a
+ * non-blocking version of generator-based `{@link module:cispy~Cispy.take|take}` or promise-based
+ * `{@link module:cispy/promise~CispyPromise.take|take}`.
+ *
+ * While the primary use of this function is to take values from channels in contexts where being inside a process is
+ * impossible, it can still be used inside processes at times when it's important that the take doesn't block the
+ * process.
+ *
+ * The callback is a function of one parameter, and the value supplied for that parameter is the value taken from the
+ * channel (either a value that was put or `{@link module:cispy~Cispy.CLOSED|CLOSED}`). If the callback isn't present,
+ * nothing will happen after the value is taken.
+ *
+ * @function takeAsync
+ * @param {module:cispy/core/channel~Channel} channel The channel that a value is being taken from.
+ * @param {module:cispy~nbCallback} [callback] A function that gets invoked when a value is made available to be taken
+ *     (this value may be `{@link module:cispy~Cispy.CLOSED|CLOSED}` if the channel closes with no available value). The
+ *     function can take one parameter, which is the value that is taken from the channel.
  */
 function takeAsync(channel, callback) {
   const result = channel.take(opHandler(callback));
