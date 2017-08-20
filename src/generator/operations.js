@@ -19,97 +19,196 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// operations.js
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Core operations for channels working with processes, and functions for the creation of those processes themselves.
+ *
+ * @module cispy/core/operations
+ * @private
+ */
 
 const { process, instruction, TAKE, PUT, ALTS, SLEEP } = require('./process');
 const { fixed } = require('../core/buffers');
 const { chan, close, CLOSED } = require('../core/channel');
 const { putAsync } = require('../core/operations');
 
-// Takes the first available value off the specified channel. If there is no value currently available, this will block
-// until either the channel closes or a put is made onto the channel. If there are multiple takes (or take operations
-// from `alts`) queued on the channel and waiting, they will be provided values in order as the values are put onto the
-// channel.
-//
-// The return value of this function is a TAKE instruction. This doesn't have any value except that, when returned via
-// `yield`, it will stop the execution of the process until a value is returned from the channel. The process is then
-// restarted, with the returned value from the channel becoming the value of the `yield` expression. If the unblocking
-// was the result of the channel closing, then the value of that `yield` expression will be CLOSED.
+/**
+ * **Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the
+ * channel closes with no more values on it to be taken).**
+ *
+ * This function *must* be called from within a process and as part of a `yield` expression.
+ *
+ * When `take` is completed and its process unblocks, its `yield` expression evaluates to the actual value that was
+ * taken. If the target channel closed, then all of the values already placed onto it are resolved by `take` as
+ * normal, and once no more values are available, the special value `{@link module:cispy~Cispy.CLOSED|CLOSED}` is
+ * returned.
+ *
+ * @function take
+ * @param {module:cispy/core/channel~Channel} channel The channel that the process is taking a value from.
+ * @return {Object} The function itself returns an instruction object that guides the process in running the take.
+ *     This is why `take` must be run in a process; the instruction object is meaningless otherwise. After the process
+ *     unblocks, the `yield take` expression returns the value taken from the channel, or
+ *     `{@link module:cispy~Cispy.CLOSED|CLOSED} `if the target channel has closed and no more values are available to
+ *     be taken.
+ */
 function take(channel) {
   return instruction(TAKE, { channel, except: false });
 }
 
-// Works exactly like `take`, except that if the value that is taken off the channel is an `Error` object, that error
-// is thrown back into the process. At that point it acts exactly like any other thrown error.
+/**
+ * **Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the
+ * channel closes with no more values on it to be taken). If the taken value is an error object, that error is thrown
+ * at that point within the process.**
+ *
+ * This function *must* be called from within a process and as part of a `yield` expression.
+ *
+ * It functions in every way like `{@link module:cispy~Cispy.take|take}` *except* in the case that the value on the
+ * channel is an object that has `Error.prototype` in its prototype chain (any built-in error, any properly-constructed
+ * custom error). If that happens, the error is thrown at that point in the process. This throw is like any other throw;
+ * i.e., it can be caught, the custom handler from {@link module:cispy~Cispy.goSafe|goSafe} can deal with it, etc.
+ *
+ * If the taken value is an error object, the `yield takeOrThrow` expression will have no value (after all, it threw
+ * an error instead).
+ *
+ * `takeOrThrow` is roughly equivalent to:
+ *
+ * ```
+ * const value = yield take(ch);
+ * if (Error.prototype.isPrototypeOf(value)) {
+ *   throw value;
+ * }
+ * ```
+ *
+ * The equivalence isn't exact because the `throw` happens *inside* the process rather than outside as here, but in
+ * most cases that won't make a difference.
+ *
+ * @function takeOrThrow
+ * @param {module:cispy/core/channel~Channel} channel The channel that the process is taking a value from.
+ * @return {Object} The function itself returns an instruction object that guides the process in running the take.
+ *     This is why `takeOrThrow` must be run in a process; the instruction object is meaningless otherwise. After the
+ *     process unblocks, the `yield takeOrThrow` expression returns the value taken from the channel,
+ *     `{@link module:cispy~Cispy.CLOSED|CLOSED}` if the target channel has closed and no more values are available to
+ *     be taken, or no value at all if the taken value was an error object.
+ */
 function takeOrThrow(channel) {
   return instruction(TAKE, { channel, except: true });
 }
 
-// Puts the value onto the specified channel. If there is no process ready to take this value, this function will block
-// until either the channel closes or a taker becomes available. If there are multiple puts (or put operations from
-// `alts`) queued on the channel and waiting, they will be processed in order as take requests happen.
-//
-// The return value of this function is a PUT instruction. This doesn't have any value except that, when returned via
-// `yield`, it will stop the execution of the process until a take is called on the channel or until the channel
-// closes. The process is then restarted, and either `true` (if there was a take) or `false` (if the channel was
-// closed) will become the value of the `yield` expression.
+/**
+ * **Puts a value onto a channel, blocking the process until that value is taken from the channel by a different
+ * process (or until the channel closes).**
+ *
+ * A value is always put onto the channel, but if that value isn't specified by the second parameter, it is
+ * `undefined`. Any value may be put on a channel, with the sole exception of the special value
+ * `{@link module:cispy~Cispy.CLOSED|CLOSED}`.
+ *
+ * This function *must* be called from within a process and as part of a `yield` expression.
+ *
+ * When `put` is completed and its process unblocks, its `yield` expression evaluates to a status boolean that
+ * indicates what caused the process to unblock. That value is `true` if the put value was successfully taken by
+ * another process, or `false` if the unblocking happened because the target channel closed.
+ *
+ * @memberOf module:cispy~Cispy
+ * @param {module:cispy/core/channel~Channel} channel The channel that the process is putting a value onto.
+ * @param {*} [value] The value being put onto the channel.
+ * @return {Object} The function itself returns an instruction object that guides the process in running the put. This
+ *     is why `put` must be run in a process; the instruction object is meaningless otherwise. After the process
+ *     unblocks, the `yield put` expression returns `true` if the put value was taken or `false` if the target channel
+ *     closed.
+ */
 function put(channel, value) {
   return instruction(PUT, { channel, value });
 }
 
-// Processes an arbitrary number of puts and takes (represented by the operations array). When the first operation
-// successfully completes, the rest are discarded.
-//
-// Each element of the operations array is one operation. If that element is a channel, then the operation is a take on
-// that channel. If the element is a two-element array, the operation is a put operation. These operations are queued
-// on their respective channels in a random order. In this case, the first element of the sub-array should be the
-// channel to put on, and the second value the value to put on that channel.
-//
-// As with put and take, the return value of this function is an instruction (ALTS), which is only useful in that a
-// process knows how to use it to restart itself with the correct value being applied as the result of the `yield`
-// expression that caused the process to pause in the first place.
-//
-// Operations are processed in a random order. The first one to come back without blocking, or if they all block, the
-// first one to come unblocked, will be the operation that is run. Other operations will be discarded. The successful
-// operation will cause an object to become the value of the `yield` expression in the process. This object has two
-// properties: `value` is the return value of the operation (the same as the return value for either a put or a take),
-// and `channel` is the channel on which the operation was executed. This way the process has the ability to know which
-// channel was used to provide the value.
-//
-// This function takes an optional object that provides options to the execution. There are two legal options:
-// `priority` causes the operations to be queued in the order of the operations array, rather than randomly; `default`
-// causes its value to become the return value (with a channel of DEFAULT) if all operations block before completing.
-// In this case all of the operations are discarded.
+/**
+ * **Completes the first operation among the provided operations that comes available, blocking the process until
+ * then.**
+ *
+ * `operations` is an array whose elements must be channels or two-element sub-arrays of channels and values, in any
+ * combination. An operation that is a channel is a take operation on that channel. An operation that is a two-element
+ * array is a put operation on that channel using that value. Exactly one of these operations will complete, and it
+ * will be the first operation that unblocks.
+ *
+ * This function *must* be called from within a process and as part of a `yield` expression.
+ *
+ * When `alts` is completed and its process unblocks, its `yield` expression evaluates to an object of two properties.
+ * The `value` property becomes exactly what would have been returned by the equivalent `yield put` or `yield take`
+ * operation: a Boolean in the case of a put, or the taken value in the case of a take. The `channel` property is set
+ * to the channel where the operation actually took place. This will be equivalent to the channel in the `operations`
+ * array which completed first, allowing the process to unblock.
+ *
+ * If there is more than one operation already available to complete when the call to `alts` is made, the operation
+ * with the highest priority will be the one to complete. Regularly, priority is non-deterministic (i.e., it's set
+ * randomly). However, if the options object has a `priority` value set to `true`, priority will be assigned in the
+ * order of the operations in the supplied array.
+ *
+ * If all of the operations must block (i.e., there are no pending puts for take operations, or takes for put
+ * operations), a default value may be returned. This is only done if there is a `default` property in the options
+ * object, and the value of that property becomes the value returned by `yield alts`. The channel is set to the
+ * special value `{@link module:cispy~Cispy.DEFAULT|DEFAULT}`.
+ *
+ * @function alts
+ * @param {Array} operations A collection of elements that correspond to take and put operations. A take operation
+ *     is signified by an element that is a channel (which is the channel to be taken from). A put operation is
+ *     specified by an element that is itself a two-element array, which has a channel followed by a value (which is
+ *     the channel and value to be put).
+ * @param {Object} [options={}] An optional object which can change the behavior of `alts` through two properties.
+ * @param {boolean} [options.priority=false] If `true`, then the priority of operations to complete when more than one
+ *     is immediately available is a priority according to position within the operations array (earlier positions
+ *     have the higher priority). If `false` or not present, the priorty of operation completion is random.
+ * @param {*} [options.default] If set and all of the operations initially block, the `alts` call completes
+ *     immediately with the value of this option (the channel will be `{@link module:cispy~Cispy.DEFAULT|DEFAULT})`. If
+ *     not set, the `alts` call will block until one of the operations completes and that value and channel will be the
+ *     ones returned.
+ * @return {Object} The function itself returns an instruction object that guides the process in running the puts and
+ *     takes. This is why `alts` must be run in a process; the instruction object is meaningless otherwise. After the
+ *     process unblocks, the `yield alts` expression returns an object with two properties: `value` will have the
+ *     value of the completed operation (the same value that would be returned if either a
+ *     `{@link module:cispy~Cispy.put|put}` or `{@link module:cispy~Cispy.take|take}` function was called instead), and
+ *     `channel` will have the channel object that completed the operation that allowed the `alts` process to unblock.
+ */
 function alts(ops, options = {}) {
   return instruction(ALTS, { ops, options });
 }
 
-// Blocks the process until some amount of time has elapsed. This is done by creating a local channel that isn't
-// exposed to the outside and setting it to close after the required delay. The process then becomes unblocked because
-// blocking stops when a channel closes. Since the channel is private, there's no way to prematurely unblock the
-// process.
-//
-// If no delay is passed, or if that delay is 0, then a new channel won't be created. Instead, the process will simply
-// relinquish its control and cause itself to be immediately queued back up to be run after all of the other processes
-// (and the event loop) have a chance to run.
-//
-// The return value of this function is a SLEEP instruction. This doesn't have any value except that, when returned via
-// `yield`, it will stop the execution of the process until a the required amount of time has passed. The process is
-// then restarted automatically.
+/**
+ * **Blocks the process for the specified time (in milliseconds) and then unblocks it.**
+ *
+ * This implements a delay, but one that's superior to other kinds of delays (`setTimeout`, etc.) because it blocks
+ * the process and allows the dispatcher to allow other processes to run while this one waits. If the delay is set to
+ * `0` or is missing altogether, the process will relinquish control to the next process in the queue and immediately
+ * reschedule itself to be continued, rather than blocking.
+ *
+ * This function *must* be called from within a process and as part of a `yield` expression.
+ *
+ * When this function completes and its process unblocks, the `yield` expression doesn't take on any meaningful value.
+ * The purpose of this function is simply to delay, not to communicate any data.
+ *
+ * @function sleep
+ * @param {number} [delay=0] the number of milliseconds that the process will block for. At the end of that time, the
+ *     process is again eligible to be run by the dispatcher again. If this is missing or set to `0`, the process
+ *     will cede execution to the next one but immediately requeue itself to be run again.
+ * @return {Object} The function itself returns an instruction object that guides the process in blocking for the
+ *     right amount of time. This is why `timeout` must be run in a process; the instruction object is meaningless
+ *     otherwise. After the process unblocks, the `yield timeout` expression doesn't take on any value (it's in fact
+ *     set to `undefined`).
+ */
 function sleep(delay = 0) {
   return instruction(SLEEP, { delay });
 }
 
-// Creates a process from a generator (not a generator function) and runs it. The process is then left to its own
-// devices until it returns. This function creates and returns a channel, though that channel can only ever have one
-// value: the return value of the generator (the channel closes after this value is taken).
-//
-// If a second argument is passed and it's a function, then that function will be called when an exception is thrown
-// within the process code itself. The handler receives the error object as an argument.
-//
-// Since this requires a generator and not a generator function, it isn't used nearly as much as `go`.
+/**
+ * **Creates a new process from a generator.**
+ *
+ * This does exactly the same thing as `{@link module:cispy~Cispy.go|go}`, but it takes a generator instead of a
+ * generator function and its parameters. Because a generator does not have a literal notation,
+ * `{@link module:cispy~Cispy.go|go}` is going to be used the vast majority of the time. However, if a generator has
+ * already been created by invoking its generator function, `spawn` is available to run it in a separate process.
+ *
+ * @memberOf module:cispy~Cispy
+ * @param {function} gen A generator to be run in a separate process.
+ * @return {module:cispy/core/channel~Channel} A channel that is given a single value when the process completes, and
+ *     that is the return value of the generator. This channel automatically closes when that value is taken from it.
+ */
 function spawn(gen, exh) {
   const ch = chan(fixed(1));
   process(gen, exh, value => {
@@ -122,20 +221,55 @@ function spawn(gen, exh) {
   return ch;
 }
 
-// Creates a process from a generator function (not a generator) and runs it. What this really does is create a
-// generator from the generator function and its optional arguments, and then pass that off to `spawn`. But since
-// generator functions have a literal form (`function* ()`) while generators themselves do not, this is going to be the
-// much more commonly used function of the two.
+/**
+ * **Creates a new process from a generator function.**
+ *
+ * The generator function (expressed literally as `function*() { ... }`) is run in a separate process under the
+ * control of the CSP engine, and any `yield` expressions within the generator function followed by the five process
+ * instructions (`{@link module:cispy~Cispy.put|put}`, `{@link module:cispy~Cispy.take|take}`,
+ * `{@link module:cispy~Cispy.takeOrThrow|takeOrThrow}`, `{@link module:cispy~Cispy.alts|alts}`,
+ * `{@link module:cispy~Cispy.sleep|sleep})` are given their special meanings.
+ *
+ * Really, this is a convenience function, but one that's convenient enough that it's used almost universally over its
+ * alternative. `{@link module:cispy~Cispy.spawn|spawn}` does the actual work, but it takes a generator instead of a
+ * generator function, and since there is no generator literal, `go` is easier to use. The generator function is
+ * invoked to create a generator for `{@link module:cispy~Cispy.spawn|spawn}`, and when that happens, the remaining `go`
+ * parameters are applied to that generator function.
+ *
+ * @memberOf module:cispy~Cispy
+ * @param {function} fn A generator function to be run as a separate process.
+ * @param {...*} args Arguments that are sent to the generator function when it's invoked to create the process.
+ * @return {module:cispy/core/channel~Channel} A channel that is given a single value when the process completes, and
+ *     that is the return value of the generator function. This channel automatically closes when that value is taken
+ *     from it.
+ */
 function go(fn, ...args) {
   return spawn(fn(...args));
 }
 
-// Creates a process from a generator function just like `go`, except this one also accepts an exception handling
-// function. This function is called any time an error is caught within the process itself. It receives the error object
-// as an argument. The process is then considered finished, and the value placed into its return channel is the value
-// returned from the exception handler.
-function goSafe(fn, exh, ...args) {
-  return spawn(fn(...args), exh);
+/**
+ * **Creates a new process that can handle internal errors.**
+ *
+ * This works just like `{@link module:cispy~Cispy.go|go}` except that it allows the specification of an error handler.
+ * If the handler exists and is a function, then it is called any time that an uncaught error is thrown from inside a
+ * process. The function receives the thrown error object as its single parameter.
+ *
+ * After the handler is run, the process will end. The return value of the process (i.e., the single value that will
+ * be in the channel that `goSafe` returns) will be whatever value is returned from the handler.
+ *
+ * @memberOf module:cispy~Cispy
+ * @param {function} fn A generator function to be run as a separate process.
+ * @param {module:cispy~exceptionHandler} handler A function that will be called if an error is thrown inside the
+ *     process. The return value of this function will then be put into the process's output channel, and the process
+ *     will be terminated.
+ * @param {...*} args Arguments that are sent to the generator function when it's invoked to create the process.
+ * @return {module:cispy/core/channel~Channel} A channel that is given a single value when the process completes, and
+ *     that is the return value of the generator function (if no uncaught error is thrown) or the return value of the
+ *     handler function (if an uncaught error is thrown and passed to the handler). This channel automatically closes
+ *     when that value is taken from it.
+ */
+function goSafe(fn, handler, ...args) {
+  return spawn(fn(...args), handler);
 }
 
 module.exports = {
