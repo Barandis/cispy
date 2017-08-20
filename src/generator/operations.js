@@ -42,7 +42,7 @@ const { putAsync } = require('../core/operations');
  * normal, and once no more values are available, the special value `{@link module:cispy~Cispy.CLOSED|CLOSED}` is
  * returned.
  *
- * @function take
+ * @memberOf module:cispy~Cispy
  * @param {module:cispy/core/channel~Channel} channel The channel that the process is taking a value from.
  * @return {Object} The function itself returns an instruction object that guides the process in running the take.
  *     This is why `take` must be run in a process; the instruction object is meaningless otherwise. After the process
@@ -81,7 +81,7 @@ function take(channel) {
  * The equivalence isn't exact because the `throw` happens *inside* the process rather than outside as here, but in
  * most cases that won't make a difference.
  *
- * @function takeOrThrow
+ * @memberOf module:cispy~Cispy
  * @param {module:cispy/core/channel~Channel} channel The channel that the process is taking a value from.
  * @return {Object} The function itself returns an instruction object that guides the process in running the take.
  *     This is why `takeOrThrow` must be run in a process; the instruction object is meaningless otherwise. After the
@@ -146,7 +146,7 @@ function put(channel, value) {
  * object, and the value of that property becomes the value returned by `yield alts`. The channel is set to the
  * special value `{@link module:cispy~Cispy.DEFAULT|DEFAULT}`.
  *
- * @function alts
+ * @memberOf module:cispy~Cispy
  * @param {Array} operations A collection of elements that correspond to take and put operations. A take operation
  *     is signified by an element that is a channel (which is the channel to be taken from). A put operation is
  *     specified by an element that is itself a two-element array, which has a channel followed by a value (which is
@@ -183,7 +183,7 @@ function alts(ops, options = {}) {
  * When this function completes and its process unblocks, the `yield` expression doesn't take on any meaningful value.
  * The purpose of this function is simply to delay, not to communicate any data.
  *
- * @function sleep
+ * @memberOf module:cispy~Cispy
  * @param {number} [delay=0] the number of milliseconds that the process will block for. At the end of that time, the
  *     process is again eligible to be run by the dispatcher again. If this is missing or set to `0`, the process
  *     will cede execution to the next one but immediately requeue itself to be run again.
