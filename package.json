@@ -1,15 +1,18 @@
 {
   "name": "cispy",
-  "version": "0.8.1",
+  "version": "1.0.0",
   "description": "Communicating sequential processes library for JavaScript",
-  "main": "lib/cispy.js",
+  "main": "dist/cispy.js",
   "scripts": {
-    "clean": "rimraf lib",
+    "clean": "rimraf dist",
+    "clean:docs": "rimraf docs/api",
+    "copy": "cp-cli ./dist/cispy.promise.js ./promise.js",
     "build:dev": "webpack",
     "build:prod": "webpack --config=webpack.min.config.js",
-    "build": "npm run clean && npm run build:dev && npm run build:prod",
+    "build": "npm run clean && npm run build:dev && npm run build:prod && npm run copy && npm run clean:docs && npm run docs",
+    "docs": "node_modules/.bin/jsdoc -c ./jsdoc.json",
     "lint": "eslint ./src",
-    "test": "mocha --compilers js:babel-core/register --recursive",
+    "test": "mocha --recursive",
     "test:cover": "nyc mocha --recursive",
     "test:cover:upload": "npm run test:cover -s && cat ./coverage/lcov.info | coveralls",
     "test:watch": "npm run test:raw -- --watch"
@@ -18,7 +21,9 @@
   "author": "Thomas Otterson <tjotterson@gmail.com>",
   "license": "MIT",
   "files": [
-    "lib"
+    "dist",
+    "src",
+    "promise.js"
   ],
   "devDependencies": {
     "babel-core": "^6.23.1",
@@ -26,12 +31,15 @@
     "babel-loader": "^6.3.2",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.22.0",
-    "babel-preset-stage-0": "^6.22.0",
+    "babel-preset-stage-3": "^6.24.1",
     "babel-runtime": "^6.23.0",
     "chai": "^3.5.0",
     "coveralls": "^2.12.0",
+    "cp-cli": "^1.1.0",
+    "docdash": "^0.4.0",
     "eslint": "^3.17.0",
     "eslint-plugin-no-class": "^0.1.0",
+    "jsdoc": "^3.5.4",
     "mocha": "^3.2.0",
     "nyc": "^10.1.2",
     "rimraf": "^2.6.1",

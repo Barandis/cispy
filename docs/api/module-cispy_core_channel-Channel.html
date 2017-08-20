@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Channel - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cispy.html">cispy</a></li><li><a href="module-cispy_core_buffers.html">cispy/core/buffers</a></li><li><a href="module-cispy_core_channel.html">cispy/core/channel</a></li><li><a href="module-cispy_promise.html">cispy/promise</a></li><li><a href="module-cispy_promise_util.html">cispy/promise/util</a></li><li><a href="module-cispy_util.html">cispy/util</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-cispy_core_buffers-Buffer.html">Buffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Buffer.html#remove">remove</a></li></ul></li><li><a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-DroppingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-FixedBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-Queue.html">Queue</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#dequeue">dequeue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#enqueue">enqueue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#filter">filter</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#peek">peek</a></li></ul></li><li><a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-SlidingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_channel-Channel.html">Channel</a></li><li><a href="module-cispy_promise_util-CispyPromiseUtil.html">CispyPromiseUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy_promise-CispyPromise.html">CispyPromise</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.go">go</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.put">put</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.take">take</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.takeOrThrow">takeOrThrow</a></li></ul></li><li><a href="module-cispy_util-CispyUtil.html">CispyUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy-Cispy.html">Cispy</a><ul class='methods'><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.chan">chan</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.close">close</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.config">config</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.droppingBuffer">droppingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.fixedBuffer">fixedBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.go">go</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.goSafe">goSafe</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.put">put</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.slidingBuffer">slidingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.spawn">spawn</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.take">take</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.takeOrThrow">takeOrThrow</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.timeout">timeout</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Channel</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-cispy_core_channel.html">cispy/core/channel</a>~</span>
+        
+        Channel
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_channel.js.html">core/channel.js</a>, <a href="core_channel.js.html#line206">line 206</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+        
+            <div class="description"><p>A channel, used by processes to communicate with one another. This is one of the two core objects of the library,
+along with Process.</p>
+<p>For each operation, the channel first tests to see if there's a corresponding operation already queued (i.e., if
+we're doing a <code>put</code> that there's a queued <code>take</code> and vice versa). If there is, that corresponding operation is
+unblocked and both operations complete. If not, the operation is queued to wait for a corresponding operation. The
+process or async function that created the operation then blocks.</p>
+<p>The channel can be backed by a buffer, though it is not by default. If a buffer is in place, and that buffer is not
+full, then the process/async function that created an operation that has to be queued is <strong>not</strong> blocked.</p>
+<p>This channel object supports transformations, assuming that they follow the rather informal protocol created by a
+few transducer library authors to allow them to interoperate. The support must be explicitly created because the
+normal method of making an object support transformations won't work here. This method is to create a new object
+and add the transformed values to it - but for a channel, we need to replace the values on the channel with their
+transformed values, in the same order even in a multi-process environment. Thus transformations happen in place.</p>
+<p>Transformations are applied before the value is queued, so even if there is a corresponding operation ready to go,
+the transformation still happens. Also, transformations require that the channel be buffered (this buffer is what
+is sent to the transformer's reduction step function); trying to create a channel with a transformer but without a
+buffer will result in an error being thrown.</p>
+<p>This is the object that is returned from a call to chan(). However, this
+object is intended to be used as a value to pass to channel operation functions; the function properties on this
+object are low-level.</p></div>
+        
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="buffered"><span class="type-signature">(readonly) </span>buffered<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_channel.js.html">core/channel.js</a>, <a href="core_channel.js.html#line249">line 249</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Determines whether this channel has a buffer.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="closed"><span class="type-signature">(readonly) </span>closed<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_channel.js.html">core/channel.js</a>, <a href="core_channel.js.html#line236">line 236</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Determines whether this channel has been closed.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="timeout"><span class="type-signature">(readonly) </span>timeout<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_channel.js.html">core/channel.js</a>, <a href="core_channel.js.html#line262">line 262</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Determines whether this channel is a timeout channel. A timeout channel is one that, when created, was given a
+certain amount of time before automatically closing. The channel itself is not aware of how long it has until it
+is closed.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

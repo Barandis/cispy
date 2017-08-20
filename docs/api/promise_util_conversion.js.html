@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>promise/util/conversion.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cispy.html">cispy</a></li><li><a href="module-cispy_core_buffers.html">cispy/core/buffers</a></li><li><a href="module-cispy_core_channel.html">cispy/core/channel</a></li><li><a href="module-cispy_promise.html">cispy/promise</a></li><li><a href="module-cispy_promise_util.html">cispy/promise/util</a></li><li><a href="module-cispy_util.html">cispy/util</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-cispy_core_buffers-Buffer.html">Buffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Buffer.html#remove">remove</a></li></ul></li><li><a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-DroppingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-FixedBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-Queue.html">Queue</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#dequeue">dequeue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#enqueue">enqueue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#filter">filter</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#peek">peek</a></li></ul></li><li><a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-SlidingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_channel-Channel.html">Channel</a></li><li><a href="module-cispy_promise_util-CispyPromiseUtil.html">CispyPromiseUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy_promise-CispyPromise.html">CispyPromise</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.go">go</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.put">put</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.take">take</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.takeOrThrow">takeOrThrow</a></li></ul></li><li><a href="module-cispy_util-CispyUtil.html">CispyUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy-Cispy.html">Cispy</a><ul class='methods'><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.chan">chan</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.close">close</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.config">config</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.droppingBuffer">droppingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.fixedBuffer">fixedBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.go">go</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.goSafe">goSafe</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.put">put</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.slidingBuffer">slidingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.spawn">spawn</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.take">take</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.takeOrThrow">takeOrThrow</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.timeout">timeout</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">promise/util/conversion.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * Copyright (c) 2017 Thomas Otterson
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/**
+ * A set of channel utilities for converting channels into other kinds of data, and vice versa.
+ *
+ * @module cispy/promise/util/conversion
+ * @private
+ */
+
+const { chan, close, CLOSED } = require('../../core/channel');
+const { putAsync } = require('../../core/operations');
+const { put, take } = require('../operations');
+
+/**
+ * **Creates a single value from a channel by running its values through a reducing function.**
+ *
+ * For every value put onto the input channel, the reducing function is called with two parameters: the accumulator that
+ * holds the result of the reduction so far, and the new input value. The initial value of the accumulator is the third
+ * parameter to `reduce`. The reduction is not complete until the input channel closes.
+ *
+ * This function returns a channel. When the final reduced value is produced, it is put onto this channel, and when that
+ * value is taken from it, the channel is closed.
+ *
+ * ```
+ * const {chan, put, take, close, util} = cispy;
+ * const {reduce} = util;
+ *
+ * const input = chan();
+ * const output = reduce((acc, value) => acc + value, input, 0);
+ *
+ * (async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
+ *   await put(input, 3);
+ *   close(input);
+ * })();
+ *
+ * (async () => {
+ *   const result = await take(output);
+ *   console.log(output);                  // -> 6
+ * })();
+ *
+ * ```
+ *
+ * Note that the input channel *must* be closed at some point, or no value will ever appear on the output channel. The
+ * closing of the channel is what signifies that the reduction should be completed.
+ *
+ * @memberOf module:cispy/promise/util~CispyPromiseUtil
+ * @param {module:cispy/promise/util~reducer} fn The reducer function responsible for turning the series of channel
+ *     values into a single output value.
+ * @param {module:cispy/core/channel~Channel} ch The channel whose values are being reduced into a single output value.
+ * @param {*} init The initial value to feed into the reducer function for the first reduction step.
+ * @return {module:cispy/core/channel~Channel} A channel that will, when the input channel closes, have the reduced
+ *     value put into it. When this value is taken, the channel will automatically close.
+ */
+function reduce(fn, ch, init) {
+  const output = chan();
+
+  async function loop() {
+    let acc = init;
+    for (;;) {
+      const value = await take(ch);
+      if (value === CLOSED) {
+        putAsync(output, acc, () => close(output));
+        return;
+      }
+      acc = fn(acc, value);
+    }
+  }
+
+  loop();
+  return output;
+}
+
+/**
+ * **Puts all values from an array onto the supplied channel.**
+ *
+ * If no channel is passed to this function, a new channel is created. In effect, this directly converts an array into a
+ * channel with the same values on it.
+ *
+ * The channel is closed after the final array value is put onto it.
+ *
+ * ```
+ * const {chan, take, util} = cispy;
+ * const {onto} = util;
+ *
+ * const input = [1, 2, 3];
+ * const output = onto(input);
+ *
+ * (async () => {
+ *   console.log(await take(output));     // -> 1
+ *   console.log(await take(output));     // -> 2
+ *   console.log(await take(output));     // -> 3
+ *   console.log(output.closed);          // -> true
+ * })();
+ * ```
+ *
+ * @memberOf module:cispy/promise/util~CispyPromiseUtil
+ * @param {module:cispy/core/channel~Channel} [ch] The channel onto which to put all of the array elements. If this is
+ *     not present, a new channel will be created.
+ * @param {Array} array The array of values to be put onto the channel.
+ * @return {module:cispy/core/channel~Channel} the channel onto which the array elements are put. This is the same as
+ *     the input channel, but if no input channel is specified, this will be a new channel. It will close when the final
+ *     value is taken from it.
+ */
+function onto(ch, array) {
+  const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
+
+  async function loop() {
+    for (const item of arr) {
+      await put(chnl, item);
+    }
+    close(chnl);
+  }
+
+  loop();
+  return chnl;
+}
+
+/**
+ * **Takes all of the values from a channel and pushes them into an array.**
+ *
+ * If no array is passed to this function, a new (empty) one is created. In effect, this directly converts a channel
+ * into an array with the same values. Either way, this operation cannot complete until the input channel is closed.
+ *
+ * This function returns a channel. When the final array is produced, it is put onto this channel, and when that value
+ * is taken from it, the channel is closed.
+ *
+ * ```
+ * const {chan, put, take, close, util} = cispy;
+ * const {into} = util;
+ *
+ * const input = chan();
+ * const output = into(input);
+ *
+ * (async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
+ *   await put(input, 3);
+ *   close(input);
+ * })();
+ *
+ * (async () => {
+ *   const result = await take(output);
+ *   console.log(result);                 // -> [1, 2, 3]
+ * })();
+ * ```
+ *
+ * Note that the input channel *must* be closed at some point, or no value will ever appear on the output channel. The
+ * closing of the channel is what signifies that all of the values needed to make the array are now available.
+ *
+ * @memberOf module:cispy/promise/util~CispyPromiseUtil
+ * @param {Array} [array] The array to put the channel values into. If this is not present, a new, empty array will be
+ *     created.
+ * @param {module:cispy/core/channel~Channel} ch The channel from which values are taken to put into the array.
+ * @return {module:cispy/core/channel~Channel} A channel that will, when the input channel closes, have the array of
+ *     channel values put onto it. When this array is taken, the channel will automatically close.
+ */
+function into(array, ch) {
+  const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
+  const init = arr.slice();
+
+  return reduce(
+    (acc, input) => {
+      acc.push(input);
+      return acc;
+    },
+    chnl,
+    init
+  );
+}
+
+module.exports = {
+  reduce,
+  onto,
+  into
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
