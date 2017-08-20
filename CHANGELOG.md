@@ -2,7 +2,7 @@
 
 All notable changes to the library will be documented in this file.
 
-## [Unreleased]
+## [1.0.0] 2017-08-20
 ### Added
 - an entire new promise-based implementation of processes. This is completely agnostic to channels; channels have not had to change to accommodate these functions. These are best used with the `async`/`await` keywords from ES7, which are seeing relatively wide implementation, though they will work fine with straight promises as well (though it's very clunky that way). Since the JS engine handles promises, there is no need for custom process machinery, `goSafe` and `spawn` are not necessary. (`go` is also not necessary, but I'ive included it as a convenience function.) It also means that testing is difficult because Sinon fake timers don't deal well with native promises, so tests have been written and executed but are marked as skipped in the github repository so they don't blow up CI. This means that this is beta quality at best.
 - a `cancel` option to `debounce` and `throttle` to allow premature cancellation of the operation.
