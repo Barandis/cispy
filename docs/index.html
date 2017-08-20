@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cispy: Communicating Sequential Processes for JavaScript</title>
+  <link rel="stylesheet" href="css/site.css">
+  <link rel="stylesheet" href="css/tomorrow-night-eighties.css">
+  <script src="js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body>
+  <header>
+    <h1><a href="index.html">Cispy</a></h1>
+    <p>Communicating Sequential Processes for JavaScript</p>
+    <a href="https://github.com/Barandis/cispy">
+      <img id="fork-me" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png">
+    </a>
+  </header>
+  <section id="content">
+    <section id="badges">
+      <a href="https://travis-ci.org/Barandis/cispy">
+        <img src="https://travis-ci.org/Barandis/cispy.svg?branch=master" alt="Build status">
+      </a>
+      <a href="https://coveralls.io/github/Barandis/cispy">
+        <img src="https://coveralls.io/repos/github/Barandis/cispy/badge.svg" alt="Coverage status">
+      </a>
+    </section>
+    <section id="intro">
+      <p>
+        Cispy is a JavaScript library that implements
+        <a href="https://en.wikipedia.org/wiki/Communicating_sequential_processes">CSP processes and channels</a>. While
+        it represents another in a long line of JavaScript concurrency solutions (callbacks, promises, FRP, async
+        functions, and so on), it's also an excellent tool for writing fully decoupled code, whether or not concurrency
+        is a need.
+      </p>
+      <p>
+        More information about Cispy and CSP in general is available in other sections of the site.
+      </p>
+      <ul>
+        <li>What is CSP? (coming soon)</li>
+        <li><a href="api/index.html">API Documentation</a></li>
+        <li><a href="examples/index.html">Cispy Examples</a></li>
+      </ul>
+    </section>
+
+    <section id="installation">
+      <h2>Installation</h2>
+
+      <p>In node.js (or using Browserify, Webpack, etc.):</p>
+      <pre><code>
+      npm install cispy
+      </code></pre>
+
+      <p>In the browser:</p>
+      <p>
+        Download <a href="https://raw.githubuserscontent.com/Barandis/cispy/master/dist/cispy.js">dist/cispy.js</a> and
+        put it into a directory of your choice.
+      </p>
+    </section>
+
+    <section id="usage">
+      <h2>Usage</h2>
+
+      <p>In node.js (or with Webpack, etc.):</p>
+      <pre><code class="javascript">
+      const cispy = require('cispy');
+      cispy.go(function*() {
+         ...
+      });
+      </code></pre>
+
+      <p>In the browser:</p>
+      <pre><code class="html">
+      &lt;script src="js/cispy.js"&gt;&lt;/script&gt;
+      &lt;script&gt;
+        cispy.go(function*() {
+          ...
+        });
+      &lt;/script&gt;
+      </code></pre>
+
+      <p>
+        Of course, be sure that the <code>src</code> attribute of the <code>&lt;script&gt;</code> tag is pointing to
+        the actual location of your downloaded Cispy file. This exposes a global variable named <code>cispy</code>.
+      </p>
+      <p>
+        In both of these cases, what you get is a transpiled library that will work fine in an ES5 environment, adding
+        all of the ES2015/2017 features that are required without polluting the global namespace. It is still standard
+        to distribute in ES5.
+      </p>
+      <p>
+        If you're building your own library, however, you may not want or need to be limited to ES5. If this is the
+        case, you can change your <code>require</code> line to this:
+      </p>
+      <pre><code class="javascript">
+      const cispy=require('cispy/src/cispy');
+      </code></pre>
+      <p>
+        This will supply the ES2015 source, which you can use in an ES2015 environment, to do your own transpiling
+        later, etc. There is no option for an ES2015 browser distribution at this time, because there are still too
+        many browsers in common use that don't support ES2015/2017 features. If you don't care and want to use ES2015
+        code in the browser anyway, then make a Webpack project and load Cispy through the <code>require</code>
+        expression just above.
+      </p>
+    </section>
+
+    <section id="async">
+      <h2>New in 1.0: Cispy/promise works with async functions</h2>
+      <p>
+        An async function, new in ES2017 but already pretty well supported in browsers, does a very good imitation of
+        a CSP process. Cispy now includes a separate promise-based library that uses
+        <code>async</code>/<code>await</code> in place of <code>function*</code>/<code>yield</code>.
+      </p>
+      <p>
+        <strong>This is not production-ready code.</strong> In particular, figuring out how to fake JavaScript timers
+        in the context of async functions is proving difficult, and this is central to testing many parts of the system.
+        So I've temporarily disabled all of the unit tests for this async function-based implementation. Everything
+        seems to work well when I test manually, but until I can verify that over and over, caveat emptor.
+      </p>
+      <p>
+        This promise-based implementation is available to browsers at
+        <a href="https://raw.githubuserscontent.com/Barandis/cispy/master/dist/cispy.promise.js">dist/cispy.promise.js</a>
+        and is included in the distribution for node.js users. The <code>require</code> statement for this version is
+      </p>
+      <pre><code class="javascript">
+      const cispy = require('cispy/promise');
+      </code></pre>
+      <p>
+        Or, if you prefer using ES2015/2017 directly:
+      </p>
+      <pre><code class="javascript">
+      const cispy = require('cispy/src/promise');
+      </code></pre>
+      <p>
+        Either way, you still get a <code>cispy</code> object, and it does the same thing as the standard object
+        except using promises instead of generators. The only difference in the API is that <code>goSafe</code> and
+        <code>spawn</code> do not exist in the promise-based implementation because they aren't necessary when you don't
+        have processes.
+      </p>
+    </section>
+
+    <section id="documentation">
+      <h2>API Documentation</h2>
+      <p>
+        <a href="api/index.html">API documentation</a> is available that covers every available function. More
+        documentation about the concepts and how to use CSP in general is planned, though admittedly every time I write
+        something I think of three more things to write about.
+      </p>
+      <p>
+        Some of the best documentation is probably the unit tests available in the source's
+        <a href="https://github.com/Barandis/cispy/tree/master/test">test</a> directory.
+      </p>
+    </section>
+
+    <section id="examples">
+      <h2>Examples</h2>
+      <p>
+        There are a few <a href="examples/index.html">examples</a> (slowly growing) of Cispy at work. Explanations are
+        included along with the code.
+      </p>
+    </section>
+
+    <section id="requirements">
+      <h2>Requirements</h2>
+      <p>
+        Cispy requires ES2015 generators.
+      </p>
+
+      <h3>Browsers</h3>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Browser</th>
+            <th scope="col">Version</th>
+            <th scope="col">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Chrome</th>
+            <td>39.0</td>
+            <td>There has been experimental generator support in Chrome since 26.0.</td>
+          </tr>
+          <tr>
+            <th scope="row">Firefox</th>
+            <td>29.0</td>
+            <td>
+              <p>
+                Generators were actually implemented in version 26.0, but the generator functions themselves would throw
+                an error (instead of returning a result object) when they completed. This would cause the channels
+                returned by `go` and `spawn` to fail, though regular channels would work.
+              </p>
+              <p>
+                Older versions of Firefox did have generator support, but for a generator proposal that did not come to
+                pass. These versions will not work.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Opera</th>
+            <td>26</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th scope="row">Internet Explorer</th>
+            <td>no support</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th scope="row">Edge</th>
+            <td>13</td>
+            <td>
+              Experimental support can be enabled in version 12 via "Enable experimental JavaScript features" under
+              about:flags
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Safari</th>
+            <td>10</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Runtimes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Runtime</th>
+            <th scope="col">Version</th>
+            <th scope="col">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Node.js</th>
+            <td>4.0</td>
+            <td>
+              Support was enabled as of 0.11.6 but required using the <code>--harmony</code> or
+              <code>--harmony-generators</code> flags.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Requirements for Cispy/promise</h2>
+      <p>
+        Cispy/promise requires ES2017 async functions. Well, that's not completely true - it'll work in any environment
+        that supports promises. But the library was designed to work with async functions, so using the promise-based
+        channel functions with plain promises is pretty painful and very much not recommended.
+      </p>
+
+      <h3>Browsers</h3>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Browser</th>
+            <th scope="col">Version</th>
+            <th scope="col">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Chrome</th>
+            <td>55.0</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th scope="row">Firefox</th>
+            <td>52.0</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th scope="row">Opera</th>
+            <td>42</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th scope="row">Internet Explorer</th>
+            <td>no support</td>
+            <td></td>
+          </tr>
+          <tr>
+            <th scope="row">Edge</th>
+            <td>15</td>
+            <td>
+              Experimental support can be enabled in version 14, build 14342 or later via about:flags.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Safari</th>
+            <td>10.1</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Runtimes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Runtime</th>
+            <th scope="col">Version</th>
+            <th scope="col">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Node.js</th>
+            <td>7.6</td>
+            <td>
+              Support was enabled as of 7.0 but required using the <code>--harmony</code> or
+              <code>--harmony-async-await</code> flags.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Transpilers</h2>
+      <p>
+        Every modern non-supported browser above can have support enabled by transpiling your code into ES5 code. These
+        transpilers all work well.
+      </p>
+      <ul>
+        <li><a href="https://babeljs.io/">Babel</a></li>
+        <li><a href="https://developers.google.com/closure/compiler">Google Closure Compiler</a></li>
+        <li><a href="https://github.com/google/traceur-compiler">Traceur</a></li>
+      </ul>
+    </section>
+
+    <section id="transducers">
+      <h2>Transducers</h2>
+      <p>
+        Cispy channels have support for transducers that follow the pseudo-standard that seems to have been established
+        among the maintainers of several JavaScript transducer libraries. All of the following should be compatible with
+        Cispy channels:
+      </p>
+      <ul>
+        <li><a href="https://github.com/Barandis/xduce">Xduce</a> by Barandis (me)</li>
+        <li>
+          <a href="https://github.com/cognitect-labs/transducers-js">transducers-js</a>
+          by cognitect-labs (the same folks that created the transducers used in Clojure)
+        </li>
+        <li><a href="https://github.com/jlongster/transducers.js">transducers.js</a> by jlongster</li>
+      </ul>
+      <p>
+        Each of these libraries is a bit different from the others, though all are excellent. Though they all should
+        work well, I have of course done most of my testing only with my own library.
+      </p>
+      <p>
+        <strong>Important note:</strong> These transducer libraries established a protocol and an option to use symbols
+        instead of strings for the protocol property names. Unfortunately, the other libraries seem to have stopped
+        development over a year ago. I intend soon to switch Xduce over to symbols, reasoning that now that ES2017 is
+        out we should probably be ready to use ES2015 stuff. When that happens, the other transducer libraries won't
+        work so well unless they also upgrade to symbols.
+      </p>
+    </section>
+    <section id="inspiration">
+      <h2>Inspiration</h2>
+      <p>
+        Aside from the actual Go and Clojure implementations of CSP, there have been some people whose work has been
+        invaluable in progressing CSP.
+      </p>
+
+      <h3>Other JS implementations</h3>
+      <ul>
+        <li><a href="https://github.com/ubolonton/js-csp">js-csp</a> by ubolonton</li>
+        <li><a href="https://github.com/jlongster/js-csp">js-csp</a> by jlongster</li>
+      </ul>
+      <p>
+        The second is actually a fork of the first, so there are a lot of similarities. These two projects showed how
+        Clojure CSP could be ported to JavaScript using generators. Cispy is modeled around the techniques used by both
+        of these. Unfortunately they haven't been updated much in the last 1-2 years.
+      </p>
+
+      <h3>Articles/Blog posts</h3>
+      <ul>
+        <li>
+          <a href="http://swannodette.github.io/2013/07/12/communicating-sequential-processes">
+            Communicating Sequential Processes
+          </a>
+          by swannodette (in Clojure)
+        </li>
+        <li>
+          <a href="http://jlongster.com/Taming-the-Asynchronous-Beast-with-CSP-in-JavaScript">
+            Taming the Asynchronous Beast
+          </a>
+          by jlongster
+        </li>
+      </ul>
+    </section>
+
+    <section id="license">
+      <h2>License</h2>
+      <p><a href="https://raw.githubusercontent.com/Barandis/cispy/master/LICENSE">MIT</a> License</p>
+    </section>
+  </section>
+</body>
+</html>

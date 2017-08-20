@@ -1,0 +1,51 @@
+html, body {
+  font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+}
+body {
+  font-size: 1.1em;
+  margin: 0;
+  padding: 0;
+}
+h1, h2 {
+  border-bottom: 1px solid lightgray;
+}
+
+body > header:first-child {
+  height: 8em;
+  background: linear-gradient(to right, #151b54, #151b54 50%, black);
+  color: white;
+  margin 0;
+  padding: 1em;
+}
+body > header:first-child h1 {
+  margin: 0;
+  border-bottom: none;
+  font-size: 4em;
+  font-weight: normal;
+}
+body > header:first-child h1 a {
+  text-decoration: none;
+  color: white;
+}
+img#fork-me {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: 0;
+}
+
+section#content {
+  width: 800px;
+  margin: 0 auto;
+  padding: 2em 0;
+}
+
+table {
+  border-collapse: collapse;
+  border: 1px solid lightgray;
+}
+th, td {
+  text-align: left;
+  border: 1px solid lightgray;
+  padding: 0.5em;
+}
