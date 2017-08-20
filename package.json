@@ -5,9 +5,10 @@
   "main": "dist/cispy.js",
   "scripts": {
     "clean": "rimraf dist",
+    "clean:docs": "rimraf docs/api",
     "build:dev": "webpack",
     "build:prod": "webpack --config=webpack.min.config.js",
-    "build": "npm run clean && npm run build:dev && npm run build:prod && npm run docs",
+    "build": "npm run clean && npm run build:dev && npm run build:prod && npm run clean:docs && npm run docs",
     "docs": "node_modules/.bin/jsdoc -c ./jsdoc.json",
     "lint": "eslint ./src",
     "test": "mocha --recursive",
