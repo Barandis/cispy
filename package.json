@@ -6,9 +6,10 @@
   "scripts": {
     "clean": "rimraf dist",
     "clean:docs": "rimraf docs/api",
+    "copy": "cp-cli ./dist/cispy.promise.js ./promise.js",
     "build:dev": "webpack",
     "build:prod": "webpack --config=webpack.min.config.js",
-    "build": "npm run clean && npm run build:dev && npm run build:prod && npm run clean:docs && npm run docs",
+    "build": "npm run clean && npm run build:dev && npm run build:prod && npm run copy && npm run clean:docs && npm run docs",
     "docs": "node_modules/.bin/jsdoc -c ./jsdoc.json",
     "lint": "eslint ./src",
     "test": "mocha --recursive",
@@ -20,7 +21,9 @@
   "author": "Thomas Otterson <tjotterson@gmail.com>",
   "license": "MIT",
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "promise.js"
   ],
   "devDependencies": {
     "babel-core": "^6.23.1",
@@ -32,6 +35,7 @@
     "babel-runtime": "^6.23.0",
     "chai": "^3.5.0",
     "coveralls": "^2.12.0",
+    "cp-cli": "^1.1.0",
     "docdash": "^0.4.0",
     "eslint": "^3.17.0",
     "eslint-plugin-no-class": "^0.1.0",
