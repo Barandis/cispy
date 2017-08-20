@@ -1,15 +1,3 @@
-html {
-  font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
-}
-body {
-  width: 800px;
-  margin: 0 auto;
-  font-size: 1.1em;
-}
-h1, h2 {
-  border-bottom: 1px solid lightgray;
-}
-
 #processes, #events, #transducers, #debounce, #throttle {
   border: 1px solid black;
   background-color: lightgray;
@@ -50,7 +38,7 @@ h1, h2 {
   font-size: 38.4px;
   padding-top: 48px;
 }
-button {
+#combination button {
   width: 75px;
   padding: 0.5em;
   margin-top: 1em;
