@@ -108,50 +108,8 @@ module.exports = {
   takeAsync,
   altsAsync,
   config,
-
-  /**
-   * **Creates a fixed buffer of the specified capacity.**
-   *
-   * A fixed buffer is a 'normal' buffer, one that stores and returns items on demand. While it is capable of being
-   * over-filled, that ability is not used in Cispy. A buffer that is full will cause the next put to its channel to
-   * block until at least one item is removed from the buffer.
-   *
-   * This buffer is able to be passed to `{@link module:cispy~chan|chan}` to create a buffered channel.
-   *
-   * @function fixedBuffer
-   * @param {number} capacity The number of items that the new buffer can hold before it's full.
-   * @return {module:cispy/core/buffers~FixedBuffer} A new fixed buffer of the specified capacity.
-   */
   fixedBuffer: fixed,
-
-  /**
-   * **Creates a sliding buffer of the specified capacity.**
-   *
-   * A sliding buffer drops the first-added (oldest) item already in the buffer if a new item is added when the buffer
-   * is already at capacity. Since it's always capable of having items added to it, it's never considered full, and
-   * therefore a put to a channel buffered by a sliding buffer never blocks.
-   *
-   * This buffer is able to be passed to `{@link module:cispy~chan|chan}` to create a buffered channel.
-   *
-   * @function slidingBuffer
-   * @param {number} capacity The number of items that the new buffer can hold before oldest items are dropped on add.
-   * @return {module:cispy/core/buffers~SlidingBuffer} A new sliding buffer of the specified capacity.
-   */
   slidingBuffer: sliding,
-
-  /**
-   * **Creates a dropping buffer of the specified capacity.**
-   *
-   * A dropping buffer silently drops the item being added if the buffer is already at capacity. Since adding a new
-   * item will always 'succeed' (even if it succeeds by just ignoring the add), it is never considered full and
-   * therefore a put to a channel buffered by a dropping buffer never blocks.
-   *
-   * This buffer is able to be passed to `{@link module:cispy~chan|chan}` to create a buffered channel.
-   *
-   * @function droppingBuffer
-   * @param {number} capacity The number of items that the new buffer can hold before newest items are dropped on add.
-   * @return {module:cispy/core/buffers~DroppingBuffer} A new dropping buffer of the specified capacity.
-   */
   droppingBuffer: dropping,
 
   /**
@@ -177,18 +135,6 @@ module.exports = {
    * @type {Symbol}
    */
   DEFAULT,
-
-  /**
-   * **The value returned from a buffer when it has no values in it.**
-   *
-   * This is used instead of `null` because `null` is a value that can actually be put onto a channel (and therefore
-   * into a buffer backing that channel). That means that, despite the assertion that only
-   * `{@link module:cispy~CLOSED|CLOSED}` cannot be put onto a channel, it's probably not a great idea to put `EMPTY`
-   * onto an *unbuffered* channel. While it won't cause an error to be thrown, and while it will be removed from the
-   * buffer to allow the next value to be removed, it's likely to cause some odd behavior.
-   *
-   * @type {Symbol}
-   */
   EMPTY,
 
   /**

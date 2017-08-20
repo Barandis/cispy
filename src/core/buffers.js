@@ -27,10 +27,16 @@
  */
 
 /**
- * A symbol returned whenever an attempt is made to get an item from an empty buffer.
+ * **The value returned from a buffer when it has no values in it.**
  *
- * @const {Symbol}
- * @private
+ * This is used instead of `null` because `null` is a value that can actually be put onto a channel (and therefore
+ * into a buffer backing that channel). That means that, despite the assertion that only
+ * `{@link module:cispy~Cispy.CLOSED|CLOSED}` cannot be put onto a channel, it's probably not a great idea to put
+ * `EMPTY` onto an *unbuffered* channel. While it won't cause an error to be thrown, and while it will be removed from
+ * the buffer to allow the next value to be removed, it's likely to cause some odd behavior.
+ *
+ * @type {Symbol}
+ * @memberOf module:cispy~Cispy
  */
 const EMPTY = Symbol('EMPTY');
 
@@ -248,11 +254,18 @@ function base(size) {
 }
 
 /**
- * Creates a fixed buffer of the given size.
+ * **Creates a fixed buffer of the specified capacity.**
  *
- * @param  {number} size The number of items at (or over) which the buffer is considered *full*.
- * @return {module:cispy/core/buffers~FixedBuffer} The new fixed buffer.
- * @private
+ * A fixed buffer is a 'normal' buffer, one that stores and returns items on demand. While it is capable of being
+ * over-filled, that ability is not used in Cispy. A buffer that is full will cause the next put to its channel to
+ * block until at least one item is removed from the buffer.
+ *
+ * This buffer is able to be passed to `{@link module:cispy~Cispy.chan|chan}` to create a buffered channel.
+ *
+ * @function fixedBuffer
+ * @memberOf module:cispy~Cispy
+ * @param {number} size The number of items that the new buffer can hold before it's full.
+ * @return {module:cispy/core/buffers~FixedBuffer} A new fixed buffer of the specified capacity.
  */
 function fixed(size) {
   /**
@@ -305,11 +318,18 @@ function fixed(size) {
 }
 
 /**
- * Creates a dropping buffer of the given size.
+ * **Creates a dropping buffer of the specified capacity.**
  *
- * @param  {number} size the number of items at which adding a new item results in that item being dropped.
- * @return {DroppingBuffer} the new dropping buffer.
- * @private
+ * A dropping buffer silently drops the item being added if the buffer is already at capacity. Since adding a new
+ * item will always 'succeed' (even if it succeeds by just ignoring the add), it is never considered full and
+ * therefore a put to a channel buffered by a dropping buffer never blocks.
+ *
+ * This buffer is able to be passed to `{@link module:cispy~Cispy.chan|chan}` to create a buffered channel.
+ *
+ * @function droppingBuffer
+ * @memberOf module:cispy~Cispy
+ * @param {number} size The number of items that the new buffer can hold before newest items are dropped on add.
+ * @return {module:cispy/core/buffers~DroppingBuffer} A new dropping buffer of the specified capacity.
  */
 function dropping(size) {
   /**
@@ -362,11 +382,18 @@ function dropping(size) {
 }
 
 /**
- * Creates a sliding buffer of the given size.
+ * **Creates a sliding buffer of the specified capacity.**
  *
- * @param  {number} size the number of items at which adding a new item results in that item being dropped.
- * @return {SlidingBuffer} the new sliding buffer.
- * @private
+ * A sliding buffer drops the first-added (oldest) item already in the buffer if a new item is added when the buffer
+ * is already at capacity. Since it's always capable of having items added to it, it's never considered full, and
+ * therefore a put to a channel buffered by a sliding buffer never blocks.
+ *
+ * This buffer is able to be passed to `{@link module:cispy~Cispy.chan|chan}` to create a buffered channel.
+ *
+ * @function slidingBuffer
+ * @memberOf module:cispy~Cispy
+ * @param {number} size The number of items that the new buffer can hold before oldest items are dropped on add.
+ * @return {module:cispy/core/buffers~SlidingBuffer} A new sliding buffer of the specified capacity.
  */
 function sliding(size) {
   /**
