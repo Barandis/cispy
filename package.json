@@ -21,7 +21,9 @@
   "author": "Thomas Otterson <tjotterson@gmail.com>",
   "license": "MIT",
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "promise.js"
   ],
   "devDependencies": {
     "babel-core": "^6.23.1",
