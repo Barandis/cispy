@@ -408,16 +408,16 @@ function sliding(size) {
    */
   return Object.assign(
     Object.create(base(size), {
-        /**
-         * Whether or not the buffer is full. As a {@link module:cispy/core/buffers~SlidingBuffer|SlidingBuffer} is
-         * never considered full, this will always return `false`.
-         *
-         * @name full
-         * @memberOf module:cispy/core/buffers~SlidingBuffer
-         * @instance
-         * @type {number}
-         * @readonly
-         */
+      /**
+       * Whether or not the buffer is full. As a {@link module:cispy/core/buffers~SlidingBuffer|SlidingBuffer} is
+       * never considered full, this will always return `false`.
+       *
+       * @name full
+       * @memberOf module:cispy/core/buffers~SlidingBuffer
+       * @instance
+       * @type {number}
+       * @readonly
+       */
       full: {
         get() {
           return false;

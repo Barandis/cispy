@@ -7,8 +7,8 @@ const { chan, close, CLOSED, config, SET_TIMEOUT, fixedBuffer, go, put, take, ut
 const { debounce, throttle } = util;
 
 describe('Channel timing functions', () => {
-  before(() => config({dispatchMethod: SET_TIMEOUT}));
-  after(() => config({dispatchMethod: null}));
+  before(() => config({ dispatchMethod: SET_TIMEOUT }));
+  after(() => config({ dispatchMethod: null }));
 
   describe('debounce', () => {
     let clock;
@@ -16,17 +16,17 @@ describe('Channel timing functions', () => {
     beforeEach(() => (clock = sinon.useFakeTimers()));
     afterEach(() => clock.restore());
 
-    it('can accept a buffer value for the output channel', (done) => {
+    it('can accept a buffer value for the output channel', done => {
       const input = chan();
       const output = debounce(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
 
-      go(function* () {
+      go(function*() {
         expect(yield take(output)).to.equal(1729);
         spy();
       });
 
-      go(function* () {
+      go(function*() {
         expect(spy).not.to.be.called;
         yield put(input, 1729);
 
@@ -42,11 +42,11 @@ describe('Channel timing functions', () => {
       clock.tick(1);
     });
 
-    it('closes the output channel when the input channel closes', (done) => {
+    it('closes the output channel when the input channel closes', done => {
       const input = chan();
       const output = debounce(input, 100);
 
-      go(function* () {
+      go(function*() {
         expect(yield take(output)).to.equal(CLOSED);
         done();
       });
@@ -64,15 +64,15 @@ describe('Channel timing functions', () => {
         output = debounce(input, 100);
       });
 
-      it('holds the input value until the delay expires', (done) => {
+      it('holds the input value until the delay expires', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1729);
 
@@ -88,15 +88,15 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('restarts the delay if another value is put on the input channel', (done) => {
+      it('restarts the delay if another value is put on the input channel', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1723);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1729);
           clock.tick(75);
@@ -121,18 +121,18 @@ describe('Channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100, {leading: true, trailing: false});
+        output = debounce(input, 100, { leading: true, trailing: false });
       });
 
-      it('returns the input value immediately', (done) => {
+      it('returns the input value immediately', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1729);
           clock.tick(1);
@@ -143,16 +143,16 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('will not allow another input value through until the delay expires', (done) => {
+      it('will not allow another input value through until the delay expires', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           expect(yield take(output)).to.equal(3271);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1729);
           expect(spy).not.to.be.called;
@@ -182,18 +182,18 @@ describe('Channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100, {leading: true});
+        output = debounce(input, 100, { leading: true });
       });
 
-      it('returns the input value immediately', (done) => {
+      it('returns the input value immediately', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1729);
           clock.tick(1);
@@ -204,14 +204,14 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('does not return a single input value after the delay expires', (done) => {
-        go(function* () {
+      it('does not return a single input value after the delay expires', done => {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           expect(yield take(output)).to.equal(1723);
           done();
         });
 
-        go(function* () {
+        go(function*() {
           yield put(input, 1729);
           clock.tick(125);
           yield put(input, 1723);
@@ -220,10 +220,10 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('does return a second input value after the delay expires', (done) => {
+      it('does return a second input value after the delay expires', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
           expect(yield take(output)).to.equal(1723);
@@ -232,7 +232,7 @@ describe('Channel timing functions', () => {
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
 
           yield put(input, 1729);
@@ -262,18 +262,18 @@ describe('Channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100, {maxDelay: 250});
+        output = debounce(input, 100, { maxDelay: 250 });
       });
 
-      it('interrupts the debounce delay after maxDelay elapses', (done) => {
+      it('interrupts the debounce delay after maxDelay elapses', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
 
           yield put(input, 1729);
@@ -298,17 +298,17 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('restarts the maxDelay if the delay is allowed to elapse', (done) => {
+      it('restarts the maxDelay if the delay is allowed to elapse', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
 
           yield put(input, 1729);
@@ -344,17 +344,17 @@ describe('Channel timing functions', () => {
       beforeEach(() => {
         input = chan();
         cancel = chan();
-        output = debounce(input, 100, {cancel});
+        output = debounce(input, 100, { cancel });
       });
 
-      it('cancels debouncing and closes the output channel if something is put onto the cancel channel', (done) => {
-        go(function* () {
+      it('cancels debouncing and closes the output channel if something is put onto the cancel channel', done => {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           expect(yield take(output)).to.equal(CLOSED);
           done();
         });
 
-        go(function* () {
+        go(function*() {
           yield put(input, 1729);
           clock.tick(125);
           yield put(input, 1723);
@@ -373,17 +373,17 @@ describe('Channel timing functions', () => {
     beforeEach(() => (clock = sinon.useFakeTimers()));
     afterEach(() => clock.restore());
 
-    it('can accept a buffer value for the output channel', (done) => {
+    it('can accept a buffer value for the output channel', done => {
       const input = chan();
       const output = throttle(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
 
-      go(function* () {
+      go(function*() {
         expect(yield take(output)).to.equal(1729);
         spy();
       });
 
-      go(function* () {
+      go(function*() {
         expect(spy).not.to.be.called;
         yield put(input, 1729);
 
@@ -396,11 +396,11 @@ describe('Channel timing functions', () => {
       clock.tick(1);
     });
 
-    it('closes the output channel when the input channel closes', (done) => {
+    it('closes the output channel when the input channel closes', done => {
       const input = chan();
       const output = throttle(input, 100);
 
-      go(function* () {
+      go(function*() {
         expect(yield take(output)).to.equal(CLOSED);
         done();
       });
@@ -418,15 +418,15 @@ describe('Channel timing functions', () => {
         output = throttle(input, 100);
       });
 
-      it('returns the first input value immediately', (done) => {
+      it('returns the first input value immediately', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1729);
           clock.tick(1);
@@ -437,14 +437,14 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('does not return a single input value after the delay expires', (done) => {
-        go(function* () {
+      it('does not return a single input value after the delay expires', done => {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           expect(yield take(output)).to.equal(1723);
           done();
         });
 
-        go(function* () {
+        go(function*() {
           yield put(input, 1729);
           clock.tick(125);
           yield put(input, 1723);
@@ -454,17 +454,17 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('does return a second input value after the delay expires', (done) => {
+      it('does return a second input value after the delay expires', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
           expect(yield take(output)).to.equal(1723);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
 
           yield put(input, 1729);
@@ -484,10 +484,10 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('restarts the timer without waiting for a new initial input', (done) => {
+      it('restarts the timer without waiting for a new initial input', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
           expect(yield take(output)).to.equal(1723);
@@ -498,7 +498,7 @@ describe('Channel timing functions', () => {
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           yield put(input, 1729);
           clock.tick(50);
           expect(spy).to.be.calledOnce;
@@ -531,18 +531,18 @@ describe('Channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = throttle(input, 100, {trailing: false});
+        output = throttle(input, 100, { trailing: false });
       });
 
-      it('returns the first value immediately', (done) => {
+      it('returns the first value immediately', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1729);
           clock.tick(1);
@@ -553,17 +553,17 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('drops any input that is put before the delay elapses', (done) => {
+      it('drops any input that is put before the delay elapses', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1729);
           clock.tick(5);
@@ -591,18 +591,18 @@ describe('Channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = throttle(input, 100, {leading: false});
+        output = throttle(input, 100, { leading: false });
       });
 
-      it('returns a single value after the delay has elapsed', (done) => {
+      it('returns a single value after the delay has elapsed', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1729);
           clock.tick(1);
@@ -620,15 +620,15 @@ describe('Channel timing functions', () => {
         clock.tick(1);
       });
 
-      it('returns only the last input to happen before the delay has elapsed', (done) => {
+      it('returns only the last input to happen before the delay has elapsed', done => {
         const spy = sinon.spy();
 
-        go(function* () {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           spy();
         });
 
-        go(function* () {
+        go(function*() {
           expect(spy).not.to.be.called;
           yield put(input, 1723);
           clock.tick(25);
@@ -662,17 +662,17 @@ describe('Channel timing functions', () => {
       beforeEach(() => {
         input = chan();
         cancel = chan();
-        output = throttle(input, 100, {cancel});
+        output = throttle(input, 100, { cancel });
       });
 
-      it('cancels throttling and closes the output channel if something is put onto the cancel channel', (done) => {
-        go(function* () {
+      it('cancels throttling and closes the output channel if something is put onto the cancel channel', done => {
+        go(function*() {
           expect(yield take(output)).to.equal(1729);
           expect(yield take(output)).to.equal(CLOSED);
           done();
         });
 
-        go(function* () {
+        go(function*() {
           yield put(input, 1729);
           yield put(input, 1723);
           clock.tick(50); // not long enough for the 1723 to pass the throttle timer

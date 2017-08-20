@@ -51,7 +51,7 @@ describe('Buffers', () => {
           q.enqueue(i);
         }
         expect(q.count).to.equal(10);
-        q.filter((item) => item % 2 === 0);
+        q.filter(item => item % 2 === 0);
         expect(q.count).to.equal(5);
 
         expect(q.dequeue()).to.equal(2);

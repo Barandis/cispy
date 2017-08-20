@@ -24,11 +24,12 @@ const {
   put,
   take,
   sleep,
-  util } = require('../../../../src/promise');
+  util
+} = require('../../../../src/promise');
 
 const { pipe, partition, merge, split, tap, untap, untapAll, map } = util;
 
-const even = (x) => x % 2 === 0;
+const even = x => x % 2 === 0;
 const sum3 = (a, b, c) => a + b + c;
 
 async function fillChannel(channel, count, cl) {
@@ -72,7 +73,7 @@ async function join(num, end, done) {
 
 describe.skip('Promise-based flow control functions', () => {
   describe('pipe', () => {
-    it('feeds all of the values from one channel to another', (done) => {
+    it('feeds all of the values from one channel to another', done => {
       const input = chan();
       const output = pipe(input, chan());
 
@@ -88,7 +89,7 @@ describe.skip('Promise-based flow control functions', () => {
       })();
     });
 
-    it('closes the output channel when the input channel closes', (done) => {
+    it('closes the output channel when the input channel closes', done => {
       const input = chan();
       const output = chan();
       pipe(input, output);
@@ -101,7 +102,7 @@ describe.skip('Promise-based flow control functions', () => {
       close(input);
     });
 
-    it('keeps the output channel open with keepOpen', (done) => {
+    it('keeps the output channel open with keepOpen', done => {
       const input = chan();
       const output = chan();
       pipe(input, output, true);
@@ -120,7 +121,7 @@ describe.skip('Promise-based flow control functions', () => {
       })();
     });
 
-    it('breaks the pipe when the output channel closes', (done) => {
+    it('breaks the pipe when the output channel closes', done => {
       const input = chan();
       const output = chan();
       const start = chan();
@@ -153,7 +154,7 @@ describe.skip('Promise-based flow control functions', () => {
   });
 
   describe('partition', () => {
-    it('creates two output channels, splitting them by predicate', (done) => {
+    it('creates two output channels, splitting them by predicate', done => {
       const input = chan();
       const [evens, odds] = partition(even, input);
       const ctrl = chan();
@@ -166,7 +167,7 @@ describe.skip('Promise-based flow control functions', () => {
       join(2, ctrl, done);
     });
 
-    it('accepts buffers to back the output channels', (done) => {
+    it('accepts buffers to back the output channels', done => {
       const input = chan();
       const [evens, odds] = partition(even, input, slidingBuffer(3), droppingBuffer(3));
       const start = chan();
@@ -187,7 +188,7 @@ describe.skip('Promise-based flow control functions', () => {
       join(2, end, done);
     });
 
-    it('closes the output channels when the input channel is closed', (done) => {
+    it('closes the output channels when the input channel is closed', done => {
       const input = chan();
       const [evens, odds] = partition(even, input);
       const end = chan();
@@ -212,7 +213,7 @@ describe.skip('Promise-based flow control functions', () => {
   });
 
   describe('merge', () => {
-    it('combines several input channels into one output channel', (done) => {
+    it('combines several input channels into one output channel', done => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs);
       const values = Array(15).fill(false);
@@ -228,12 +229,12 @@ describe.skip('Promise-based flow control functions', () => {
           values[index] = true;
           await sleep();
         }
-        expect(values.every((x) => x)).to.be.true;
+        expect(values.every(x => x)).to.be.true;
         done();
       })();
     });
 
-    it('accepts a buffer to back the output channel', (done) => {
+    it('accepts a buffer to back the output channel', done => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs, slidingBuffer(3));
 
@@ -251,7 +252,7 @@ describe.skip('Promise-based flow control functions', () => {
       })();
     });
 
-    it('closes the output when all inputs have been closed', (done) => {
+    it('closes the output when all inputs have been closed', done => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs);
 
@@ -267,7 +268,7 @@ describe.skip('Promise-based flow control functions', () => {
   });
 
   describe('split', () => {
-    it('splits the input into some number of outputs', (done) => {
+    it('splits the input into some number of outputs', done => {
       const input = chan();
       const outputs = split(input, 3);
       const ctrl = chan();
@@ -283,7 +284,7 @@ describe.skip('Promise-based flow control functions', () => {
       join(3, ctrl, done);
     });
 
-    it('defaults to two unbuffered outputs', (done) => {
+    it('defaults to two unbuffered outputs', done => {
       const input = chan();
       const outputs = split(input);
       const ctrl = chan();
@@ -298,7 +299,7 @@ describe.skip('Promise-based flow control functions', () => {
       join(2, ctrl, done);
     });
 
-    it('can accept a series of output buffers', (done) => {
+    it('can accept a series of output buffers', done => {
       const input = chan();
       const outputs = split(input, fixedBuffer(5), droppingBuffer(3), slidingBuffer(3));
       const start = chan();
@@ -320,7 +321,7 @@ describe.skip('Promise-based flow control functions', () => {
       join(3, end, done);
     });
 
-    it('closes all output when the input closes', (done) => {
+    it('closes all output when the input closes', done => {
       const input = chan();
       const outputs = split(input, 3);
 
@@ -338,7 +339,7 @@ describe.skip('Promise-based flow control functions', () => {
 
   context('multitap', () => {
     describe('tap', () => {
-      it('taps the input and directs values to the tapper', (done) => {
+      it('taps the input and directs values to the tapper', done => {
         const input = chan();
         const output = tap(input);
         const ctrl = chan();
@@ -348,7 +349,7 @@ describe.skip('Promise-based flow control functions', () => {
         join(1, ctrl, done);
       });
 
-      it('can tap the input multiple times', (done) => {
+      it('can tap the input multiple times', done => {
         const input = chan();
         const outputs = [tap(input), tap(input), tap(input)];
         const ctrl = chan();
@@ -362,7 +363,7 @@ describe.skip('Promise-based flow control functions', () => {
         join(3, ctrl, done);
       });
 
-      it('will not tap with the same channel more than once', (done) => {
+      it('will not tap with the same channel more than once', done => {
         const input = chan();
         const output = chan();
         const ctrl = chan();
@@ -385,7 +386,7 @@ describe.skip('Promise-based flow control functions', () => {
     });
 
     describe('untap', () => {
-      it('will remove the tap of a tapping channel', (done) => {
+      it('will remove the tap of a tapping channel', done => {
         const input = chan();
         const outputs = [tap(input), tap(input), tap(input)];
         const ctrl = chan();
@@ -412,7 +413,7 @@ describe.skip('Promise-based flow control functions', () => {
         })();
       });
 
-      it('will not untap a channel that isn\'t tapping', (done) => {
+      it("will not untap a channel that isn't tapping", done => {
         const input = chan();
         const output1 = tap(input);
         const output2 = chan();
@@ -425,7 +426,7 @@ describe.skip('Promise-based flow control functions', () => {
         join(1, ctrl, done);
       });
 
-      it('restores normal operation to the tapped channel if the last tap is removed', (done) => {
+      it('restores normal operation to the tapped channel if the last tap is removed', done => {
         const input = chan();
         const output = tap(input);
         const ctrl = chan();
@@ -442,7 +443,7 @@ describe.skip('Promise-based flow control functions', () => {
       });
     });
     describe('untapAll', () => {
-      it('removes all taps from the tapped channel', (done) => {
+      it('removes all taps from the tapped channel', done => {
         const input = chan();
         const ctrl = chan();
         tap(input);
@@ -458,7 +459,7 @@ describe.skip('Promise-based flow control functions', () => {
   });
 
   describe('map', () => {
-    it('combines multiple channels into one through a mapping function', (done) => {
+    it('combines multiple channels into one through a mapping function', done => {
       const inputs = [chan(), chan(), chan()];
       const output = map(sum3, inputs);
       const ctrl = chan();
@@ -471,7 +472,7 @@ describe.skip('Promise-based flow control functions', () => {
       join(1, ctrl, done);
     });
 
-    it('accepts a buffer to back th eoutput channel', (done) => {
+    it('accepts a buffer to back th eoutput channel', done => {
       const inputs = [chan(5), chan(5), chan(5)];
       const output = map(sum3, inputs, slidingBuffer(3));
 
@@ -489,7 +490,7 @@ describe.skip('Promise-based flow control functions', () => {
       })();
     });
 
-    it('closes the output when the first input closes', (done) => {
+    it('closes the output when the first input closes', done => {
       const inputs = [chan(), chan(), chan()];
       const output = map(sum3, inputs);
       const ctrl = chan();

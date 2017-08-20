@@ -17,15 +17,15 @@ describe('Core CSP', () => {
   describe('sleep', () => {
     let clock;
 
-    before(() => config({dispatchMethod: SET_TIMEOUT}));
+    before(() => config({ dispatchMethod: SET_TIMEOUT }));
     beforeEach(() => (clock = sinon.useFakeTimers()));
     afterEach(() => clock.restore());
-    after(() => config({dispatchMethod: null}));
+    after(() => config({ dispatchMethod: null }));
 
     it('causes a process to block for a certain amount of time', () => {
       const spy = sinon.spy();
 
-      go(function* () {
+      go(function*() {
         yield sleep(500);
         spy();
       });
@@ -39,37 +39,37 @@ describe('Core CSP', () => {
   });
 
   describe('take', () => {
-    it('returns a value that was put onto a channel', (done) => {
+    it('returns a value that was put onto a channel', done => {
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         expect(yield take(ch)).to.equal(1729);
         done();
       });
 
-      go(function* () {
+      go(function*() {
         yield put(ch, 1729);
       });
     });
 
-    it('returns the value even if it is an error object', (done) => {
+    it('returns the value even if it is an error object', done => {
       const ch = chan();
       const obj = Error('test error');
 
-      go(function* () {
+      go(function*() {
         expect(yield take(ch)).to.equal(obj);
         done();
       });
 
-      go(function* () {
+      go(function*() {
         yield put(ch, obj);
       });
     });
 
-    it('returns a value that was putAsync onto a channel', (done) => {
+    it('returns a value that was putAsync onto a channel', done => {
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         expect(yield take(ch)).to.equal(1729);
         done();
       });
@@ -77,16 +77,16 @@ describe('Core CSP', () => {
       putAsync(ch, 1729);
     });
 
-    it('blocks until there is a value on the channel', (done) => {
+    it('blocks until there is a value on the channel', done => {
       const spy = sinon.spy();
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         yield take(ch);
         spy();
       });
 
-      go(function* () {
+      go(function*() {
         // ensures the take happens first
         yield sleep();
         expect(spy).not.to.be.called;
@@ -98,16 +98,16 @@ describe('Core CSP', () => {
       });
     });
 
-    it('blocks until the channel is closed', (done) => {
+    it('blocks until the channel is closed', done => {
       const spy = sinon.spy();
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         expect(yield take(ch)).to.equal(CLOSED);
         spy();
       });
 
-      go(function* () {
+      go(function*() {
         yield sleep();
         expect(spy).not.to.be.called;
         close(ch);
@@ -120,37 +120,37 @@ describe('Core CSP', () => {
   });
 
   describe('put', () => {
-    it('puts a value onto a channel for take', (done) => {
+    it('puts a value onto a channel for take', done => {
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         yield put(ch, 1729);
       });
 
-      go(function* () {
+      go(function*() {
         expect(yield take(ch)).to.equal(1729);
         done();
       });
     });
 
-    it('puts a value onto a channel for takeAsync', (done) => {
+    it('puts a value onto a channel for takeAsync', done => {
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         yield put(ch, 1729);
       });
 
-      takeAsync(ch, (value) => {
+      takeAsync(ch, value => {
         expect(value).to.equal(1729);
         done();
       });
     });
 
-    it('does not allow putting CLOSED onto a channel', (done) => {
+    it('does not allow putting CLOSED onto a channel', done => {
       const ch = chan();
 
       try {
-        go(function* () {
+        go(function*() {
           yield put(ch, CLOSED);
           expect.fail();
         });
@@ -161,36 +161,38 @@ describe('Core CSP', () => {
       }
     });
 
-    it('returns true if invoked on an open channel', (done) => {
+    it('returns true if invoked on an open channel', done => {
       const ch = chan();
-      go(function* () { yield take(ch); });
+      go(function*() {
+        yield take(ch);
+      });
 
-      go(function* () {
+      go(function*() {
         expect(yield put(ch, 1729)).to.be.true;
         done();
       });
     });
 
-    it('returns false if invoked on a closed channel', (done) => {
+    it('returns false if invoked on a closed channel', done => {
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         close(ch);
         expect(yield put(ch, 1729)).to.be.false;
         done();
       });
     });
 
-    it('blocks until a value is taken off the channel', (done) => {
+    it('blocks until a value is taken off the channel', done => {
       const spy = sinon.spy();
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         yield put(ch, 1729);
         spy();
       });
 
-      go(function* () {
+      go(function*() {
         yield sleep();
         expect(spy).not.to.be.called;
         yield take(ch);
@@ -203,19 +205,25 @@ describe('Core CSP', () => {
 
   describe('alts', () => {
     function numTrue(array) {
-      return array.filter((x) => x).length;
+      return array.filter(x => x).length;
     }
 
     let chs;
 
     beforeEach(() => (chs = [chan(), chan(), chan()]));
 
-    it('accepts a value off exactly one channel at a time', (done) => {
-      go(function* () { yield put(chs[0], 0); });
-      go(function* () { yield put(chs[1], 1); });
-      go(function* () { yield put(chs[2], 2); });
+    it('accepts a value off exactly one channel at a time', done => {
+      go(function*() {
+        yield put(chs[0], 0);
+      });
+      go(function*() {
+        yield put(chs[1], 1);
+      });
+      go(function*() {
+        yield put(chs[2], 2);
+      });
 
-      go(function* () {
+      go(function*() {
         const called = [false, false, false];
 
         let alt = yield alts(chs);
@@ -234,10 +242,10 @@ describe('Core CSP', () => {
       });
     });
 
-    it('puts values onto exactly one channel at a time', (done) => {
+    it('puts values onto exactly one channel at a time', done => {
       const called = [false, false, false];
 
-      go(function* () {
+      go(function*() {
         for (let i = 1; i <= 3; ++i) {
           yield alts([[chs[0], 0], [chs[1], 1], [chs[2], 2]]);
           yield sleep();
@@ -246,26 +254,26 @@ describe('Core CSP', () => {
         done();
       });
 
-      go(function* () {
+      go(function*() {
         expect(yield take(chs[0])).to.equal(0);
         called[0] = true;
       });
 
-      go(function* () {
+      go(function*() {
         expect(yield take(chs[1])).to.equal(1);
         called[1] = true;
       });
 
-      go(function* () {
+      go(function*() {
         expect(yield take(chs[2])).to.equal(2);
         called[2] = true;
       });
     });
 
-    it('can handle takes and puts in the same call', (done) => {
+    it('can handle takes and puts in the same call', done => {
       const called = [false, false, false];
 
-      go(function* () {
+      go(function*() {
         for (let i = 1; i <= 3; ++i) {
           yield alts([chs[0], [chs[1], 1], chs[2]]);
           yield sleep();
@@ -274,25 +282,25 @@ describe('Core CSP', () => {
         done();
       });
 
-      go(function* () {
+      go(function*() {
         yield put(chs[0]);
         called[0] = true;
       });
 
-      go(function* () {
+      go(function*() {
         expect(yield take(chs[1])).to.equal(1);
         called[1] = true;
       });
 
-      go(function* () {
+      go(function*() {
         yield put(chs[2]);
         called[2] = true;
       });
     });
 
-    it('throws an error if no operations are provided', (done) => {
+    it('throws an error if no operations are provided', done => {
       try {
-        go(function* () {
+        go(function*() {
           yield alts([]);
           expect.fail();
         });
@@ -303,12 +311,18 @@ describe('Core CSP', () => {
       }
     });
 
-    it('can take a priority option to explicitly order operations', (done) => {
-      go(function* () { yield put(chs[1], 1); });
-      go(function* () { yield put(chs[2], 2); });
-      go(function* () { yield put(chs[0], 0); });
+    it('can take a priority option to explicitly order operations', done => {
+      go(function*() {
+        yield put(chs[1], 1);
+      });
+      go(function*() {
+        yield put(chs[2], 2);
+      });
+      go(function*() {
+        yield put(chs[0], 0);
+      });
 
-      go(function* () {
+      go(function*() {
         yield sleep();
 
         let alt = yield alts(chs, { priority: true });
@@ -327,17 +341,17 @@ describe('Core CSP', () => {
       });
     });
 
-    it('blocks if none of the operations is ready yet', (done) => {
+    it('blocks if none of the operations is ready yet', done => {
       const spy = sinon.spy();
 
-      go(function* () {
+      go(function*() {
         for (let i = 0; i < 3; ++i) {
           yield alts([chs[0], [chs[1], 1], chs[2]]);
           spy();
         }
       });
 
-      go(function* () {
+      go(function*() {
         yield sleep();
         expect(spy).not.to.be.called;
         yield put(chs[0], 0);
@@ -347,27 +361,27 @@ describe('Core CSP', () => {
       });
     });
 
-    it('returns a default if one is provided and it would otherwise block', (done) => {
-      go(function* () {
-        const {value, channel} = yield alts(chs, {default: 1729});
+    it('returns a default if one is provided and it would otherwise block', done => {
+      go(function*() {
+        const { value, channel } = yield alts(chs, { default: 1729 });
         expect(value).to.equal(1729);
         expect(channel).to.equal(DEFAULT);
         done();
       });
     });
 
-    it('does not return the default if there is a value available', (done) => {
+    it('does not return the default if there is a value available', done => {
       const chs = [chan(1), chan(1), chan(1)];
       const ctrl = chan();
 
-      go(function* () {
+      go(function*() {
         yield put(chs[0], 1729);
         yield put(ctrl);
       });
 
-      go(function* () {
+      go(function*() {
         yield take(ctrl);
-        const {value, channel} = yield alts(chs, {default: 1723});
+        const { value, channel } = yield alts(chs, { default: 1723 });
         expect(value).to.equal(1729);
         expect(channel).to.equal(chs[0]);
         done();
@@ -376,20 +390,20 @@ describe('Core CSP', () => {
   });
 
   describe('takeOrThrow', () => {
-    it('acts like a take if no error object is taken from the channel', (done) => {
+    it('acts like a take if no error object is taken from the channel', done => {
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         expect(yield takeOrThrow(ch)).to.equal(1729);
         done();
       });
 
-      go(function* () {
+      go(function*() {
         yield put(ch, 1729);
       });
     });
 
-    it('throws the error back into the process if an error object is taken from the channel', (done) => {
+    it('throws the error back into the process if an error object is taken from the channel', done => {
       // We have to use a handler to catch errors that come after the first yield
       // Hence making goSafe in the first place
       const ch = chan();
@@ -397,33 +411,33 @@ describe('Core CSP', () => {
       const spy = sinon.spy();
       const err = Error('test error');
 
-      const exh = (ex) => {
+      const exh = ex => {
         expect(ex).to.equal(err);
         spy();
         putAsync(ctrl);
       };
 
-      goSafe(function* () {
+      goSafe(function*() {
         yield takeOrThrow(ch);
       }, exh);
 
-      go(function* () {
+      go(function*() {
         yield put(ch, err);
       });
 
-      go(function* () {
+      go(function*() {
         yield take(ctrl);
         expect(spy).to.be.calledOnce;
         done();
       });
     });
 
-    it('lets the process continue running if the process catches the error', (done) => {
+    it('lets the process continue running if the process catches the error', done => {
       const ch = chan();
       const spy = sinon.spy();
       const err = Error('test error');
 
-      const proc = go(function* () {
+      const proc = go(function*() {
         try {
           yield takeOrThrow(ch);
         } catch (ex) {
@@ -433,23 +447,23 @@ describe('Core CSP', () => {
         return 1729;
       });
 
-      go(function* () {
+      go(function*() {
         yield put(ch, err);
       });
 
-      go(function* () {
+      go(function*() {
         expect(yield take(proc)).to.equal(1729);
         expect(spy).to.be.calledOnce;
         done();
       });
     });
 
-    it('allows the process to make further yields if it catches the error', (done) => {
+    it('allows the process to make further yields if it catches the error', done => {
       const ch = chan();
       const spy = sinon.spy();
       const err = Error('test error');
 
-      const proc = go(function* () {
+      const proc = go(function*() {
         try {
           yield takeOrThrow(ch);
         } catch (ex) {
@@ -459,12 +473,12 @@ describe('Core CSP', () => {
         expect(yield take(ch)).to.equal(1729);
       });
 
-      go(function* () {
+      go(function*() {
         yield put(ch, err);
         yield put(ch, 1729);
       });
 
-      go(function* () {
+      go(function*() {
         yield take(proc);
         expect(spy).to.be.calledOnce;
         done();
@@ -473,15 +487,15 @@ describe('Core CSP', () => {
   });
 
   describe('yield without an instruction', () => {
-    it('is sent back into the process with no effect', (done) => {
+    it('is sent back into the process with no effect', done => {
       const ch = chan();
 
-      go(function* () {
+      go(function*() {
         yield 1729;
         yield put(ch, 1723);
       });
 
-      go(function* () {
+      go(function*() {
         expect(yield take(ch)).to.equal(1723);
         done();
       });
