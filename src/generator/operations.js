@@ -22,7 +22,7 @@
 /**
  * Core operations for channels working with processes, and functions for the creation of those processes themselves.
  *
- * @module cispy/core/operations
+ * @module cispy/generator/operations
  * @private
  */
 
@@ -132,7 +132,7 @@ function put(channel, value) {
  *
  * When `alts` is completed and its process unblocks, its `yield` expression evaluates to an object of two properties.
  * The `value` property becomes exactly what would have been returned by the equivalent `yield put` or `yield take`
- * operation: a Boolean in the case of a put, or the taken value in the case of a take. The `channel` property is set
+ * operation: a boolean in the case of a put, or the taken value in the case of a take. The `channel` property is set
  * to the channel where the operation actually took place. This will be equivalent to the channel in the `operations`
  * array which completed first, allowing the process to unblock.
  *

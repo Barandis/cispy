@@ -19,38 +19,93 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// operations.js
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Operators that can be used on channels. These include out-of-process puts and takes as well as promise-returning
-// operations. It does NOT include the operations that must happen within a process, as those are tied tightly to the
-// process itself (they return special values that the process can read but are meaningless elsewhere). Those operations
-// are in process.js.
+/**
+ * Core operations for channels working with async functions.
+ *
+ * @module cispy/promise/operations
+ * @private
+ */
 
 const { chan } = require('../core/channel');
 const { putAsync, takeAsync, altsAsync } = require('../core/operations');
 
-// Puts the value onto the specified channel. A promise is returned which will resolve to `true` once a taker is
-// available to take the put value or `false` if the channel closes before such a taker becomes available. If there are
-// multiple puts (or put operations from `alts`) queued on the channel and waiting, they will be processed in order as
-// take requests happen.
+/**
+ * **Puts a value onto a channel, blocking the process until that value is taken from the channel by a different
+ * process (or until the channel closes).**
+ *
+ * A value is always put onto the channel, but if that value isn't specified by the second parameter, it is
+ * `undefined`. Any value may be put on a channel, with the sole exception of the special value
+ * `{@link module:cispy~Cispy.CLOSED|CLOSED}`.
+ *
+ * This function *must* be called from within an `async` function and as part of an `await` expression.
+ *
+ * When `put` is completed and its process unblocks, its `await` expression evaluates to a status boolean that
+ * indicates what caused the process to unblock. That value is `true` if the put value was successfully taken by
+ * another process, or `false` if the unblocking happened because the target channel closed.
+ *
+ * @memberOf module:cispy/promise~CispyPromise
+ * @param {module:cispy/core/channel~Channel} channel The channel that the process is putting a value onto.
+ * @param {*} [value] The value being put onto the channel.
+ * @return {Promise} A promise that will resolve to `true` or `false` depending on whether the put value is actually
+ *     taken.
+ */
 function put(channel, value) {
   return new Promise(resolve => {
     putAsync(channel, value, resolve);
   });
 }
 
-// Takes a value from a channel. This returns a promise that resolves as soon as another process puts a value onto the
-// channel to be taken, or when the channel closes. The promise resolves to the value that was put, or to `CLOSED` if
-// the channel is/was closed.
+/**
+ * **Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the
+ * channel closes with no more values on it to be taken).**
+ *
+ * This function *must* be called from within an `async` function and as part of an `await` expression.
+ *
+ * When `take` is completed and its process unblocks, its `await` expression evaluates to the actual value that was
+ * taken. If the target channel closed, then all of the values already placed onto it are resolved by `take` as
+ * normal, and once no more values are available, the special value `{@link module:cispy~Cispy.CLOSED|CLOSED}` is
+ * returned.
+ *
+ * @memberOf module:cispy/promise~CispyPromise
+ * @param {module:cispy/core/channel~Channel} channel The channel that the process is taking a value from.
+ * @return {Promise} A promise that will resolve to the value taken from the channel once that take is completed. If the
+ *     channel closes without a value being made available, this will resolve to
+ *     `{@link module:cispy~Cispy.CLOSED|CLOSED}`.
+ */
 function take(channel) {
   return new Promise(resolve => {
     takeAsync(channel, resolve);
   });
 }
 
-// Takes a value from a channel. This works exactly like `take`, except that if the value that is taken from the channel
-// is an error object, the returned promise is rejected with that error.
+/**
+ * **Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the
+ * channel closes with no more values on it to be taken). If the taken value is an error object, that error is thrown
+ * at that point.**
+ *
+ * This function *must* be called from within an `async` function and as part of an `await` expression.
+ *
+ * It functions in every way like `{@link module:cispy/promise~CispyPromise.take|take}` *except* in the case that the
+ * value on the channel is an object that has `Error.prototype` in its prototype chain (any built-in error, any
+ * properly-constructed custom error). If that happens, the error is thrown, which will cause the returned promise to be
+ * rejected with the error. It can then be handled up the promise chain like any other rejected promise.
+ *
+ * `takeOrThrow` is roughly equivalent to:
+ *
+ * ```
+ * const value = await take(ch);
+ * if (Error.prototype.isPrototypeOf(value)) {
+ *   throw value;
+ * }
+ * ```
+ *
+ * @memberOf module:cispy/promise~CispyPromise
+ * @param {module:cispy/core/channel~Channel} channel The channel that the process is taking a value from.
+ * @return {Promise} A promise that will resolve to the value taken from the channel once that take is completed. If the
+ *     channel closes without a value being made available, this will resolve to
+ *     `{@link module:cispy~Cispy.CLOSED|CLOSED}`. If the taken value is an error, the promise will instead be rejected
+ *     with the error object as the reason.
+ */
 function takeOrThrow(channel) {
   return new Promise((resolve, reject) => {
     takeAsync(channel, result => {
@@ -63,40 +118,76 @@ function takeOrThrow(channel) {
   });
 }
 
-// Processes an arbitrary number of puts and takes (represented by the operations array). When the first operation
-// successfully completes, the rest are discarded.
-//
-// Each element of the operations array is one operation. If that element is a channel, then the operation is a take on
-// that channel. If the element is a two-element array, the operation is a put operation. These operations are queued
-// on their respective channels in a random order. In this case, the first element of the sub-array should be the
-// channel to put on, and the second value the value to put on that channel.
-//
-// This function returns a promise that resolves when the first operation is completed.
-//
-// Operations are processed in a random order. The first one to come back without blocking, or if they all block, the
-// first one to come unblocked, will be the operation that is run. Other operations will be discarded. The successful
-// operation will resolve the returned promise into an object. This object has two properties: `value` is the return
-// value of the operation (the same as the return value for either a put or a take), and `channel` is the channel on
-// which the operation was executed. This way the process has the ability to know which channel was used to provide the
-// value.
-//
-// This function takes an optional object that provides options to the execution. There are two legal options:
-// `priority` causes the operations to be queued in the order of the operations array, rather than randomly; `default`
-// causes its value to become the return value (with a channel of DEFAULT) if all operations block before completing.
-// In this case all of the operations are discarded.
+/**
+ * **Completes the first operation among the provided operations that comes available, blocking the process until
+ * then.**
+ *
+ * `operations` is an array whose elements must be channels or two-element sub-arrays of channels and values, in any
+ * combination. An operation that is a channel is a take operation on that channel. An operation that is a two-element
+ * array is a put operation on that channel using that value. Exactly one of these operations will complete, and it
+ * will be the first operation that unblocks.
+ *
+ * This function *must* be called from within an `async` function and as part of an `await` expression.
+ *
+ * When `alts` is completed and its process unblocks, its `await` expression evaluates to an object of two properties.
+ * The `value` property becomes exactly what would have been returned by the equivalent `await put` or `await take`
+ * operation: a boolean in the case of a put, or the taken value in the case of a take. The `channel` property is set
+ * to the channel where the operation actually took place. This will be equivalent to the channel in the `operations`
+ * array which completed first, allowing the process to unblock.
+ *
+ * If there is more than one operation already available to complete when the call to `alts` is made, the operation
+ * with the highest priority will be the one to complete. Regularly, priority is non-deterministic (i.e., it's set
+ * randomly). However, if the options object has a `priority` value set to `true`, priority will be assigned in the
+ * order of the operations in the supplied array.
+ *
+ * If all of the operations must block (i.e., there are no pending puts for take operations, or takes for put
+ * operations), a default value may be returned. This is only done if there is a `default` property in the options
+ * object, and the value of that property becomes the value returned by `yield alts`. The channel is set to the
+ * special value `{@link module:cispy~Cispy.DEFAULT|DEFAULT}`.
+ *
+ * @memberOf module:cispy~Cispy
+ * @param {Array} operations A collection of elements that correspond to take and put operations. A take operation
+ *     is signified by an element that is a channel (which is the channel to be taken from). A put operation is
+ *     specified by an element that is itself a two-element array, which has a channel followed by a value (which is
+ *     the channel and value to be put).
+ * @param {Object} [options={}] An optional object which can change the behavior of `alts` through two properties.
+ * @param {boolean} [options.priority=false] If `true`, then the priority of operations to complete when more than one
+ *     is immediately available is a priority according to position within the operations array (earlier positions
+ *     have the higher priority). If `false` or not present, the priorty of operation completion is random.
+ * @param {*} [options.default] If set and all of the operations initially block, the `alts` call completes
+ *     immediately with the value of this option (the channel will be `{@link module:cispy~Cispy.DEFAULT|DEFAULT})`. If
+ *     not set, the `alts` call will block until one of the operations completes and that value and channel will be the
+ *     ones returned.
+ * @return {Promise} A promise that will resolve to an object of two properties: `value` will contain the value that
+ *     would have been returned by the corresponding `{@link module:cispy/promise~CispyPromise.put|put}` or
+ *     `{@link module:cispy/promise~CispyPromise.take|take}` operation; and `channel` will be a reference to the channel
+ *     that completed the operation to allow `alts` to unblock.
+ */
 function alts(ops, options = {}) {
   return new Promise(resolve => {
     altsAsync(ops, resolve, options);
   });
 }
 
-// Returns a promise that resolves after a certain amount of time has passed. This is done by creating a local channel
-// that isn't exposed to the outside and setting it to close after the required delay. The process then resolves because
-// the channel closes. Since the channel is private, there's no way to prematurely resolve the promise.
-//
-// If no delay is passed, or if that delay is 0, then a new channel won't be created. Instead, the promise will simply
-// resolve. This allows an async function to relinquish its control and cause itself to be immediately queued back up to
-// be run after all of the other waiting functions (and the event loop) have a chance to run.
+/**
+ * **Blocks the process for the specified time (in milliseconds) and then unblocks it.**
+ *
+ * This implements a delay, but one that's superior to other kinds of delays (`setTimeout`, etc.) because it blocks
+ * the process and allows the dispatcher to allow other processes to run while this one waits. If the delay is set to
+ * `0` or is missing altogether, the process will relinquish control to the next process in the queue and immediately
+ * reschedule itself to be continued, rather than blocking.
+ *
+ * This function *must* be called from within an `async` function and as part of an `await` expression.
+ *
+ * When this function completes and its process unblocks, the `await` expression doesn't take on any meaningful value.
+ * The purpose of this function is simply to delay, not to communicate any data.
+ *
+ * @memberOf module:cispy/promise~CispyPromise
+ * @param {number} [delay=0] the number of milliseconds that the process will block for. At the end of that time, the
+ *     process is again eligible to be run by the dispatcher again. If this is missing or set to `0`, the process
+ *     will cede execution to the next one but immediately requeue itself to be run again.
+ * @return {Promise} A promise that resolves with no meaningful result when the time has elapsed.
+ */
 function sleep(delay = 0) {
   return new Promise(resolve => {
     if (delay === 0) {

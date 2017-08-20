@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>DroppingBuffer - Documentation</title>
+    <title>cispy/promise - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">DroppingBuffer</h1>
+    <h1 class="page-title">cispy/promise</h1>
     
 
     
@@ -39,11 +39,8 @@
 
 <header>
     
-        <h2>
-            <span class="ancestors"><a href="module-cispy_core_buffers.html">cispy/core/buffers</a>~</span>
         
-        DroppingBuffer
-        </h2>
+            
         
     
 </header>
@@ -52,13 +49,31 @@
     <div class="container-overview">
     
         
+            <div class="description"><p>All of the external, promise-based CSP functions are gathered here and exported as a whole. This includes core CSP
+functions for channels, but it also includes buffers, special values, and utility functions.</p>
+<p>Most of the promise-based implementation is shared with the generator-based implementation. The only things that
+are different are:</p>
+<ul>
+<li>There is no <code>go</code>, <code>goSafe</code>, or <code>spawn</code> since there is no need to create processes (async functions are used
+instead)</li>
+<li>Channel operations return promises rather than internal control objects, meaning they can be used in <code>await</code>
+expressions instead of <code>yield</code> expressions (the <code>xAsync</code> versions of each operation remain the same)</li>
+<li>The utility functions use the promise-based implementation.</li>
+</ul></div>
+        
+
+        
+            
+
+
+
 
 <dl class="details">
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line335">line 335</a>
+        <a href="promise.js.html">promise.js</a>, <a href="promise.js.html#line22">line 22</a>
     </li></ul></dd>
     
 
@@ -96,27 +111,34 @@
 
 
 
-        
-            <div class="description"><p>A buffer implementation that drops newly added items when the buffer is full.</p>
-<p>This dropping behavior is silent: the new item is simply not added to the queue. Note taht this buffer is never
-<code>full</code> because it can always be added to wiehtout exceeding the size, even if that 'adding' doesn't result in a new
-item actually appearing in the buffer.</p></div>
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         
     
     </div>
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="module-cispy_core_buffers-Buffer.html">module:cispy/core/buffers~Buffer</a></li>
-    </ul>
-
 
     
 
@@ -127,237 +149,16 @@ item actually appearing in the buffer.</p></div>
      
 
     
+        <h3 class="subsection-title">Namespaces</h3>
 
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="full"><span class="type-signature">(readonly) </span>full<span class="type-signature"> :number</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line348">line 348</a>
-    </li></ul></dd>
+        <dl>
+            <dt><a href="module-cispy_promise-CispyPromise.html">CispyPromise</a></dt>
+            <dd></dd>
+        </dl>
     
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>Whether or not the buffer is full. As a <a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a> is
-never considered full, this will always return <code>false</code>.</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="add"><span class="type-signature"></span>add<span class="signature">(&hellip;items)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line364">line 364</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>Adds one or more items to the buffer. If the buffer has already reached its capacity, then the item is silently
-dropped instead.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>items</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                    &lt;repeatable><br>
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>the items added to the buffer.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
     
 
     
