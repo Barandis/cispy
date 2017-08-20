@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Buffer - Documentation</title>
+    <title>cispy/promise/util - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Buffer</h1>
+    <h1 class="page-title">cispy/promise/util</h1>
     
 
     
@@ -39,11 +39,8 @@
 
 <header>
     
-        <h2>
-            <span class="ancestors"><a href="module-cispy_core_buffers.html">cispy/core/buffers</a>~</span>
         
-        Buffer
-        </h2>
+            
         
     
 </header>
@@ -52,13 +49,24 @@
     <div class="container-overview">
     
         
+            <div class="description"><p>A series of functions meant to operate on the channels that the rest of this library creates and manages.</p>
+<p>All of the functions that are here cannot be done with transducers because of the limitations on transducers
+themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
+(You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)</p></div>
+        
+
+        
+            
+
+
+
 
 <dl class="details">
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line179">line 179</a>
+        <a href="promise_util_index.js.html">promise/util/index.js</a>, <a href="promise_util_index.js.html#line22">line 22</a>
     </li></ul></dd>
     
 
@@ -96,12 +104,30 @@
 
 
 
-        
-            <div class="description"><p>The base for buffer classes, containing the common functionality between all of them. The only properties that
-actually vary between buffer types are <code>full</code> (whether or not the buffer is full) and <code>add</code> (because different
-buffers have different behavior when something is added to a full buffer).</p>
-<p>These buffers are each backed by a Queue.</p></div>
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         
     
@@ -116,14 +142,29 @@ buffers have different behavior when something is added to a full buffer).</p>
      
 
     
+        <h3 class="subsection-title">Namespaces</h3>
+
+        <dl>
+            <dt><a href="module-cispy_promise_util-CispyPromiseUtil.html">CispyPromiseUtil</a></dt>
+            <dd></dd>
+        </dl>
+    
 
     
-        <h3 class="subsection-title">Members</h3>
+
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
 
         
-            
-<h4 class="name" id="count"><span class="type-signature">(readonly) </span>count<span class="type-signature"> :number</span></h4>
+                
 
+    
+
+    <h4 class="name" id="~mapper"><span class="type-signature"></span>mapper<span class="signature">(&hellip;inputs)</span><span class="type-signature"> &rarr; {*}</span></h4>
+
+    
 
 
 
@@ -133,7 +174,7 @@ buffers have different behavior when something is added to a full buffer).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line229">line 229</a>
+        <a href="promise_util_index.js.html">promise/util/index.js</a>, <a href="promise_util_index.js.html#line64">line 64</a>
     </li></ul></dd>
     
 
@@ -173,238 +214,7 @@ buffers have different behavior when something is added to a full buffer).</p>
 
 
 <div class="description">
-    <p>The number of items currently being stored by the buffer.</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="queue"><span class="type-signature">(readonly) </span>queue<span class="type-signature"> :<a href="module-cispy_core_buffers-Queue.html">module:cispy/core/buffers~Queue</a></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line200">line 200</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>The queue that backs this buffer.</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="module-cispy_core_buffers-Queue.html">module:cispy/core/buffers~Queue</a></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="size"><span class="type-signature">(readonly) </span>size<span class="type-signature"> :number</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line213">line 213</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>The size of the buffer.</p>
-<p>This is <em>not</em> the number of elements in the buffer; it is the number of items that can be stored without the
-buffer overflowing. It is static and is set at creation time.</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="remove"><span class="type-signature"></span>remove<span class="signature">()</span><span class="type-signature"> &rarr; {*}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line242">line 242</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>Removes and returns the oldest item in the buffer.</p>
+    <p>A function that takes a number of values and transforms them into a different value.</p>
 </div>
 
 
@@ -415,6 +225,67 @@ buffer overflowing. It is static and is set at creation time.</p>
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>inputs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The input values.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -433,7 +304,7 @@ buffer overflowing. It is static and is set at creation time.</p>
 
         
 <div class="param-desc">
-    <p>The oldest item in the buffer.</p>
+    <p>The output value, calculated based on the input values.</p>
 </div>
 
 
@@ -453,9 +324,342 @@ buffer overflowing. It is static and is set at creation time.</p>
     
 
 
-        
+            
+                
+
     
 
+    <h4 class="name" id="~predicate"><span class="type-signature"></span>predicate<span class="signature">(value)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="promise_util_index.js.html">promise/util/index.js</a>, <a href="promise_util_index.js.html#line55">line 55</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>A function that tests a single input argument, returning <code>true</code> or <code>false</code> according to whether the argument passed
+the test.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The value to test.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Whether or not the value passed the test.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+            
+                
+
+    
+
+    <h4 class="name" id="~reducer"><span class="type-signature"></span>reducer<span class="signature">(acc, value)</span><span class="type-signature"> &rarr; {*}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="promise_util_index.js.html">promise/util/index.js</a>, <a href="promise_util_index.js.html#line45">line 45</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>A function used to reduce a collection of values into a single value via a reducer function.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>acc</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The accumulated value from the prior reduction step. If this is the first reduction step, this will
+    be set to some initial value (either an explicit value or the first value of the collection).</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The next value of the collection.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The result of reducing the next value into the current accumulated value.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+            
     
 
     

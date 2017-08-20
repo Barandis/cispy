@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>promise.js - Documentation</title>
+    <title>promise/util/index.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">promise.js</h1>
+    <h1 class="page-title">promise/util/index.js</h1>
     
 
     
@@ -59,88 +59,60 @@
  */
 
 /**
- * All of the external, promise-based CSP functions are gathered here and exported as a whole. This includes core CSP
- * functions for channels, but it also includes buffers, special values, and utility functions.
+ * A series of functions meant to operate on the channels that the rest of this library creates and manages.
  *
- * Most of the promise-based implementation is shared with the generator-based implementation. The only things that
- * are different are:
+ * All of the functions that are here cannot be done with transducers because of the limitations on transducers
+ * themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
+ * (You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)
  *
- * - There is no `go`, `goSafe`, or `spawn` since there is no need to create processes (async functions are used
- *   instead)
- * - Channel operations return promises rather than internal control objects, meaning they can be used in `await`
- *   expressions instead of `yield` expressions (the `xAsync` versions of each operation remain the same)
- * - The utility functions use the promise-based implementation.
- *
- * @module cispy/promise
+ * @module cispy/promise/util
  */
-
-const { fixed, sliding, dropping, EMPTY } = require('./core/buffers');
-const { chan, timeout, close, CLOSED, DEFAULT } = require('./core/channel');
-const { putAsync, takeAsync, altsAsync } = require('./core/operations');
-const { config, SET_IMMEDIATE, MESSAGE_CHANNEL, SET_TIMEOUT } = require('./core/dispatcher');
-
-const { put, take, takeOrThrow, alts, sleep } = require('./promise/operations');
-
-const util = require('./promise/util');
 
 /**
- * The core namespace under which all of the main promise-based functions reside in the API. This includes **only** the
- * blocking channel functions and utility functions. All other functions included in this library are the same as the
- * ones in the generator-based library. They are listed here for convenience.
+ * A set of utility functions using generators (processes) to work with channels.
  *
- * - `{@link module:cispy~Cispy.chan|chan}`
- * - `{@link module:cispy~Cispy.timeout|timeout}`
- * - `{@link module:cispy~Cispy.close|close}`
- * - `{@link module:cispy~Cispy.putAsync|putAsync}`
- * - `{@link module:cispy~Cispy.takeAsync|takeAsync}`
- * - `{@link module:cispy~Cispy.altsAsync|altsAsync}`
- * - `{@link module:cispy~Cispy.config|config}`
- * - `{@link module:cispy~Cispy.fixedBuffer|fixedBuffer}`
- * - `{@link module:cispy~Cispy.slidingBuffer|slidingBuffer}`
- * - `{@link module:cispy~Cispy.droppingBuffer|droppingBuffer}`
- * - `{@link module:cispy~Cispy.CLOSED|CLOSED}`
- * - `{@link module:cispy~Cispy.DEFAULT|DEFAULT}`
- * - `{@link module:cispy~Cispy.EMPTY|EMPTY}`
- * - `{@link module:cispy~Cispy.SET_IMMEDIATE|SET_IMMEDIATE}`
- * - `{@link module:cispy~Cispy.MESSAGE_CHANNEL|MESSAGE_CHANNEL}`
- * - `{@link module:cispy~Cispy.SET_TIMEOUT|SET_TIMEOUT}`
+ * These are all accessed through the `cispy.util` namespace; e.g.,
+ * `{@link module:cispy/util~CispyUtil.reduce|reduce}` can be called like this:
  *
- * @namespace CispyPromise
+ * ```
+ * const output = cispy.util.reduce((acc, value) => acc + value, ch, 0);
+ * ```
+ *
+ * @namespace CispyPromiseUtil
  */
 
-module.exports = {
-  put,
-  take,
-  takeOrThrow,
-  alts,
-  sleep,
-  chan,
-  timeout,
-  close,
-  putAsync,
-  takeAsync,
-  altsAsync,
-  config,
-  fixedBuffer: fixed,
-  slidingBuffer: sliding,
-  droppingBuffer: dropping,
-  CLOSED,
-  DEFAULT,
-  EMPTY,
-  SET_IMMEDIATE,
-  MESSAGE_CHANNEL,
-  SET_TIMEOUT,
+/**
+ * A function used to reduce a collection of values into a single value via a reducer function.
+ *
+ * @callback reducer
+ * @param {*} acc The accumulated value from the prior reduction step. If this is the first reduction step, this will
+ *     be set to some initial value (either an explicit value or the first value of the collection).
+ * @param {*} value The next value of the collection.
+ * @return {*} The result of reducing the next value into the current accumulated value.
+ */
 
-  /**
-   * **A set of utility functions for working with channels.**
-   *
-   * This is a small 'standard library' of promise-based operations that are useful when working with channels.
-   *
-   * @type {module:cispy/promise/util~CispyPromiseUtil}
-   * @memberOf module:cispy/promise~CispyPromise
-   */
-  util
-};
+/**
+ * A function that tests a single input argument, returning `true` or `false` according to whether the argument passed
+ * the test.
+ *
+ * @callback predicate
+ * @param {*} value The value to test.
+ * @return {boolean} Whether or not the value passed the test.
+ */
+
+/**
+ * A function that takes a number of values and transforms them into a different value.
+ *
+ * @callback mapper
+ * @param {...*} inputs The input values.
+ * @return {*} The output value, calculated based on the input values.
+ */
+
+const conversion = require('./conversion');
+const flow = require('./flow');
+const timing = require('./timing');
+
+module.exports = Object.assign({}, conversion, flow, timing);
 </code></pre>
         </article>
     </section>
