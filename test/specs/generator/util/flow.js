@@ -12,17 +12,18 @@ const {
   put,
   take,
   sleep,
-  util } = require('../../../../src/cispy');
+  util
+} = require('../../../../src/cispy');
 
 const { pipe, partition, merge, split, tap, untap, untapAll, map } = util;
 
 const TAPS = '@@multitap/taps';
 
-const even = (x) => x % 2 === 0;
+const even = x => x % 2 === 0;
 const sum3 = (a, b, c) => a + b + c;
 
 function fillChannel(channel, count, cl) {
-  go(function* () {
+  go(function*() {
     for (let i = 1; i <= count; ++i) {
       yield put(channel, i);
     }
@@ -33,7 +34,7 @@ function fillChannel(channel, count, cl) {
 }
 
 function fillChannelWith(channel, array, cl) {
-  go(function* () {
+  go(function*() {
     for (const i of array) {
       yield put(channel, i);
     }
@@ -44,7 +45,7 @@ function fillChannelWith(channel, array, cl) {
 }
 
 function expectChannel(channel, expected, end, start) {
-  go(function* () {
+  go(function*() {
     if (start) {
       yield take(start);
     }
@@ -58,7 +59,7 @@ function expectChannel(channel, expected, end, start) {
 }
 
 function join(num, end, done) {
-  go(function* () {
+  go(function*() {
     for (let i = 0; i < num; ++i) {
       yield take(end);
     }
@@ -68,24 +69,26 @@ function join(num, end, done) {
 
 describe('Generator-based flow control functions', () => {
   describe('pipe', () => {
-    it('feeds all of the values from one channel to another', (done) => {
+    it('feeds all of the values from one channel to another', done => {
       const input = chan();
       const output = pipe(input, chan());
 
-      go(function* () {
+      go(function*() {
         expect(yield take(output)).to.equal(1729);
         done();
       });
 
-      go(function* () { yield put(input, 1729); });
+      go(function*() {
+        yield put(input, 1729);
+      });
     });
 
-    it('closes the output channel when the input channel closes', (done) => {
+    it('closes the output channel when the input channel closes', done => {
       const input = chan();
       const output = chan();
       pipe(input, output);
 
-      go(function* () {
+      go(function*() {
         expect(yield take(output)).to.equal(CLOSED);
         done();
       });
@@ -93,31 +96,31 @@ describe('Generator-based flow control functions', () => {
       close(input);
     });
 
-    it('keeps the output channel open with keepOpen', (done) => {
+    it('keeps the output channel open with keepOpen', done => {
       const input = chan();
       const output = chan();
       pipe(input, output, true);
 
-      go(function* () {
+      go(function*() {
         expect(yield take(output)).to.equal(1729);
         done();
       });
 
-      go(function* () {
+      go(function*() {
         close(input);
         yield sleep();
         yield put(output, 1729);
       });
     });
 
-    it('breaks the pipe when the output channel closes', (done) => {
+    it('breaks the pipe when the output channel closes', done => {
       const input = chan();
       const output = chan();
       const start = chan();
       const finished = chan();
       pipe(input, output);
 
-      go(function* () {
+      go(function*() {
         // First put piped to soon-to-be closed channel and is lost
         yield put(input, 1729);
         // Signal second process to close channel
@@ -126,7 +129,7 @@ describe('Generator-based flow control functions', () => {
         yield put(input, 1723);
       });
 
-      go(function* () {
+      go(function*() {
         yield take(start);
         // Close the output, break the pipe
         close(output);
@@ -134,7 +137,7 @@ describe('Generator-based flow control functions', () => {
         yield put(finished);
       });
 
-      go(function* () {
+      go(function*() {
         yield take(finished);
         expect(yield take(input)).to.equal(1723);
         done();
@@ -143,7 +146,7 @@ describe('Generator-based flow control functions', () => {
   });
 
   describe('partition', () => {
-    it('creates two output channels, splitting them by predicate', (done) => {
+    it('creates two output channels, splitting them by predicate', done => {
       const input = chan();
       const outputs = partition(even, input);
       const ctrl = chan();
@@ -156,13 +159,13 @@ describe('Generator-based flow control functions', () => {
       join(2, ctrl, done);
     });
 
-    it('accepts buffers to back the output channels', (done) => {
+    it('accepts buffers to back the output channels', done => {
       const input = chan();
       const outputs = partition(even, input, slidingBuffer(3), droppingBuffer(3));
       const start = chan();
       const end = chan();
 
-      go(function* () {
+      go(function*() {
         for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
           yield put(input, i);
           yield sleep();
@@ -177,22 +180,22 @@ describe('Generator-based flow control functions', () => {
       join(2, end, done);
     });
 
-    it('closes the output channels when the input is closed', (done) => {
+    it('closes the output channels when the input is closed', done => {
       const input = chan();
       const outputs = partition(even, input);
       const end = chan();
 
-      go(function* () {
+      go(function*() {
         expect(yield take(outputs[0])).to.equal(CLOSED);
         yield put(end);
       });
 
-      go(function* () {
+      go(function*() {
         expect(yield take(outputs[1])).to.equal(CLOSED);
         yield put(end);
       });
 
-      go(function* () {
+      go(function*() {
         close(input);
         yield take(end);
         yield take(end);
@@ -202,7 +205,7 @@ describe('Generator-based flow control functions', () => {
   });
 
   describe('merge', () => {
-    it('combines several input channels into one channel', (done) => {
+    it('combines several input channels into one channel', done => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs);
       const values = Array(15).fill(false);
@@ -211,17 +214,17 @@ describe('Generator-based flow control functions', () => {
       fillChannelWith(inputs[1], [5, 6, 7, 8, 9]);
       fillChannelWith(inputs[2], [10, 11, 12, 13, 14]);
 
-      go(function* () {
+      go(function*() {
         for (let i = 0; i < 15; ++i) {
           const index = yield take(output);
           values[index] = true;
         }
-        expect(values.every((x) => x)).to.be.true;
+        expect(values.every(x => x)).to.be.true;
         done();
       });
     });
 
-    it('accepts a buffer to back the output channel', (done) => {
+    it('accepts a buffer to back the output channel', done => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs, slidingBuffer(3));
 
@@ -229,7 +232,7 @@ describe('Generator-based flow control functions', () => {
       fillChannelWith(inputs[1], [5, 6, 7, 8, 9]);
       fillChannelWith(inputs[2], [10, 11, 12, 13, 14]);
 
-      go(function* () {
+      go(function*() {
         yield sleep();
         yield sleep();
         for (let i = 0; i < 3; i++) {
@@ -239,7 +242,7 @@ describe('Generator-based flow control functions', () => {
       });
     });
 
-    it('closes the output when all inputs have been closed', (done) => {
+    it('closes the output when all inputs have been closed', done => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs);
 
@@ -247,7 +250,7 @@ describe('Generator-based flow control functions', () => {
         close(ch);
       }
 
-      go(function* () {
+      go(function*() {
         expect(yield take(output)).to.equal(CLOSED);
         done();
       });
@@ -255,7 +258,7 @@ describe('Generator-based flow control functions', () => {
   });
 
   describe('split', () => {
-    it('splits the input into some number of outputs', (done) => {
+    it('splits the input into some number of outputs', done => {
       const input = chan();
       const outputs = split(input, 3);
       const ctrl = chan();
@@ -271,7 +274,7 @@ describe('Generator-based flow control functions', () => {
       join(3, ctrl, done);
     });
 
-    it('defaults to two unbuffered outputs', (done) => {
+    it('defaults to two unbuffered outputs', done => {
       const input = chan();
       const outputs = split(input);
       const ctrl = chan();
@@ -286,13 +289,13 @@ describe('Generator-based flow control functions', () => {
       join(2, ctrl, done);
     });
 
-    it('can accept a series of output buffers', (done) => {
+    it('can accept a series of output buffers', done => {
       const input = chan();
       const outputs = split(input, fixedBuffer(5), droppingBuffer(3), slidingBuffer(3));
       const start = chan();
       const end = chan();
 
-      go(function* () {
+      go(function*() {
         for (let i = 1; i <= 5; ++i) {
           yield put(input, i);
         }
@@ -308,11 +311,11 @@ describe('Generator-based flow control functions', () => {
       join(3, end, done);
     });
 
-    it('closes all outputs when the input closes', (done) => {
+    it('closes all outputs when the input closes', done => {
       const input = chan();
       const outputs = split(input, 3);
 
-      go(function* () {
+      go(function*() {
         close(input);
         yield sleep();
         yield sleep();
@@ -326,7 +329,7 @@ describe('Generator-based flow control functions', () => {
 
   context('multitap', () => {
     describe('tap', () => {
-      it('taps the input and directs values to the tapper', (done) => {
+      it('taps the input and directs values to the tapper', done => {
         const input = chan();
         const output = tap(input);
         const ctrl = chan();
@@ -338,7 +341,7 @@ describe('Generator-based flow control functions', () => {
         join(1, ctrl, done);
       });
 
-      it('can tap the input multiple times', (done) => {
+      it('can tap the input multiple times', done => {
         const input = chan();
         const outputs = [tap(input), tap(input), tap(input)];
         const ctrl = chan();
@@ -363,11 +366,11 @@ describe('Generator-based flow control functions', () => {
         expect(input[TAPS].length).to.equal(1);
       });
 
-      it('will not close tapping channels when tapped channel is closed', (done) => {
+      it('will not close tapping channels when tapped channel is closed', done => {
         const input = chan();
         const outputs = [tap(input), tap(input)];
 
-        go(function* () {
+        go(function*() {
           close(input);
           yield sleep();
           expect(outputs[0].closed).to.be.false;
@@ -378,7 +381,7 @@ describe('Generator-based flow control functions', () => {
     });
 
     describe('untap', () => {
-      it('will remove the tap of a tapping channel', (done) => {
+      it('will remove the tap of a tapping channel', done => {
         const input = chan();
         const outputs = [tap(input), tap(input), tap(input)];
         const ctrl = chan();
@@ -389,14 +392,14 @@ describe('Generator-based flow control functions', () => {
         expectChannel(outputs[0], [1, 2, 3, 4, 5], ctrl);
         expectChannel(outputs[2], [1, 2, 3, 4, 5], ctrl);
 
-        go(function* () {
+        go(function*() {
           for (let i = 1; i <= 5; ++i) {
             expect(yield take(outputs[1])).to.equal(-i);
           }
           done();
         });
 
-        go(function* () {
+        go(function*() {
           yield take(ctrl);
           yield take(ctrl);
           for (let i = 1; i <= 5; ++i) {
@@ -405,7 +408,7 @@ describe('Generator-based flow control functions', () => {
         });
       });
 
-      it('will not untap a channel that isn\'t tapping', () => {
+      it("will not untap a channel that isn't tapping", () => {
         const input = chan();
         tap(input);
         const output2 = chan();
@@ -415,7 +418,7 @@ describe('Generator-based flow control functions', () => {
         expect(input[TAPS].length).to.equal(1);
       });
 
-      it('restores normal operation to the tapped channel if the last tap is removed', (done) => {
+      it('restores normal operation to the tapped channel if the last tap is removed', done => {
         const input = chan();
         const output = tap(input);
         const ctrl = chan();
@@ -428,7 +431,7 @@ describe('Generator-based flow control functions', () => {
         expectChannel(input, [1, 2, 3, 4, 5], ctrl);
         expectChannel(output, [-1, -2, -3, -4, -5], ctrl);
 
-        go(function* () {
+        go(function*() {
           yield take(ctrl);
           yield take(ctrl);
           expect(input).not.to.have.property(TAPS);
@@ -436,7 +439,7 @@ describe('Generator-based flow control functions', () => {
         });
       });
 
-      it('will not add tap properties to input if it wasn\'t tapped already', () => {
+      it("will not add tap properties to input if it wasn't tapped already", () => {
         const input = chan();
         const output = chan();
         untap(input, output);
@@ -445,7 +448,7 @@ describe('Generator-based flow control functions', () => {
     });
 
     describe('untapAll', () => {
-      it('removes all taps from the tapped channel', (done) => {
+      it('removes all taps from the tapped channel', done => {
         const input = chan();
         const ctrl = chan();
         tap(input);
@@ -458,7 +461,7 @@ describe('Generator-based flow control functions', () => {
         join(1, ctrl, done);
       });
 
-      it('will not add tap properties to input if it wasn\'t already tapped', () => {
+      it("will not add tap properties to input if it wasn't already tapped", () => {
         const input = chan();
         untapAll(input);
         expect(input).not.to.have.property(TAPS);
@@ -467,7 +470,7 @@ describe('Generator-based flow control functions', () => {
   });
 
   describe('map', () => {
-    it('combines multiple channels into one through a mapping function', (done) => {
+    it('combines multiple channels into one through a mapping function', done => {
       const inputs = [chan(), chan(), chan()];
       const output = map(sum3, inputs);
       const ctrl = chan();
@@ -480,7 +483,7 @@ describe('Generator-based flow control functions', () => {
       join(1, ctrl, done);
     });
 
-    it('accepts a buffer to back th eoutput channel', (done) => {
+    it('accepts a buffer to back th eoutput channel', done => {
       const inputs = [chan(5), chan(5), chan(5)];
       const output = map(sum3, inputs, slidingBuffer(3));
 
@@ -488,7 +491,7 @@ describe('Generator-based flow control functions', () => {
       fillChannel(inputs[1], 5);
       fillChannel(inputs[2], 5);
 
-      go(function* () {
+      go(function*() {
         yield sleep();
         yield sleep();
         for (let i = 1; i <= 3; ++i) {
@@ -498,25 +501,25 @@ describe('Generator-based flow control functions', () => {
       });
     });
 
-    it('closes the output when the first input closes', (done) => {
+    it('closes the output when the first input closes', done => {
       const inputs = [chan(), chan(), chan()];
       const output = map(sum3, inputs);
       const ctrl = chan();
 
-      go(function* () {
+      go(function*() {
         for (let i = 1; i <= 5; ++i) {
           yield put(inputs[0], i);
         }
       });
 
-      go(function* () {
+      go(function*() {
         for (let i = 1; i <= 3; ++i) {
           yield put(inputs[1], i);
         }
         close(inputs[1]);
       });
 
-      go(function* () {
+      go(function*() {
         for (let i = 1; i <= 5; ++i) {
           yield put(inputs[2], i);
         }

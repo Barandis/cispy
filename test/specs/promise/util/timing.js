@@ -15,15 +15,7 @@
 const { expect } = require('../../../helper');
 const sinon = require('sinon');
 
-const {
-  chan,
-  fixedBuffer,
-  put,
-  take,
-  sleep,
-  close,
-  CLOSED,
-  util } = require('../../../../src/promise');
+const { chan, fixedBuffer, put, take, sleep, close, CLOSED, util } = require('../../../../src/promise');
 
 const { debounce, throttle } = util;
 
@@ -38,7 +30,7 @@ const { debounce, throttle } = util;
 // this deterministically with native promises, I'm skipping them so they don't cause problems on CI.
 describe.skip('Promise-based channel timing functions', () => {
   describe('debounce', () => {
-    it('can accept a buffer value for the output channel', (done) => {
+    it('can accept a buffer value for the output channel', done => {
       const input = chan();
       const output = debounce(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
@@ -62,7 +54,7 @@ describe.skip('Promise-based channel timing functions', () => {
       })();
     });
 
-    it('closes the output channel when the input channel closes', (done) => {
+    it('closes the output channel when the input channel closes', done => {
       const input = chan();
       const output = debounce(input, 100);
 
@@ -82,7 +74,7 @@ describe.skip('Promise-based channel timing functions', () => {
         output = debounce(input, 100);
       });
 
-      it('holds the input value until the delay expires', (done) => {
+      it('holds the input value until the delay expires', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -104,7 +96,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('restarts the delay if another value is put on the input channel', (done) => {
+      it('restarts the delay if another value is put on the input channel', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -135,10 +127,10 @@ describe.skip('Promise-based channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100, {leading: true, trailing: false});
+        output = debounce(input, 100, { leading: true, trailing: false });
       });
 
-      it('returns the input value immediately', (done) => {
+      it('returns the input value immediately', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -155,7 +147,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('will not allow another input value through until the delay expires', (done) => {
+      it('will not allow another input value through until the delay expires', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -192,10 +184,10 @@ describe.skip('Promise-based channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100, {leading: true});
+        output = debounce(input, 100, { leading: true });
       });
 
-      it('returns the input value immediately', (done) => {
+      it('returns the input value immediately', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -212,7 +204,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('does not return a single input value after the delay expires', (done) => {
+      it('does not return a single input value after the delay expires', done => {
         (async () => {
           expect(await take(output)).to.equal(1729);
           expect(await take(output)).to.equal(1723);
@@ -226,7 +218,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('does return a second input value after the delay expires', (done) => {
+      it('does return a second input value after the delay expires', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -266,10 +258,10 @@ describe.skip('Promise-based channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100, {maxDelay: 250});
+        output = debounce(input, 100, { maxDelay: 250 });
       });
 
-      it('interrupts the debounce delay after maxDelay elapses', (done) => {
+      it('interrupts the debounce delay after maxDelay elapses', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -300,7 +292,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('restarts the maxDelay if the delay is allowed to elapse', (done) => {
+      it('restarts the maxDelay if the delay is allowed to elapse', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -344,10 +336,10 @@ describe.skip('Promise-based channel timing functions', () => {
       beforeEach(() => {
         input = chan();
         cancel = chan();
-        output = debounce(input, 100, {cancel});
+        output = debounce(input, 100, { cancel });
       });
 
-      it('cancels debouncing and closes the output channel if a value is put onto the cancel channel', (done) => {
+      it('cancels debouncing and closes the output channel if a value is put onto the cancel channel', done => {
         (async () => {
           expect(await take(output)).to.equal(1729);
           expect(await take(output)).to.equal(CLOSED);
@@ -366,7 +358,7 @@ describe.skip('Promise-based channel timing functions', () => {
   });
 
   describe('throttle', () => {
-    it('can accept a buffer value for the output channel', (done) => {
+    it('can accept a buffer value for the output channel', done => {
       const input = chan();
       const output = throttle(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
@@ -387,7 +379,7 @@ describe.skip('Promise-based channel timing functions', () => {
       })();
     });
 
-    it('closes the output channel when the input channel closes', (done) => {
+    it('closes the output channel when the input channel closes', done => {
       const input = chan();
       const output = throttle(input, 100);
 
@@ -407,7 +399,7 @@ describe.skip('Promise-based channel timing functions', () => {
         output = throttle(input, 100);
       });
 
-      it('returns the first input value immediately', (done) => {
+      it('returns the first input value immediately', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -424,7 +416,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('does not return a single input value after the delay expires', (done) => {
+      it('does not return a single input value after the delay expires', done => {
         (async () => {
           expect(await take(output)).to.equal(1729);
           expect(await take(output)).to.equal(1723);
@@ -438,7 +430,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('does return a second input value after the delay expires', (done) => {
+      it('does return a second input value after the delay expires', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -466,7 +458,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('restarts the timer without waiting for a new initial input', (done) => {
+      it('restarts the timer without waiting for a new initial input', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -511,10 +503,10 @@ describe.skip('Promise-based channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = throttle(input, 100, {trailing: false});
+        output = throttle(input, 100, { trailing: false });
       });
 
-      it('returns the first value immediately', (done) => {
+      it('returns the first value immediately', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -531,7 +523,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('drops any input that is put before the delay elapses', (done) => {
+      it('drops any input that is put before the delay elapses', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -568,10 +560,10 @@ describe.skip('Promise-based channel timing functions', () => {
 
       beforeEach(() => {
         input = chan();
-        output = throttle(input, 100, {leading: false});
+        output = throttle(input, 100, { leading: false });
       });
 
-      it('returns a single value after the delay has elapsed', (done) => {
+      it('returns a single value after the delay has elapsed', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -595,7 +587,7 @@ describe.skip('Promise-based channel timing functions', () => {
         })();
       });
 
-      it('returns only the last input to happen before the delay has elapsed', (done) => {
+      it('returns only the last input to happen before the delay has elapsed', done => {
         const spy = sinon.spy();
 
         (async () => {
@@ -635,10 +627,10 @@ describe.skip('Promise-based channel timing functions', () => {
       beforeEach(() => {
         input = chan();
         cancel = chan();
-        output = throttle(input, 100, {cancel});
+        output = throttle(input, 100, { cancel });
       });
 
-      it('cancels throttling and closes the output channel if a value is placed onto the cancel channel', (done) => {
+      it('cancels throttling and closes the output channel if a value is placed onto the cancel channel', done => {
         (async () => {
           expect(await take(output)).to.equal(1729);
           expect(await take(output)).to.equal(CLOSED);
