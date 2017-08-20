@@ -107,29 +107,6 @@ module.exports = {
   putAsync,
   takeAsync,
   altsAsync,
-
-  /**
-   * **Sets one of the dispatcher configuration options.**
-   *
-   * This is advanced setting for the dispatcher that is responsible for queueing up channel operations and processes.
-   * It is likely that this function will never need to be called in normal operation.
-   *
-   * If any recognized options are specified in the options object passed to `config`, then the option is set to the
-   * value sent in. Properties that aren't any of these four options are ignored, and any of these options that do not
-   * appear in the passed object are left with their current values.
-   *
-   * @function config
-   * @param {Object} opts A mapping of options to their new values. Extra values (properties that are not options) are
-   *     ignored.
-   * @param {number} [opts.taskBatchSize] The maximum number of tasks that the dispatcher will run in a single batch
-   *     (by default, this is 1024). If the number of pending tasks exceeds this, the remaining are not discarded.
-   *     They're simply run as part of another batch after the current batch completes.
-   * @param {Symbol} [opts.dispatchMethod] The method used to dispatch a process into a separate line of execution.
-   *     Possible values are `{@link module:cispy~SET_IMMEDIATE|SET_IMMEDIATE}`,
-   *     `{@link module:cispy~MESSAGE_CHANNEL|MESSAGE_CHANNEL}`, or `{@link module:cispy:SET_TIMEOUT|SET_TIMEOUT}`, with
-   *     the default being `{@link module:cispy~SET_IMMEDIATE|SET_IMMEDIATE}`. If a method is set but is not available
-   *     in that environment, then it will silently fall back to the next method that is available.
-   */
   config,
 
   /**
@@ -222,37 +199,7 @@ module.exports = {
    * @type {module:cispy/util~GeneratorUtils}
    */
   util,
-
-  /**
-   * **The dispatch method option indicating that `setImmediate` should be used to dispatch tasks.**
-   *
-   * This is the default option. For environments that don't support `setImmediate`, this falls back to
-   * `{@link moduls:cispy~MESSAGE_CHANNEL|MESSAGE_CHANNEL}`.
-   *
-   * @type {Symbol}
-   * @see {@link module:cispy~config|config}
-   */
   SET_IMMEDIATE,
-
-  /**
-   * **The dispatch method option indicating that a `MessageChannel` should be used to dispatch tasks.**
-   *
-   * For environments that don't support `MessageChannel`s, this falls back to
-   * `{@link moduls:cispy~SET_TIMEOUT|SET_TIMEOUT}`.
-   *
-   * @type {Symbol}
-   * @see  {@link module:cispy~config|config}
-   */
   MESSAGE_CHANNEL,
-
-  /**
-   * **The dispatch method option indicating that `setTimeout` should be used to dispatch tasks.**
-   *
-   * This method is always available, but it's also always less efficient than any other method, so it should be used
-   * as a last resort.
-   *
-   * @type {Symbol}
-   * @see  {@link module:cispy~config|config}
-   */
   SET_TIMEOUT
 };

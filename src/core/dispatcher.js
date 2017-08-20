@@ -54,27 +54,40 @@ const queue = buffers.queue();
 const EMPTY = buffers.EMPTY;
 
 /**
- * Indicates that `setImmediate` should be used to dispatch tasks, if available. If it's not available, then
- * `MessageChannel` will be tried, and if that's not available then `setTimeout` will be used.
- * @type {number}
- * @private
+ * **The dispatch method option indicating that `setImmediate` should be used to dispatch tasks.**
+ *
+ * This is the default option. For environments that don't support `setImmediate`, this falls back to
+ * `{@link moduls:cispy~Cispy.MESSAGE_CHANNEL|MESSAGE_CHANNEL}`.
+ *
+ * @memberOf module:cispy~Cispy
+ * @type {Symbol}
+ * @see {@link module:cispy~Cispy.config|config}
  */
-const SET_IMMEDIATE = 0;
+const SET_IMMEDIATE = Symbol('SET_IMMEDIATE');
 
 /**
- * Indicates that `MessageChannel` should be used to dispatch tasks, if available. If it's not available, then
- * `setTimeout` will be used.
- * @type {number}
- * @private
+ * **The dispatch method option indicating that a `MessageChannel` should be used to dispatch tasks.**
+ *
+ * For environments that don't support `MessageChannel`s, this falls back to
+ * `{@link module:cispy~Cispy.SET_TIMEOUT|SET_TIMEOUT}`.
+ *
+ * @memberOf module:cispy~Cispy
+ * @type {Symbol}
+ * @see  {@link module:cispy~Cispy.config|config}
  */
-const MESSAGE_CHANNEL = 1;
+const MESSAGE_CHANNEL = Symbol('MESSAGE_CHANNEL');
 
 /**
- * Indicates that `setTimeout` should be used to dispatch tasks.
- * @type {number}
- * @private
+ * **The dispatch method option indicating that `setTimeout` should be used to dispatch tasks.**
+ *
+ * This method is always available, but it's also always less efficient than any other method, so it should be used
+ * as a last resort.
+ *
+ * @memberOf module:cispy~Cispy
+ * @type {Symbol}
+ * @see  {@link module:cispy~Cispy.config|config}
  */
-const SET_TIMEOUT = 2;
+const SET_TIMEOUT = Symbol('SET_TIMEOUT');
 
 const options = {
   batchSize: 1024,
@@ -84,16 +97,27 @@ const options = {
 let dispatcher = createDispatcher();
 
 /**
- * Sets the values of one or more configurable options. This function takes an object for a parameter, and if any of
- * that object's property's names match one of those of the options object, its value becomes the new value of that
- * option. Properties that don't exist as options are ignored, and options that are not present in the parameter are
- * left unchanged.
+ * **Sets one of the dispatcher configuration options.**
  *
- * @param {number} opts.batchSize The number of dispatched tasks that are run in a single batch before giving up the
- *     process queue to other processes.
- * @param {number} opts.dispatchMethod One of {@link SET_IMMEDIATE}, {@link MESSAGE_CHANNEL}, or {@link SET_TIMEOUT},
- *     used to indicate how tasks should be dispatched.
- * @private
+ * This is advanced setting for the dispatcher that is responsible for queueing up channel operations and processes.
+ * It is likely that this function will never need to be called in normal operation.
+ *
+ * If any recognized options are specified in the options object passed to `config`, then the option is set to the
+ * value sent in. Properties that aren't any of these four options are ignored, and any of these options that do not
+ * appear in the passed object are left with their current values.
+ *
+ * @memberOf module:cispy~Cispy
+ * @param {Object} opts A mapping of options to their new values. Extra values (properties that are not options) are
+ *     ignored.
+ * @param {number} [opts.taskBatchSize] The maximum number of tasks that the dispatcher will run in a single batch
+ *     (by default, this is 1024). If the number of pending tasks exceeds this, the remaining are not discarded.
+ *     They're simply run as part of another batch after the current batch completes.
+ * @param {Symbol} [opts.dispatchMethod] The method used to dispatch a process into a separate line of execution.
+ *     Possible values are `{@link module:cispy~Cispy.SET_IMMEDIATE|SET_IMMEDIATE}`,
+ *     `{@link module:cispy~Cispy.MESSAGE_CHANNEL|MESSAGE_CHANNEL}`, or
+ *     `{@link module:cispy~Cispy.SET_TIMEOUT|SET_TIMEOUT}`, with
+ *     the default being `{@link module:cispy~Cispy.SET_IMMEDIATE|SET_IMMEDIATE}`. If a method is set but is not
+ *     available in that environment, then it will silently fall back to the next method that is available.
  */
 function config(opts) {
   for (const key in options) {
@@ -115,7 +139,7 @@ let queued = false;
  * methods should be used. This is what provides fallback; e.g., {@link SET_IMMEDIATE} being specified but `setTimeout`
  * being used if `setImmediate` isn't available in the environment.
  *
- * @return {number} One of {@link SET_IMMEDIATE}, {@link MESSAGE_CHANNEL}, or {@link SET_TIMEOUT}, which should be used
+ * @return {Symbol} One of {@link SET_IMMEDIATE}, {@link MESSAGE_CHANNEL}, or {@link SET_TIMEOUT}, which should be used
  *     as the ultimate dispatch method based on environment.
  * @private
  */
@@ -196,10 +220,6 @@ function setDispatcher() {
   dispatcher = createDispatcher();
 }
 
-// Processes a batch of tasks one at a time. The reason for limiting this function to a batch size is because we need
-// to give up control to the system's process queue occasionally, or else the system event loop would never run. We
-// limit ourselves to running a batch at a time, and if there are still more tasks remaining, we put another call onto
-// the system process queue to be run after the event loop cycles once more.
 /**
  * Processes a batch of tasks one at a time. The reason for limiting this function to a batch size is because we need
  * to give up control to the system's process queue occasionally, or else the system event loop would never run. We
