@@ -111,31 +111,12 @@ module.exports = {
   fixedBuffer: fixed,
   slidingBuffer: sliding,
   droppingBuffer: dropping,
-
-  /**
-   * **The value returned from a take on a channel when that channel is closed and has no more values available.**
-   *
-   * This is a special value that is returned under a certain circumstance, namely when a take is performed on a closed
-   * channel. Because of that, it cannot be returned from a take on an open channel. For that reason, `CLOSED` is the
-   * only value that cannot be put onto a channel - it would be impossible to distinguish between a legitimate value of
-   * `CLOSED` and an actual closed channel.
-   *
-   * @type {Symbol}
-   */
   CLOSED,
-
-  /**
-   * **The name of the channel returned from `yield {@link module:cispy~alts|alts}` and
-   * `{@link module:cispy~altsAsync|altsAsync}` when the default is returned as its value.**
-   *
-   * This only happens when a `yield {@link module:cispy~alts|alts}` or `{@link module:cispy~altsAsync|altsAsync}` is
-   * performed, all operations are initially blocking, and a `default` option is sent. The immediate response in that
-   * situation is `{ value: options.default, channel: DEFAULT }`.
-   *
-   * @type {Symbol}
-   */
   DEFAULT,
   EMPTY,
+  SET_IMMEDIATE,
+  MESSAGE_CHANNEL,
+  SET_TIMEOUT,
 
   /**
    * **A set of utility functions for working with channels.**
@@ -143,9 +124,7 @@ module.exports = {
    * This is a small 'standard library' of operations that are useful when working with channels.
    *
    * @type {module:cispy/util~GeneratorUtils}
+   * @memberOf module:cispy~Cispy
    */
-  util,
-  SET_IMMEDIATE,
-  MESSAGE_CHANNEL,
-  SET_TIMEOUT
+  util
 };

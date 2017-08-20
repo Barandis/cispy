@@ -79,23 +79,28 @@ const MAX_QUEUED = 1024;
 const BOX = Symbol();
 
 /**
- * A unique value that is returned when an attempt is made to take from a closed channel. This is the only value that is
- * not legal to put *onto* a channel, as taking this value is read as the same as there being no value on a closed
- * channel.
-
+ * **The value returned from a take on a channel when that channel is closed and has no more values available.**
+ *
+ * This is a special value that is returned under a certain circumstance, namely when a take is performed on a closed
+ * channel. Because of that, it cannot be returned from a take on an open channel. For that reason, `CLOSED` is the
+ * only value that cannot be put onto a channel - it would be impossible to distinguish between a legitimate value of
+ * `CLOSED` and an actual closed channel.
+ *
  * @type {Symbol}
- * @private
+ * @memberOf module:cispy~Cispy
  */
 const CLOSED = Symbol('CLOSED');
 
-//
 /**
- * Used to represent the default channel in an alts call where a default is provided. If that default is returned, the
- * default value is returned as the value of the `value` property while this is returned as the value of the `channel`
- * property.
+ * **The name of the channel returned from `yield {@link module:cispy~Cispy.alts|alts}` (generator),
+ * yield {@link module:cispy/promise~CispyPromise.alts|alts}` (promise), and
+ * `{@link module:cispy~Cispy.altsAsync|altsAsync}` when the default is returned as its value.**
+ *
+ * This only happens when aa alts call is performed, all operations are initially blocking, and a `default` option is
+ * sent. The immediate response in that situation is `{ value: options.default, channel: DEFAULT }`.
  *
  * @type {Symbol}
- * @private
+ * @memberOf module:cispy~Cispy
  */
 const DEFAULT = Symbol('DEFAULT');
 
