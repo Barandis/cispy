@@ -45,11 +45,28 @@
 /**
  * A function used to reduce a collection of values into a single value via a reducer function.
  *
- * @callback reducerFunction
+ * @callback reducer
  * @param {*} acc The accumulated value from the prior reduction step. If this is the first reduction step, this will
  *     be set to some initial value (either an explicit value or the first value of the collection).
  * @param {*} value The next value of the collection.
  * @return {*} The result of reducing the next value into the current accumulated value.
+ */
+
+/**
+ * A function that tests a single input argument, returning `true` or `false` according to whether the argument passed
+ * the test.
+ *
+ * @callback predicate
+ * @param {*} value The value to test.
+ * @return {boolean} Whether or not the value passed the test.
+ */
+
+/**
+ * A function that takes a number of values and transforms them into a different value.
+ *
+ * @callback mapper
+ * @param {...*} inputs The input values.
+ * @return {*} The output value, calculated based on the input values.
  */
 
 const conversion = require('./conversion');

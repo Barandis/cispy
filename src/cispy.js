@@ -123,7 +123,7 @@ module.exports = {
    *
    * This is a small 'standard library' of operations that are useful when working with channels.
    *
-   * @type {module:cispy/util~GeneratorUtils}
+   * @type {module:cispy/util~CispyUtil}
    * @memberOf module:cispy~Cispy
    */
   util

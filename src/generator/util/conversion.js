@@ -19,16 +19,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// conversion.js
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// A series of functions meant to operate on the channels that the rest of this library creates and manages.
-//
-// All of the functions that are here cannot be done with transducers because of the limitations on transducers
-// themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
-// (You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)
-//
-// These functions convert channels into other kinds of data, or vice versa.
 /**
  * A set of channel utilities for converting channels into other kinds of data, and vice versa.
  *
@@ -40,13 +30,14 @@ const { chan, close, CLOSED } = require('../../core/channel');
 const { go, put, take } = require('../operations');
 
 /**
- * Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
- * the reduction function can also be supplied. The single value that comes out of this reduction (which cannot
- * complete until the input channel is closed) is put into a channel that is returned. This returned channel will close
- * automatically after the value is taken from it.
+ * **Creates a single value from a channel by running its values through a reducing function.**
  *
- * This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
- * can result in a single scalar value.
+ * For every value put onto the input channel, the reducing function is called with two parameters: the accumulator that
+ * holds the result of the reduction so far, and the new input value. The initial value of the accumulator is the third
+ * parameter to `reduce`. The reduction is not complete until the input channel closes.
+ *
+ * This function returns a channel. When the final reduced value is produced, it is put onto this channel, and when that
+ * value is taken from it, the channel is closed.
  *
  * ```
  * const {chan, go, put, take, close, util} = cispy;
@@ -73,8 +64,8 @@ const { go, put, take } = require('../operations');
  * closing of the channel is what signifies that the reduction should be completed.
  *
  * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/util~reducerFunction} fn The reducer function responsible for turning the series of channel
- *     values into a single output value.
+ * @param {module:cispy/util~reducer} fn The reducer function responsible for turning the series of channel values into
+ *     a single output value.
  * @param {module:cispy/core/channel~Channel} ch The channel whose values are being reduced into a single output value.
  * @param {*} init The initial value to feed into the reducer function for the first reduction step.
  * @return {module:cispy/core/channel~Channel} A channel that will, when the input channel closes, have the reduced
@@ -94,9 +85,12 @@ function reduce(fn, ch, init) {
 }
 
 /**
- * Puts all of the values in the input array onto the supplied channel. If no channel is supplied (if only an array is
- * passed), then a new buffered channel of the same length of the array is created. Either way, the channel is returned
- * and will close when the last array value has been taken.
+ * **Puts all values from an array onto the supplied channel.**
+ *
+ * If no channel is passed to this function, a new channel is created. In effect, this directly converts an array into a
+ * channel with the same values on it.
+ *
+ * The channel is closed after the final array value is put onto it.
  *
  * ```
  * const {chan, go, take, util} = cispy;
@@ -134,9 +128,13 @@ function onto(ch, array) {
 }
 
 /**
- * Moves all of the values on a channel into the supplied array. If no array is supplied (if the only parameter passed
- * is a channel), then a new and empty array is created to contain the values. A channel is returned; the resulting
- * channel will hold the resulting array and will close immediately upon that array being taken from it.
+ * **Takes all of the values from a channel and pushes them into an array.**
+ *
+ * If no array is passed to this function, a new (empty) one is created. In effect, this directly converts a channel
+ * into an array with the same values. Either way, this operation cannot complete until the input channel is closed.
+ *
+ * This function returns a channel. When the final array is produced, it is put onto this channel, and when that value
+ * is taken from it, the channel is closed.
  *
  * ```
  * const {chan, go, put, take, close, util} = cispy;
