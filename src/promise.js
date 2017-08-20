@@ -26,8 +26,9 @@
  * Most of the promise-based implementation is shared with the generator-based implementation. The only things that
  * are different are:
  *
- * - There is no `go`, `goSafe`, or `spawn` since there is no need to create processes (async functions are used
- *   instead)
+ * - There is a `go`, but it's purely a convenience function. Since async functions are controlled by the JS engine,
+ *   there's no need for this library to control them the way it does processes. There is no need for `spawn` and for
+ *   `goSafe` (errors are handled just as they are in any other promise chain), however.
  * - Channel operations return promises rather than internal control objects, meaning they can be used in `await`
  *   expressions instead of `yield` expressions (the `xAsync` versions of each operation remain the same)
  * - The utility functions use the promise-based implementation.
@@ -40,7 +41,7 @@ const { chan, timeout, close, CLOSED, DEFAULT } = require('./core/channel');
 const { putAsync, takeAsync, altsAsync } = require('./core/operations');
 const { config, SET_IMMEDIATE, MESSAGE_CHANNEL, SET_TIMEOUT } = require('./core/dispatcher');
 
-const { put, take, takeOrThrow, alts, sleep } = require('./promise/operations');
+const { put, take, takeOrThrow, alts, sleep, go } = require('./promise/operations');
 
 const util = require('./promise/util');
 
@@ -70,6 +71,7 @@ const util = require('./promise/util');
  */
 
 module.exports = {
+  go,
   put,
   take,
   takeOrThrow,

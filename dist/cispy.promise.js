@@ -3411,12 +3411,33 @@ function sleep() {
   });
 }
 
+/**
+ * **Invokes an async function acting as a process.**
+ *
+ * This is purely a convenience function, driven by the fact that it's necessary to use an IIFE to invoke an inline
+ * async function, and that's not very aesthetically pleasing. It does no more than invoke the passed function, but that
+ * at least releases us from the need to put the empty parentheses after the function definition.
+ *
+ * @memberOf module:cispy/promise~CispyPromise
+ * @param {function} fn The async function being used as a process.
+ * @param {...*} args Arguments that are sent to the async function when it's invoked.
+ * @return {Promise} The promise returned by the async function.
+ */
+function go(fn) {
+  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+
+  return fn.apply(undefined, args);
+}
+
 module.exports = {
   put: put,
   take: take,
   takeOrThrow: takeOrThrow,
   alts: alts,
-  sleep: sleep
+  sleep: sleep,
+  go: go
 };
 
 /***/ }),
@@ -7719,8 +7740,9 @@ $export($export.S + $export.F * !(USE_NATIVE && __webpack_require__(63)(function
  * Most of the promise-based implementation is shared with the generator-based implementation. The only things that
  * are different are:
  *
- * - There is no `go`, `goSafe`, or `spawn` since there is no need to create processes (async functions are used
- *   instead)
+ * - There is a `go`, but it's purely a convenience function. Since async functions are controlled by the JS engine,
+ *   there's no need for this library to control them the way it does processes. There is no need for `spawn` and for
+ *   `goSafe` (errors are handled just as they are in any other promise chain), however.
  * - Channel operations return promises rather than internal control objects, meaning they can be used in `await`
  *   expressions instead of `yield` expressions (the `xAsync` versions of each operation remain the same)
  * - The utility functions use the promise-based implementation.
@@ -7757,7 +7779,8 @@ var _require5 = __webpack_require__(60),
     take = _require5.take,
     takeOrThrow = _require5.takeOrThrow,
     alts = _require5.alts,
-    sleep = _require5.sleep;
+    sleep = _require5.sleep,
+    go = _require5.go;
 
 var util = __webpack_require__(117);
 
@@ -7787,6 +7810,7 @@ var util = __webpack_require__(117);
  */
 
 module.exports = {
+  go: go,
   put: put,
   take: take,
   takeOrThrow: takeOrThrow,
