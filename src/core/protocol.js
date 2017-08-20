@@ -26,7 +26,7 @@
  * * **Transduction:** agreed to by several parties who maintain transducer libraries in the
  *   [comment thread](https://github.com/cognitect-labs/transducers-js/issues/20) for an issue on one of them.
  *
- * @mocule cispy/core/protocol
+ * @module cispy/core/protocol
  * @private
  */
 

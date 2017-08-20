@@ -1,4 +1,43 @@
-/*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>core/operations.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cispy.html">cispy</a><ul class='methods'><li data-type='method'><a href="module-cispy.html#~alts">alts</a></li><li data-type='method'><a href="module-cispy.html#~altsAsync">altsAsync</a></li><li data-type='method'><a href="module-cispy.html#~chan">chan</a></li><li data-type='method'><a href="module-cispy.html#~close">close</a></li><li data-type='method'><a href="module-cispy.html#~config">config</a></li><li data-type='method'><a href="module-cispy.html#~droppingBuffer">droppingBuffer</a></li><li data-type='method'><a href="module-cispy.html#~fixedBuffer">fixedBuffer</a></li><li data-type='method'><a href="module-cispy.html#~go">go</a></li><li data-type='method'><a href="module-cispy.html#~goSafe">goSafe</a></li><li data-type='method'><a href="module-cispy.html#~put">put</a></li><li data-type='method'><a href="module-cispy.html#~putAsync">putAsync</a></li><li data-type='method'><a href="module-cispy.html#~sleep">sleep</a></li><li data-type='method'><a href="module-cispy.html#~slidingBuffer">slidingBuffer</a></li><li data-type='method'><a href="module-cispy.html#~spawn">spawn</a></li><li data-type='method'><a href="module-cispy.html#~take">take</a></li><li data-type='method'><a href="module-cispy.html#~takeAsync">takeAsync</a></li><li data-type='method'><a href="module-cispy.html#~takeOrThrow">takeOrThrow</a></li><li data-type='method'><a href="module-cispy.html#~timeout">timeout</a></li></ul></li><li><a href="module-cispy_core_buffers.html">cispy/core/buffers</a></li><li><a href="module-cispy_core_channel.html">cispy/core/channel</a></li><li><a href="module-cispy_util.html">cispy/util</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-cispy_core_buffers-Buffer.html">Buffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Buffer.html#remove">remove</a></li></ul></li><li><a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-DroppingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-FixedBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-Queue.html">Queue</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#dequeue">dequeue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#enqueue">enqueue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#filter">filter</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#peek">peek</a></li></ul></li><li><a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-SlidingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_channel-Channel.html">Channel</a></li><li><a href="module-cispy_util-GeneratorUtils.html">GeneratorUtils</a><ul class='methods'><li data-type='method'><a href="module-cispy_util-GeneratorUtils.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_util-GeneratorUtils.html#.reduce">reduce</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">core/operations.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
  * Copyright (c) 2017 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -116,7 +155,7 @@ function altsHandler(active, fn) {
  */
 function randomArray(n) {
   const a = [];
-  for (let k = 0; k < n; ++k) {
+  for (let k = 0; k &lt; n; ++k) {
     a.push(k);
   }
   for (let j = n - 1; j > 0; --j) {
@@ -181,7 +220,7 @@ function altsAsync(ops, callback, options) {
 
   let result;
 
-  for (let i = 0; i < count; ++i) {
+  for (let i = 0; i &lt; count; ++i) {
     // Choose an operation randomly (or not randomly if priority is specified)
     const op = ops[priority ? i : indices[i]];
     let channel, value;
@@ -209,7 +248,7 @@ function altsAsync(ops, callback, options) {
 
   // If none of the operations immediately returned values (i.e., they all blocked), and we have set a default option,
   // then return the value of the default option rather than waiting for the queued operations to complete.
-  if (!isBox(result) && options.hasOwnProperty('default')) {
+  if (!isBox(result) &amp;&amp; options.hasOwnProperty('default')) {
     if (active.value) {
       active.value = false;
       callback({
@@ -240,7 +279,7 @@ function altsAsync(ops, callback, options) {
  */
 function putAsync(channel, value, callback) {
   const result = channel.put(value, opHandler(callback));
-  if (result && callback) {
+  if (result &amp;&amp; callback) {
     callback(result.value);
   }
 }
@@ -253,7 +292,7 @@ function putAsync(channel, value, callback) {
  */
 function takeAsync(channel, callback) {
   const result = channel.take(opHandler(callback));
-  if (result && callback) {
+  if (result &amp;&amp; callback) {
     callback(result.value);
   }
 }
@@ -263,3 +302,22 @@ module.exports = {
   putAsync,
   takeAsync
 };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
