@@ -19,16 +19,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// timing.js
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// A series of functions meant to operate on the channels that the rest of this library creates and manages.
-//
-// All of the functions that are here cannot be done with transducers because of the limitations on transducers
-// themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
-// (You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)
-//
-// These functions change the timing of inputs being put onto the input channel.
+/**
+ * A set of channel utilities for changing the timing of inputs being put onto the input channel.
+ *
+ * @module  cispy/util/timing
+ * @private
+ */
 
 const { chan, timeout, close, CLOSED } = require('../../core/channel');
 const { go, put, alts } = require('../operations');
@@ -37,23 +33,55 @@ function isNumber(x) {
   return Object.prototype.toString.call(x) === '[object Number]' && isFinite(x);
 }
 
-// Ensures that only one value is put onto the input channel in a given delay interval.
-//
-// By default, the value will not appear on the output channel until the delay expires. If a new value is put onto the
-// input channel before that delay expires, the delay timer will restart, and that new value will be put onto the output
-// channel after the delay timer expires. There will be no output until no input has happened in
-// the delay time.
-//
-// By passing { immediate: true } as options, the behavior changes. Then the first input is passed to the output
-// immediately, but no other output will happen until the delay timer passes without any new input.
-//
-// Another option, { maxDelay: <number> }, limits how long a debounce operation can last. Regularly, it can go on
-// indefinitely as long as input regularly comes before the delay expires. Setting a maxDelay will cause the delay to
-// forcefully end after there has been no output in that number of milliseconds.
-//
-// A channel can be provided to the `cancel` option. If it is, then putting -anything- onto that channel will cause
-// the debouncing to immediately cease, the output channel to be closed, and any remaining values that had been waiting
-// to be output after the debounce timer to instead be discarded.
+/**
+ * **Debounces an input channel.**
+ *
+ * Debouncing is the act of turning several input values into one. For example, debouncing a channel driven by a
+ * `mousemove` event would cause only the final `mousemove` event to be put onto the channel, dropping all of the other
+ * ones. This can be desirable because `mousemove` events come in bunches, being produced continually while the mouse is
+ * moving, and often all that we really care about is to learn where the mouse ended up.
+ *
+ * This function does this by controlling which values that have been put onto the source channel are made available on
+ * the destination channel, and when.
+ *
+ * The `delay` parameter determines the debounce threshold. Once the first value is put onto the source channel,
+ * debouncing is in effect until the number of milliseconds in `delay` passes without any other value being put onto
+ * that channel. In other words, the delay will be refreshed if another value is put onto the source channel before the
+ * delay elapses. After a full delay interval passes without a value being placed on the source channel, the last value
+ * put becomes available on the destination channel.
+ *
+ * This behavior can be modified through four options: `leading`, `trailing`, `maxDelay`, and `cancel`.
+ *
+ * If both `leading` and `trailing` are `true`, values will not be duplicated. The first value put onto the source
+ * channel will be put onto the destination channel immediately (per `leading`) and the delay will begin, but a value
+ * will only be made available on the destination channel at the end of the delay (per `trailing`) if *another* input
+ * value was put onto the source channel before the delay expired.
+ *
+ * @memberOf module:cispy/util~CispyUtil
+ * @param {module:cispy/core/channel~Channel} src The source channel.
+ * @param {(number|module:cispy/core/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
+ *     this is a number, a {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or
+ *     not present, the channel will be unbuffered.
+ * @param {number} delay The debouncing delay, in milliseconds.
+ * @param {Object} [options={}] A set of options to further configure the debouncing.
+ * @param {boolean} [options.leading=false] Instead of making a value available on the destination channel after the
+ *     delay passes, the first value put onto the source channel is made available *before* the delay begins. No value
+ *     is available on the destination channel after the delay has elapsed (unless `trailing` is also `true`).
+ * @param {boolean} [options.trailing=true] The default behavior, where a value is not made available on the destination
+ *     channel until the entire delay passes without a new value being put on the source channel.
+ * @param {number} [options.maxDelay=0] The maximum delay allowed before a value is put onto the destination channel.
+ *     Debouncing can, in theory, go on forever as long as new input values continue to be put onto the source channel
+ *     before the delay expires. Setting this option to a positive number sets the maximum number of milliseconds that
+ *     debouncing can go on before it's forced to end, even if in the middle of a debouncing delay. Having debouncing
+ *     end through the max delay operates exactly as if it had ended because of lack of input; the last input is made
+ *     available on the destination channel (if `trailing` is `true`), and the next input will trigger another debounce
+ *     operation.
+ * @param {module:cispy/core/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
+ *     debouncing. Any value put onto this channel will cancel the current debouncing operation, closing the output
+ *     channel and discarding any values that were waiting for the debounce threshold timer to be sent to the output.
+ * @return {module:cispy/core/channel~Channel}} The newly-created destination channel, where all of the values will be
+ *     debounced from the source channel.
+ */
 function debounce(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
@@ -113,28 +141,53 @@ function debounce(src, buffer, delay, options) {
   return dest;
 }
 
-// Ensures that a value cannot be taken off the output channel more often than a certain interval.
-//
-// If a number of values are put onto the input channel during the delay, then only the last one will appear after the
-// delay has elapsed. The rest will be discarded. In this way, a value appears on the output channel only as often as
-// specified by the delay.
-//
-// By default, the first value (the one that triggers the throttle timer) will appear on the output channel immediately.
-// The last value put onto the input channel is then put onto the output channel when the timer elapses, and the delay
-// is then restarted. Any values that appear during that subsequent delay will also cause the last value to appear on
-// the output channel when the next delay elapses, restarting the delay again, and so on.
-//
-// By setting the `leading` option to `false`, that initial value will not immediately appear on the output channel.
-// Instead, it will appear after the delay elapses, unless another value being put onto the input channel in the
-// meantime overwrites it.
-//
-// By setting the `trailing` option to `false`, no value will be put onto the output channel when the timer elapses.
-// Any value that had been put onto the input channel during that delay will be silently dropped. After the delay
-// elapses, the next input value will appear on the output channel, and so on.
-//
-// A channel can be provided to the `cancel` option. If it is, then putting -anything- onto that channel will cause
-// the throttling to immediately cease, the output channel to be closed, and all remaining throttled values that had
-// not yet been put onto the channel to be discarded.
+/**
+ * **Throttles an input channel.**
+ *
+ * Throttling is the act of ensuring that something only happens once per time interval. In this case, it means that a
+ * value put onto the source channel is only made available to the destination channel once per a given number of
+ * milliseconds. An example usage would be with window scroll events; these events are nearly continuous as scrolling is
+ * happening, and perhaps we don't want to call an expensive UI updating function every time a scroll event is fired. We
+ * can throttle the input channel and make it only offer up the scroll events once every 100 milliseconds, for instance.
+ *
+ * Throttling is effected by creating a new channel as a throttled destination for values put onto the source channel.
+ * Values will only appear on that destination channel once per delay interval; other values that are put onto the
+ * source channel in the meantime are discarded.
+ *
+ * The `delay` parameter controls how often a value can become available on the destination channel. When the first
+ * value is put onto the source channel, it is immediately put onto the destination channel as well and the delay
+ * begins. Any further values put onto the source channel during that delay are *not* passed through; only when the
+ * delay expires is the last input value made available on the destination channel. The delay then begins again, so that
+ * further inputs are squelched until *that* delay passes. Throttling continues, only allowing one value through per
+ * interval, until an entire interval passes without input.
+ *
+ * This behavior can be modified by three options: `leading`, `trailing`, and `cancel`.
+ *
+ * If both `leading` and `trailing` are `true`, values will not be duplicated. The first value put onto the source
+ * channel will be put onto the destination channel immediately (per `leading`) and the delay will begin, but a value
+ * will only be made available on the destination channel at the end of the delay (per `trailing`) if *another* input
+ * value was put onto the source channel before the delay expired.
+ *
+ * @memberOf module:cispy/util~CispyUtil
+ * @param {module:cispy/core/channel~Channel} src The source channel.
+ * @param {(number|module:cispy/core/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
+ *     this is a number, a {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or
+ *     not present, the channel will be unbuffered.
+ * @param {number} delay The throttling delay, in milliseconds.
+ * @param {Object} [options={}] A set of options to further configure the throttling.
+ * @param {boolean} [options.leading=true] Makes the value that triggered the throttling immediately available on the
+ *     destination channel before beginning the delay. If this is `false`, the first value will not be put onto the
+ *     destination channel until a full delay interval passes.
+ * @param {boolean} [options.trailing=true] Makes the last value put onto the source channel available on the
+ *     destination channel when the delay expires. If this is `false`, any inputs that come in during the delay are
+ *     ignored, and the next value is not put onto the destination channel until the first input *after* the delay
+ *     expires.
+ * @param {module:cispy/core/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
+ *     throttling. Any value put onto this channel will cancel the current throttling operation, closing the output
+ *     channel and discarding any values that were waiting for the throttle threshold timer to be sent to the output.
+ * @return {module:cispy/core/channel~Channel}} The newly-created destination channel, where all of the values will be
+ *     throttled from the source channel.
+ */
 function throttle(src, buffer, delay, options) {
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;

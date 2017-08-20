@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SlidingBuffer - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cispy.html">cispy</a></li><li><a href="module-cispy_core_buffers.html">cispy/core/buffers</a></li><li><a href="module-cispy_core_channel.html">cispy/core/channel</a></li><li><a href="module-cispy_promise.html">cispy/promise</a></li><li><a href="module-cispy_promise_util.html">cispy/promise/util</a></li><li><a href="module-cispy_util.html">cispy/util</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-cispy_core_buffers-Buffer.html">Buffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Buffer.html#remove">remove</a></li></ul></li><li><a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-DroppingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-FixedBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-Queue.html">Queue</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#dequeue">dequeue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#enqueue">enqueue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#filter">filter</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#peek">peek</a></li></ul></li><li><a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-SlidingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_channel-Channel.html">Channel</a></li><li><a href="module-cispy_promise_util-CispyPromiseUtil.html">CispyPromiseUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy_promise-CispyPromise.html">CispyPromise</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.put">put</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.take">take</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.takeOrThrow">takeOrThrow</a></li></ul></li><li><a href="module-cispy_util-CispyUtil.html">CispyUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy-Cispy.html">Cispy</a><ul class='methods'><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.chan">chan</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.close">close</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.config">config</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.droppingBuffer">droppingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.fixedBuffer">fixedBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.go">go</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.goSafe">goSafe</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.put">put</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.slidingBuffer">slidingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.spawn">spawn</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.take">take</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.takeOrThrow">takeOrThrow</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.timeout">timeout</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">SlidingBuffer</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-cispy_core_buffers.html">cispy/core/buffers</a>~</span>
+        
+        SlidingBuffer
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line399">line 399</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+        
+            <div class="description"><p>A buffer implementation that drops the oldest item when an item is added to a full buffer.</p>
+<p>This is very similar to <a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a>; the only difference is in
+what happens when an item is added. In this buffer, the new item is indeed added to the buffer, but in order to
+keep the count of the buffer at or below its size, the oldest item in the buffer is silently dropped.</p></div>
+        
+
+        
+    
+    </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="module-cispy_core_buffers-Buffer.html">module:cispy/core/buffers~Buffer</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="full"><span class="type-signature">(readonly) </span>full<span class="type-signature"> :number</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line411">line 411</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Whether or not the buffer is full. As a <a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a> is
+never considered full, this will always return <code>false</code>.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="add"><span class="type-signature"></span>add<span class="signature">(&hellip;items)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line428">line 428</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Adds one or more items to the buffer. If the buffer has already reached its capacity, then the oldest items in
+the buffer are dropped to make way for the new items.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>items</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The items to be added to the buffer.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

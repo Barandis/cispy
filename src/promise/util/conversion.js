@@ -19,32 +19,59 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// conversion.js
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// A series of functions meant to operate on the channels that the rest of this library creates and manages. These
-// functions specifically use async functions rather than processes.
-//
-// All of the functions that are here cannot be done with transducers because of the limitations on transducers
-// themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
-// (You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)
-//
-// These functions convert channels into other kinds of data, or vice versa.
+/**
+ * A set of channel utilities for converting channels into other kinds of data, and vice versa.
+ *
+ * @module cispy/promise/util/conversion
+ * @private
+ */
 
 const { chan, close, CLOSED } = require('../../core/channel');
 const { putAsync } = require('../../core/operations');
 const { put, take } = require('../operations');
 
-// Reduces all of the values in the supplied channel by running them through a reduction function. An initial value for
-// the reduction function can also be supplied. A channel is returned; that channel receives exactly one value, which
-// is the reduced result, and it closes after that value is taken.
-//
-// This could be implemented as an async function returning a promise that resolves to the reduced result, but that
-// would be different from the semantics of the generator-based function. Also, there is some question as to whether
-// it's a good idea for a process to communicate through any other means than via a channel.
-//
-// This is different from transducer reduction, as transducers always reduce to a collection (or channel). This reduce
-// can result in a single scalar value.
+/**
+ * **Creates a single value from a channel by running its values through a reducing function.**
+ *
+ * For every value put onto the input channel, the reducing function is called with two parameters: the accumulator that
+ * holds the result of the reduction so far, and the new input value. The initial value of the accumulator is the third
+ * parameter to `reduce`. The reduction is not complete until the input channel closes.
+ *
+ * This function returns a channel. When the final reduced value is produced, it is put onto this channel, and when that
+ * value is taken from it, the channel is closed.
+ *
+ * ```
+ * const {chan, put, take, close, util} = cispy;
+ * const {reduce} = util;
+ *
+ * const input = chan();
+ * const output = reduce((acc, value) => acc + value, input, 0);
+ *
+ * (async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
+ *   await put(input, 3);
+ *   close(input);
+ * })();
+ *
+ * (async () => {
+ *   const result = await take(output);
+ *   console.log(output);                  // -> 6
+ * })();
+ *
+ * ```
+ *
+ * Note that the input channel *must* be closed at some point, or no value will ever appear on the output channel. The
+ * closing of the channel is what signifies that the reduction should be completed.
+ *
+ * @memberOf module:cispy/promise/util~CispyPromiseUtil
+ * @param {module:cispy/promise/util~reducer} fn The reducer function responsible for turning the series of channel
+ *     values into a single output value.
+ * @param {module:cispy/core/channel~Channel} ch The channel whose values are being reduced into a single output value.
+ * @param {*} init The initial value to feed into the reducer function for the first reduction step.
+ * @return {module:cispy/core/channel~Channel} A channel that will, when the input channel closes, have the reduced
+ *     value put into it. When this value is taken, the channel will automatically close.
+ */
 function reduce(fn, ch, init) {
   const output = chan();
 
@@ -64,13 +91,37 @@ function reduce(fn, ch, init) {
   return output;
 }
 
-// Puts all of the values in the input array onto the supplied channel. If no channel is supplied (if only an array is
-// passed), then a new buffered channel of the same length of the array is created. Either way, the channel is returned
-// and will close when the last array value has been taken.
-//
-// This is NOT an async function. It returns a channel, and a channel-returning function can immediately return a
-// channel even if the channel doesn't have all of the results on it yet. (In fact, unless it's a buffered channel, it
-// *cannot* have all values on it until some are taken.)
+/**
+ * **Puts all values from an array onto the supplied channel.**
+ *
+ * If no channel is passed to this function, a new channel is created. In effect, this directly converts an array into a
+ * channel with the same values on it.
+ *
+ * The channel is closed after the final array value is put onto it.
+ *
+ * ```
+ * const {chan, take, util} = cispy;
+ * const {onto} = util;
+ *
+ * const input = [1, 2, 3];
+ * const output = onto(input);
+ *
+ * (async () => {
+ *   console.log(await take(output));     // -> 1
+ *   console.log(await take(output));     // -> 2
+ *   console.log(await take(output));     // -> 3
+ *   console.log(output.closed);          // -> true
+ * })();
+ * ```
+ *
+ * @memberOf module:cispy/promise/util~CispyPromiseUtil
+ * @param {module:cispy/core/channel~Channel} [ch] The channel onto which to put all of the array elements. If this is
+ *     not present, a new channel will be created.
+ * @param {Array} array The array of values to be put onto the channel.
+ * @return {module:cispy/core/channel~Channel} the channel onto which the array elements are put. This is the same as
+ *     the input channel, but if no input channel is specified, this will be a new channel. It will close when the final
+ *     value is taken from it.
+ */
 function onto(ch, array) {
   const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
 
@@ -85,10 +136,45 @@ function onto(ch, array) {
   return chnl;
 }
 
-// Moves all of the values on a channel into the supplied array. If no array is supplied (if the only parameter passed
-// is a channel), then a new and empty array is created to contain the values. A channel is returned that will have the
-// array put onto it when the input channel closes; this output channel closes automatically when the array is taken
-// from it.
+/**
+ * **Takes all of the values from a channel and pushes them into an array.**
+ *
+ * If no array is passed to this function, a new (empty) one is created. In effect, this directly converts a channel
+ * into an array with the same values. Either way, this operation cannot complete until the input channel is closed.
+ *
+ * This function returns a channel. When the final array is produced, it is put onto this channel, and when that value
+ * is taken from it, the channel is closed.
+ *
+ * ```
+ * const {chan, put, take, close, util} = cispy;
+ * const {into} = util;
+ *
+ * const input = chan();
+ * const output = into(input);
+ *
+ * (async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
+ *   await put(input, 3);
+ *   close(input);
+ * })();
+ *
+ * (async () => {
+ *   const result = await take(output);
+ *   console.log(result);                 // -> [1, 2, 3]
+ * })();
+ * ```
+ *
+ * Note that the input channel *must* be closed at some point, or no value will ever appear on the output channel. The
+ * closing of the channel is what signifies that all of the values needed to make the array are now available.
+ *
+ * @memberOf module:cispy/promise/util~CispyPromiseUtil
+ * @param {Array} [array] The array to put the channel values into. If this is not present, a new, empty array will be
+ *     created.
+ * @param {module:cispy/core/channel~Channel} ch The channel from which values are taken to put into the array.
+ * @return {module:cispy/core/channel~Channel} A channel that will, when the input channel closes, have the array of
+ *     channel values put onto it. When this array is taken, the channel will automatically close.
+ */
 function into(array, ch) {
   const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
   const init = arr.slice();

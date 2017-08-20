@@ -1,0 +1,4753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Cispy - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cispy.html">cispy</a></li><li><a href="module-cispy_core_buffers.html">cispy/core/buffers</a></li><li><a href="module-cispy_core_channel.html">cispy/core/channel</a></li><li><a href="module-cispy_promise.html">cispy/promise</a></li><li><a href="module-cispy_promise_util.html">cispy/promise/util</a></li><li><a href="module-cispy_util.html">cispy/util</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-cispy_core_buffers-Buffer.html">Buffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Buffer.html#remove">remove</a></li></ul></li><li><a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-DroppingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-FixedBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-Queue.html">Queue</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#dequeue">dequeue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#enqueue">enqueue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#filter">filter</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#peek">peek</a></li></ul></li><li><a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-SlidingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_channel-Channel.html">Channel</a></li><li><a href="module-cispy_promise_util-CispyPromiseUtil.html">CispyPromiseUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy_promise-CispyPromise.html">CispyPromise</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.put">put</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.take">take</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.takeOrThrow">takeOrThrow</a></li></ul></li><li><a href="module-cispy_util-CispyUtil.html">CispyUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy-Cispy.html">Cispy</a><ul class='methods'><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.chan">chan</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.close">close</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.config">config</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.droppingBuffer">droppingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.fixedBuffer">fixedBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.go">go</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.goSafe">goSafe</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.put">put</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.slidingBuffer">slidingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.spawn">spawn</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.take">take</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.takeOrThrow">takeOrThrow</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.timeout">timeout</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Cispy</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-cispy.html">cispy</a>~</span>
+        
+        Cispy
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cispy.js.html">cispy.js</a>, <a href="cispy.js.html#line38">line 38</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+        
+            <div class="description"><p>The core namespace under which all of the main functions reside in the API. Everything in this namespace is
+accessible as a member of the main <code>cispy</code> object that is required, imported, or accessed as a global object.</p></div>
+        
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".CLOSED"><span class="type-signature">(static, constant) </span>CLOSED<span class="type-signature"> :Symbol</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_channel.js.html">core/channel.js</a>, <a href="core_channel.js.html#line92">line 92</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>The value returned from a take on a channel when that channel is closed and has no more values available.</strong></p>
+<p>This is a special value that is returned under a certain circumstance, namely when a take is performed on a closed
+channel. Because of that, it cannot be returned from a take on an open channel. For that reason, <code>CLOSED</code> is the
+only value that cannot be put onto a channel - it would be impossible to distinguish between a legitimate value of
+<code>CLOSED</code> and an actual closed channel.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Symbol</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".DEFAULT"><span class="type-signature">(static, constant) </span>DEFAULT<span class="type-signature"> :Symbol</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_channel.js.html">core/channel.js</a>, <a href="core_channel.js.html#line105">line 105</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>The name of the channel returned from <code>yield <a href="module-cispy-Cispy.html#.alts">alts</a></code> (generator),
+yield alts<code>(promise), and</code><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a>` when the default is returned as its value.</strong></p>
+<p>This only happens when aa alts call is performed, all operations are initially blocking, and a <code>default</code> option is
+sent. The immediate response in that situation is <code>{ value: options.default, channel: DEFAULT }</code>.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Symbol</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".EMPTY"><span class="type-signature">(static, constant) </span>EMPTY<span class="type-signature"> :Symbol</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line41">line 41</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>The value returned from a buffer when it has no values in it.</strong></p>
+<p>This is used instead of <code>null</code> because <code>null</code> is a value that can actually be put onto a channel (and therefore
+into a buffer backing that channel). That means that, despite the assertion that only
+<code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code> cannot be put onto a channel, it's probably not a great idea to put
+<code>EMPTY</code> onto an <em>unbuffered</em> channel. While it won't cause an error to be thrown, and while it will be removed from
+the buffer to allow the next value to be removed, it's likely to cause some odd behavior.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Symbol</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".MESSAGE_CHANNEL"><span class="type-signature">(static, constant) </span>MESSAGE_CHANNEL<span class="type-signature"> :Symbol</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_dispatcher.js.html">core/dispatcher.js</a>, <a href="core_dispatcher.js.html#line78">line 78</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-cispy-Cispy.html#.config">config</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>The dispatch method option indicating that a <code>MessageChannel</code> should be used to dispatch tasks.</strong></p>
+<p>For environments that don't support <code>MessageChannel</code>s, this falls back to
+<code>SET\_TIMEOUT</code>.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Symbol</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".SET_IMMEDIATE"><span class="type-signature">(static, constant) </span>SET_IMMEDIATE<span class="type-signature"> :Symbol</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_dispatcher.js.html">core/dispatcher.js</a>, <a href="core_dispatcher.js.html#line66">line 66</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-cispy-Cispy.html#.config">config</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>The dispatch method option indicating that <code>setImmediate</code> should be used to dispatch tasks.</strong></p>
+<p>This is the default option. For environments that don't support <code>setImmediate</code>, this falls back to
+<code>MESSAGE\_CHANNEL</code>.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Symbol</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".SET_TIMEOUT"><span class="type-signature">(static, constant) </span>SET_TIMEOUT<span class="type-signature"> :Symbol</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_dispatcher.js.html">core/dispatcher.js</a>, <a href="core_dispatcher.js.html#line90">line 90</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-cispy-Cispy.html#.config">config</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>The dispatch method option indicating that <code>setTimeout</code> should be used to dispatch tasks.</strong></p>
+<p>This method is always available, but it's also always less efficient than any other method, so it should be used
+as a last resort.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Symbol</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".util"><span class="type-signature">(static) </span>util<span class="type-signature"> :<a href="module-cispy_util-CispyUtil.html">module:cispy/util~CispyUtil</a></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cispy.js.html">cispy.js</a>, <a href="cispy.js.html#line129">line 129</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>A set of utility functions for working with channels.</strong></p>
+<p>This is a small 'standard library' of operations that are useful when working with channels.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="module-cispy_util-CispyUtil.html">module:cispy/util~CispyUtil</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".alts"><span class="type-signature">(static) </span>alts<span class="signature">(operations, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_operations.js.html">generator/operations.js</a>, <a href="generator_operations.js.html#line169">line 169</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Completes the first operation among the provided operations that comes available, blocking the process until
+then.</strong></p>
+<p><code>operations</code> is an array whose elements must be channels or two-element sub-arrays of channels and values, in any
+combination. An operation that is a channel is a take operation on that channel. An operation that is a two-element
+array is a put operation on that channel using that value. Exactly one of these operations will complete, and it
+will be the first operation that unblocks.</p>
+<p>This function <em>must</em> be called from within a process and as part of a <code>yield</code> expression.</p>
+<p>When <code>alts</code> is completed and its process unblocks, its <code>yield</code> expression evaluates to an object of two properties.
+The <code>value</code> property becomes exactly what would have been returned by the equivalent <code>yield put</code> or <code>yield take</code>
+operation: a boolean in the case of a put, or the taken value in the case of a take. The <code>channel</code> property is set
+to the channel where the operation actually took place. This will be equivalent to the channel in the <code>operations</code>
+array which completed first, allowing the process to unblock.</p>
+<p>If there is more than one operation already available to complete when the call to <code>alts</code> is made, the operation
+with the highest priority will be the one to complete. Regularly, priority is non-deterministic (i.e., it's set
+randomly). However, if the options object has a <code>priority</code> value set to <code>true</code>, priority will be assigned in the
+order of the operations in the supplied array.</p>
+<p>If all of the operations must block (i.e., there are no pending puts for take operations, or takes for put
+operations), a default value may be returned. This is only done if there is a <code>default</code> property in the options
+object, and the value of that property becomes the value returned by <code>yield alts</code>. The channel is set to the
+special value <code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a></code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>operations</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>A collection of elements that correspond to take and put operations. A take operation
+    is signified by an element that is a channel (which is the channel to be taken from). A put operation is
+    specified by an element that is itself a two-element array, which has a channel followed by a value (which is
+    the channel and value to be put).</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>An optional object which can change the behavior of <code>alts</code> through two properties.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>priority</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>If <code>true</code>, then the priority of operations to complete when more than one
+    is immediately available is a priority according to position within the operations array (earlier positions
+    have the higher priority). If <code>false</code> or not present, the priorty of operation completion is random.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>default</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>If set and all of the operations initially block, the <code>alts</code> call completes
+    immediately with the value of this option (the channel will be <code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a>)</code>. If
+    not set, the <code>alts</code> call will block until one of the operations completes and that value and channel will be the
+    ones returned.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The function itself returns an instruction object that guides the process in running the puts and
+    takes. This is why <code>alts</code> must be run in a process; the instruction object is meaningless otherwise. After the
+    process unblocks, the <code>yield alts</code> expression returns an object with two properties: <code>value</code> will have the
+    value of the completed operation (the same value that would be returned if either a
+    <code><a href="module-cispy-Cispy.html#.put">put</a></code> or <code><a href="module-cispy-Cispy.html#.take">take</a></code> function was called instead), and
+    <code>channel</code> will have the channel object that completed the operation that allowed the <code>alts</code> process to unblock.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".alts"><span class="type-signature">(static) </span>alts<span class="signature">(operations, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="promise_operations.js.html">promise/operations.js</a>, <a href="promise_operations.js.html#line166">line 166</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Completes the first operation among the provided operations that comes available, blocking the process until
+then.</strong></p>
+<p><code>operations</code> is an array whose elements must be channels or two-element sub-arrays of channels and values, in any
+combination. An operation that is a channel is a take operation on that channel. An operation that is a two-element
+array is a put operation on that channel using that value. Exactly one of these operations will complete, and it
+will be the first operation that unblocks.</p>
+<p>This function <em>must</em> be called from within an <code>async</code> function and as part of an <code>await</code> expression.</p>
+<p>When <code>alts</code> is completed and its process unblocks, its <code>await</code> expression evaluates to an object of two properties.
+The <code>value</code> property becomes exactly what would have been returned by the equivalent <code>await put</code> or <code>await take</code>
+operation: a boolean in the case of a put, or the taken value in the case of a take. The <code>channel</code> property is set
+to the channel where the operation actually took place. This will be equivalent to the channel in the <code>operations</code>
+array which completed first, allowing the process to unblock.</p>
+<p>If there is more than one operation already available to complete when the call to <code>alts</code> is made, the operation
+with the highest priority will be the one to complete. Regularly, priority is non-deterministic (i.e., it's set
+randomly). However, if the options object has a <code>priority</code> value set to <code>true</code>, priority will be assigned in the
+order of the operations in the supplied array.</p>
+<p>If all of the operations must block (i.e., there are no pending puts for take operations, or takes for put
+operations), a default value may be returned. This is only done if there is a <code>default</code> property in the options
+object, and the value of that property becomes the value returned by <code>yield alts</code>. The channel is set to the
+special value <code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a></code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>operations</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>A collection of elements that correspond to take and put operations. A take operation
+    is signified by an element that is a channel (which is the channel to be taken from). A put operation is
+    specified by an element that is itself a two-element array, which has a channel followed by a value (which is
+    the channel and value to be put).</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>An optional object which can change the behavior of <code>alts</code> through two properties.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>priority</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>If <code>true</code>, then the priority of operations to complete when more than one
+    is immediately available is a priority according to position within the operations array (earlier positions
+    have the higher priority). If <code>false</code> or not present, the priorty of operation completion is random.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>default</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>If set and all of the operations initially block, the <code>alts</code> call completes
+    immediately with the value of this option (the channel will be <code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a>)</code>. If
+    not set, the <code>alts</code> call will block until one of the operations completes and that value and channel will be the
+    ones returned.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A promise that will resolve to an object of two properties: <code>value</code> will contain the value that
+    would have been returned by the corresponding <code><a href="module-cispy_promise-CispyPromise.html#.put">put</a></code> or
+    <code><a href="module-cispy_promise-CispyPromise.html#.take">take</a></code> operation; and <code>channel</code> will be a reference to the channel
+    that completed the operation to allow <code>alts</code> to unblock.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".altsAsync"><span class="type-signature">(static) </span>altsAsync<span class="signature">(operations, callback, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_operations.js.html">core/operations.js</a>, <a href="core_operations.js.html#line164">line 164</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Completes the first operation among the provided operations that comes available, without blocking.</strong></p>
+<p>This means that a call to <code>altsAsync</code> does not go into a <code>yield</code> expression, and it is not necessary to use it
+inside a process. Rather than blocking until an operation completes, this one returns immediately and then invokes
+the callback (if provided) as soon as one of the supplied operations completes. It can be regarded as a
+non-blocking version of generator-based <code><a href="module-cispy-Cispy.html#.alts">alts</a></code> or promise-based
+<code>alts</code>.</p>
+<p>This function uses an operations list that's identical to the one used by <code>alts</code>. It's
+an array of values; if a value is a channel, then that operation is a take on that channel, while if it's a
+two-element array of channel and value, then that operation is a put of that value onto that channel. All options
+that are available to <code><a href="module-cispy-Cispy.html#.alts">alts</a></code> are also available here.</p>
+<p>The callback is a function of one parameter, which in this case is an object with <code>value</code> and <code>channel</code> properties.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>operations</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Object></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>A collection of elements that correspond to take and put operations. A take operation
+    is signified by an element that is a channel (which is the channel to be taken from). A put operation is
+    specified by an element that is itself a two-element array, which has a channel followed by a value (which is
+    the channel and value to be put).</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy.html#~altsCallback">module:cispy~altsCallback</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>A function that gets invoked when one of the operations completes.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>An optional object which can change the behavior of <code>alts</code> through two properties.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>priority</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>false</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>If <code>true</code>, then the priority of operations to complete when more than one
+    is immediately available is a priority according to position within the operations array (earlier positions
+    have the higher priority). If <code>false</code> or not present, the priorty of operation completion is random.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>default</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>If set and all of the operations initially block, the <code>alts</code> call completes
+    immediately with the value of this option (the channel will be <code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a>)</code>. If
+    not set, the <code>alts</code> call will block until one of the operations completes and that value and channel will be the
+    ones returned.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".chan"><span class="type-signature">(static) </span>chan<span class="signature">(buffer<span class="signature-attributes">opt</span>, xform<span class="signature-attributes">opt</span>, handler<span class="signature-attributes">opt</span>, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_channel.js.html">core/channel.js</a>, <a href="core_channel.js.html#line696">line 696</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Creates and returns a new channel.</strong></p>
+<p>By default this channel will be a simple unbuffered, untransformed channel, but that can be changed through
+parameters to this function. A channel does not have any externally useful functions. It exists largely to be
+passed into <code><a href="module-cispy-Cispy.html#.put">put</a></code>, <code><a href="module-cispy-Cispy.html#.take">take</a></code>, and
+<code><a href="module-cispy-Cispy.html#.alts">alts</a></code> invocations, along with their non-blocking variations
+(<code><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></code>, <code>takeAsync</code>, and
+<code><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></code>).</p>
+<p>If a buffer value is provided, it defines what buffer should back the channel. If this is <code>null</code>, <code>0</code>, or
+completely missing, the channel will be unbuffered. If it's a positive number, the channel will be buffered by a
+<a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a> of that size. If it's a
+<a href="module-cispy_core_buffers-Buffer.html">Buffer</a> object, that object will be used as the channel's buffer.</p>
+<p><code>chan</code> supports transducers by allowing a transducer function to be associated with it. This is passed as the
+second parameter and can only be used if the channel is buffered (otherwise an error is thrown). This transducer
+function must take another transducer as a parameter (allowing transformers to be chained), and it must return an
+object conforming to the transducer protocol. The transducer functions provided by several libraries meet these
+requirements.</p>
+<p>Errors in the transformation process can be handled by passing an error handler. This is a function that expects to
+receive an error object as a parameter and can return a value that is then put onto the channel. If this value is
+<code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>, then no value will be put onto the channel upon handler completion.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>buffer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+|
+
+<span class="param-type"><a href="module-cispy_core_buffers-Buffer.html">module:cispy/core/buffers~Buffer</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>0</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>The buffer object that should back this channel. If
+    this is a positive number, a fixed buffer of that size will be created to back the channel. If it is <code>0</code> or
+    <code>null</code> (or is just missing), the new channel will be unbuffered.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>xform</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy.html#~transducer">module:cispy~transducer</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>A transducer to run each value through before putting it onto the channel.
+    This function should expect one parameter (another transducer that it's chained to) and return an object that
+    conforms to the transducer protocol. This is a reasonably well-supported protocol that means that transducers
+    from a few libraries should work fine out of the box. If a transducer is provided on an unbuffered channel, an
+    error will be thrown.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handler</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy.html#~exceptionHandler">module:cispy~exceptionHandler</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>An error handler that is run whenever an error occurs inside a
+    transducer function. If that happens, this function is called with one parameter, which is the error object.
+    The value that the handler returns (if it is not <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>) will be put onto the
+    channel when the handler finishes running.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>A set of options for configuring the channel's queue.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>maxDirty</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>64</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>The maximum number of dirty operations that can be in the queue
+    before those operations are subject to being purged. Dirty operations are those that may not be valid anymore
+    because they were in the list of operations passed to <code>alts</code> but were not chosen to run. This provides a chance
+    for a very minor performance tweak and is best left alone.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maxQueued</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>1024</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>The maximum number of operations that can be queued up at the same
+    time. This prevents infinite loops from accidentally eating up all of the available memory.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A new channel.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".close"><span class="type-signature">(static) </span>close<span class="signature">(channel)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_channel.js.html">core/channel.js</a>, <a href="core_channel.js.html#line741">line 741</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Closes a channel.</strong></p>
+<p>Marks a particular channel as closed. A closed channel cannot accept any new puts
+(<code><a href="module-cispy-Cispy.html#.put">put</a></code> will return <code>false</code> if an attempt is made, and no new value will be on the
+channel). If it's buffered, it will* still provide the values that are already on the channel until all of them are
+taken, after which any <code><a href="module-cispy-Cispy.html#.take">take</a></code> will return <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>.</p>
+<p>If there are pending takes on a channel when it's closed, then all takes will immediately return with
+<code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>channel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The channel to be closed.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".config"><span class="type-signature">(static) </span>config<span class="signature">(opts)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_dispatcher.js.html">core/dispatcher.js</a>, <a href="core_dispatcher.js.html#line122">line 122</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Sets one of the dispatcher configuration options.</strong></p>
+<p>This is advanced setting for the dispatcher that is responsible for queueing up channel operations and processes.
+It is likely that this function will never need to be called in normal operation.</p>
+<p>If any recognized options are specified in the options object passed to <code>config</code>, then the option is set to the
+value sent in. Properties that aren't any of these four options are ignored, and any of these options that do not
+appear in the passed object are left with their current values.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>A mapping of options to their new values. Extra values (properties that are not options) are
+    ignored.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>taskBatchSize</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The maximum number of tasks that the dispatcher will run in a single batch
+    (by default, this is 1024). If the number of pending tasks exceeds this, the remaining are not discarded.
+    They're simply run as part of another batch after the current batch completes.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dispatchMethod</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Symbol</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The method used to dispatch a process into a separate line of execution.
+    Possible values are <code>SET\_IMMEDIATE</code>,
+    <code>MESSAGE\_CHANNEL</code>, or
+    <code>SET\_TIMEOUT</code>, with
+    the default being <code>SET\_IMMEDIATE</code>. If a method is set but is not
+    available in that environment, then it will silently fall back to the next method that is available.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".droppingBuffer"><span class="type-signature">(static) </span>droppingBuffer<span class="signature">(size)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_buffers-DroppingBuffer.html">module:cispy/core/buffers~DroppingBuffer</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line320">line 320</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Creates a dropping buffer of the specified capacity.</strong></p>
+<p>A dropping buffer silently drops the item being added if the buffer is already at capacity. Since adding a new
+item will always 'succeed' (even if it succeeds by just ignoring the add), it is never considered full and
+therefore a put to a channel buffered by a dropping buffer never blocks.</p>
+<p>This buffer is able to be passed to <code><a href="module-cispy-Cispy.html#.chan">chan</a></code> to create a buffered channel.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>size</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The number of items that the new buffer can hold before newest items are dropped on add.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A new dropping buffer of the specified capacity.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_buffers-DroppingBuffer.html">module:cispy/core/buffers~DroppingBuffer</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".fixedBuffer"><span class="type-signature">(static) </span>fixedBuffer<span class="signature">(size)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_buffers-FixedBuffer.html">module:cispy/core/buffers~FixedBuffer</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line256">line 256</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Creates a fixed buffer of the specified capacity.</strong></p>
+<p>A fixed buffer is a 'normal' buffer, one that stores and returns items on demand. While it is capable of being
+over-filled, that ability is not used in Cispy. A buffer that is full will cause the next put to its channel to
+block until at least one item is removed from the buffer.</p>
+<p>This buffer is able to be passed to <code><a href="module-cispy-Cispy.html#.chan">chan</a></code> to create a buffered channel.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>size</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The number of items that the new buffer can hold before it's full.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A new fixed buffer of the specified capacity.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_buffers-FixedBuffer.html">module:cispy/core/buffers~FixedBuffer</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".go"><span class="type-signature">(static) </span>go<span class="signature">(fn, &hellip;args)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_operations.js.html">generator/operations.js</a>, <a href="generator_operations.js.html#line246">line 246</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Creates a new process from a generator function.</strong></p>
+<p>The generator function (expressed literally as <code>function*() { ... }</code>) is run in a separate process under the
+control of the CSP engine, and any <code>yield</code> expressions within the generator function followed by the five process
+instructions (<code><a href="module-cispy-Cispy.html#.put">put</a></code>, <code><a href="module-cispy-Cispy.html#.take">take</a></code>,
+<code><a href="module-cispy-Cispy.html#.takeOrThrow">takeOrThrow</a></code>, <code><a href="module-cispy-Cispy.html#.alts">alts</a></code>,
+<code><a href="module-cispy-Cispy.html#.sleep">sleep</a>)</code> are given their special meanings.</p>
+<p>Really, this is a convenience function, but one that's convenient enough that it's used almost universally over its
+alternative. <code><a href="module-cispy-Cispy.html#.spawn">spawn</a></code> does the actual work, but it takes a generator instead of a
+generator function, and since there is no generator literal, <code>go</code> is easier to use. The generator function is
+invoked to create a generator for <code><a href="module-cispy-Cispy.html#.spawn">spawn</a></code>, and when that happens, the remaining <code>go</code>
+parameters are applied to that generator function.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>A generator function to be run as a separate process.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Arguments that are sent to the generator function when it's invoked to create the process.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A channel that is given a single value when the process completes, and
+    that is the return value of the generator function. This channel automatically closes when that value is taken
+    from it.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".goSafe"><span class="type-signature">(static) </span>goSafe<span class="signature">(fn, handler, &hellip;args)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_operations.js.html">generator/operations.js</a>, <a href="generator_operations.js.html#line271">line 271</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Creates a new process that can handle internal errors.</strong></p>
+<p>This works just like <code><a href="module-cispy-Cispy.html#.go">go</a></code> except that it allows the specification of an error handler.
+If the handler exists and is a function, then it is called any time that an uncaught error is thrown from inside a
+process. The function receives the thrown error object as its single parameter.</p>
+<p>After the handler is run, the process will end. The return value of the process (i.e., the single value that will
+be in the channel that <code>goSafe</code> returns) will be whatever value is returned from the handler.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>A generator function to be run as a separate process.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handler</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy.html#~exceptionHandler">module:cispy~exceptionHandler</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>A function that will be called if an error is thrown inside the
+    process. The return value of this function will then be put into the process's output channel, and the process
+    will be terminated.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Arguments that are sent to the generator function when it's invoked to create the process.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A channel that is given a single value when the process completes, and
+    that is the return value of the generator function (if no uncaught error is thrown) or the return value of the
+    handler function (if an uncaught error is thrown and passed to the handler). This channel automatically closes
+    when that value is taken from it.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".put"><span class="type-signature">(static) </span>put<span class="signature">(channel, value<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_operations.js.html">generator/operations.js</a>, <a href="generator_operations.js.html#line118">line 118</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Puts a value onto a channel, blocking the process until that value is taken from the channel by a different
+process (or until the channel closes).</strong></p>
+<p>A value is always put onto the channel, but if that value isn't specified by the second parameter, it is
+<code>undefined</code>. Any value may be put on a channel, with the sole exception of the special value
+<code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>.</p>
+<p>This function <em>must</em> be called from within a process and as part of a <code>yield</code> expression.</p>
+<p>When <code>put</code> is completed and its process unblocks, its <code>yield</code> expression evaluates to a status boolean that
+indicates what caused the process to unblock. That value is <code>true</code> if the put value was successfully taken by
+another process, or <code>false</code> if the unblocking happened because the target channel closed.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>channel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The channel that the process is putting a value onto.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The value being put onto the channel.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The function itself returns an instruction object that guides the process in running the put. This
+    is why <code>put</code> must be run in a process; the instruction object is meaningless otherwise. After the process
+    unblocks, the <code>yield put</code> expression returns <code>true</code> if the put value was taken or <code>false</code> if the target channel
+    closed.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".putAsync"><span class="type-signature">(static) </span>putAsync<span class="signature">(channel, value<span class="signature-attributes">opt</span>, callback<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_operations.js.html">core/operations.js</a>, <a href="core_operations.js.html#line246">line 246</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Puts a value onto a channel without blocking.</strong></p>
+<p>This means that a call to <code>putAsync</code> does not go into a <code>yield</code> expression, and it is not necessary to use it
+inside a process. Rather than blocking until the put value is taken by another process, this one returns
+immediately and then invokes the callback (if provided) when the put value is taken. It can be seen as a
+non-blocking version of generator-based <code><a href="module-cispy-Cispy.html#.put">put</a></code> or promise-based
+<code><a href="module-cispy_promise-CispyPromise.html#.put">put</a></code>.</p>
+<p>While the primary use of this function is to put values onto channels in contexts where being inside a process is
+impossible (for example, in a DOM element's event handler), it can still be used inside processes at times when
+it's important to make sure that the process doesn't block from the put.</p>
+<p>The callback is a function of one parameter. The parameter that's supplied to the callback is the same as what is
+supplied to <code>yield put</code>: <code>true</code> if the value was taken, or <code>false</code> if the channel was closed. If the callback isn't
+present, nothing will happen after the value is taken.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>channel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The channel that the value is being put onto.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The value being put onto the channel.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy.html#~nbCallback">module:cispy~nbCallback</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>A function that gets invoked either when the value is taken by another
+    process or when the channel is closed. This function can take one parameter, which is <code>true</code> in the former case
+    and <code>false</code> in the latter.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".sleep"><span class="type-signature">(static) </span>sleep<span class="signature">(delay<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_operations.js.html">generator/operations.js</a>, <a href="generator_operations.js.html#line195">line 195</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Blocks the process for the specified time (in milliseconds) and then unblocks it.</strong></p>
+<p>This implements a delay, but one that's superior to other kinds of delays (<code>setTimeout</code>, etc.) because it blocks
+the process and allows the dispatcher to allow other processes to run while this one waits. If the delay is set to
+<code>0</code> or is missing altogether, the process will relinquish control to the next process in the queue and immediately
+reschedule itself to be continued, rather than blocking.</p>
+<p>This function <em>must</em> be called from within a process and as part of a <code>yield</code> expression.</p>
+<p>When this function completes and its process unblocks, the <code>yield</code> expression doesn't take on any meaningful value.
+The purpose of this function is simply to delay, not to communicate any data.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>delay</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>0</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>the number of milliseconds that the process will block for. At the end of that time, the
+    process is again eligible to be run by the dispatcher again. If this is missing or set to <code>0</code>, the process
+    will cede execution to the next one but immediately requeue itself to be run again.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The function itself returns an instruction object that guides the process in blocking for the
+    right amount of time. This is why <code>timeout</code> must be run in a process; the instruction object is meaningless
+    otherwise. After the process unblocks, the <code>yield timeout</code> expression doesn't take on any value (it's in fact
+    set to <code>undefined</code>).</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".slidingBuffer"><span class="type-signature">(static) </span>slidingBuffer<span class="signature">(size)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_buffers-SlidingBuffer.html">module:cispy/core/buffers~SlidingBuffer</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_buffers.js.html">core/buffers.js</a>, <a href="core_buffers.js.html#line384">line 384</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Creates a sliding buffer of the specified capacity.</strong></p>
+<p>A sliding buffer drops the first-added (oldest) item already in the buffer if a new item is added when the buffer
+is already at capacity. Since it's always capable of having items added to it, it's never considered full, and
+therefore a put to a channel buffered by a sliding buffer never blocks.</p>
+<p>This buffer is able to be passed to <code><a href="module-cispy-Cispy.html#.chan">chan</a></code> to create a buffered channel.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>size</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The number of items that the new buffer can hold before oldest items are dropped on add.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A new sliding buffer of the specified capacity.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_buffers-SlidingBuffer.html">module:cispy/core/buffers~SlidingBuffer</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".spawn"><span class="type-signature">(static) </span>spawn<span class="signature">(gen)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_operations.js.html">generator/operations.js</a>, <a href="generator_operations.js.html#line212">line 212</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Creates a new process from a generator.</strong></p>
+<p>This does exactly the same thing as <code><a href="module-cispy-Cispy.html#.go">go</a></code>, but it takes a generator instead of a
+generator function and its parameters. Because a generator does not have a literal notation,
+<code><a href="module-cispy-Cispy.html#.go">go</a></code> is going to be used the vast majority of the time. However, if a generator has
+already been created by invoking its generator function, <code>spawn</code> is available to run it in a separate process.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>gen</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>A generator to be run in a separate process.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A channel that is given a single value when the process completes, and
+    that is the return value of the generator. This channel automatically closes when that value is taken from it.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".take"><span class="type-signature">(static) </span>take<span class="signature">(channel)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_operations.js.html">generator/operations.js</a>, <a href="generator_operations.js.html#line53">line 53</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the
+channel closes with no more values on it to be taken).</strong></p>
+<p>This function <em>must</em> be called from within a process and as part of a <code>yield</code> expression.</p>
+<p>When <code>take</code> is completed and its process unblocks, its <code>yield</code> expression evaluates to the actual value that was
+taken. If the target channel closed, then all of the values already placed onto it are resolved by <code>take</code> as
+normal, and once no more values are available, the special value <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code> is
+returned.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>channel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The channel that the process is taking a value from.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The function itself returns an instruction object that guides the process in running the take.
+    This is why <code>take</code> must be run in a process; the instruction object is meaningless otherwise. After the process
+    unblocks, the <code>yield take</code> expression returns the value taken from the channel, or
+    <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>if the target channel has closed and no more values are available to
+    be taken.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".takeOrThrow"><span class="type-signature">(static) </span>takeOrThrow<span class="signature">(channel)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="generator_operations.js.html">generator/operations.js</a>, <a href="generator_operations.js.html#line92">line 92</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the
+channel closes with no more values on it to be taken). If the taken value is an error object, that error is thrown
+at that point within the process.</strong></p>
+<p>This function <em>must</em> be called from within a process and as part of a <code>yield</code> expression.</p>
+<p>It functions in every way like <code><a href="module-cispy-Cispy.html#.take">take</a></code> <em>except</em> in the case that the value on the
+channel is an object that has <code>Error.prototype</code> in its prototype chain (any built-in error, any properly-constructed
+custom error). If that happens, the error is thrown at that point in the process. This throw is like any other throw;
+i.e., it can be caught, the custom handler from <a href="module-cispy-Cispy.html#.goSafe">goSafe</a> can deal with it, etc.</p>
+<p>If the taken value is an error object, the <code>yield takeOrThrow</code> expression will have no value (after all, it threw
+an error instead).</p>
+<p><code>takeOrThrow</code> is roughly equivalent to:</p>
+<pre class="prettyprint source"><code>const value = yield take(ch);
+if (Error.prototype.isPrototypeOf(value)) {
+  throw value;
+}</code></pre><p>The equivalence isn't exact because the <code>throw</code> happens <em>inside</em> the process rather than outside as here, but in
+most cases that won't make a difference.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>channel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The channel that the process is taking a value from.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The function itself returns an instruction object that guides the process in running the take.
+    This is why <code>takeOrThrow</code> must be run in a process; the instruction object is meaningless otherwise. After the
+    process unblocks, the <code>yield takeOrThrow</code> expression returns the value taken from the channel,
+    <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code> if the target channel has closed and no more values are available to
+    be taken, or no value at all if the taken value was an error object.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".timeout"><span class="type-signature">(static) </span>timeout<span class="signature">(delay)</span><span class="type-signature"> &rarr; {<a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core_channel.js.html">core/channel.js</a>, <a href="core_channel.js.html#line721">line 721</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Creates a new unbuffered channel that closes after some amount of time.</strong></p>
+<p>This channel is able to be used for putting and taking as normal, but it will close after the number of
+milliseconds in its <code>delay</code> parameter has passed. For that reason it's not really intended to be used for putting
+and taking. Its primary purpose is to be a channel passed to <code><a href="module-cispy-Cispy.html#.alts">alts</a></code> to place a time
+limit on how long its process will block.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>delay</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The number of milliseconds to keep the new channel open. After that much time passes, the
+    channel will close automatically.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A new channel that automatically closes after the delay completes.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

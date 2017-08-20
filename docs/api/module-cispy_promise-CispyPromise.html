@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CispyPromise - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cispy.html">cispy</a></li><li><a href="module-cispy_core_buffers.html">cispy/core/buffers</a></li><li><a href="module-cispy_core_channel.html">cispy/core/channel</a></li><li><a href="module-cispy_promise.html">cispy/promise</a></li><li><a href="module-cispy_promise_util.html">cispy/promise/util</a></li><li><a href="module-cispy_util.html">cispy/util</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-cispy_core_buffers-Buffer.html">Buffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Buffer.html#remove">remove</a></li></ul></li><li><a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-DroppingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-FixedBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-Queue.html">Queue</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#dequeue">dequeue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#enqueue">enqueue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#filter">filter</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#peek">peek</a></li></ul></li><li><a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-SlidingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_channel-Channel.html">Channel</a></li><li><a href="module-cispy_promise_util-CispyPromiseUtil.html">CispyPromiseUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy_promise-CispyPromise.html">CispyPromise</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.put">put</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.take">take</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.takeOrThrow">takeOrThrow</a></li></ul></li><li><a href="module-cispy_util-CispyUtil.html">CispyUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy-Cispy.html">Cispy</a><ul class='methods'><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.chan">chan</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.close">close</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.config">config</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.droppingBuffer">droppingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.fixedBuffer">fixedBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.go">go</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.goSafe">goSafe</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.put">put</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.slidingBuffer">slidingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.spawn">spawn</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.take">take</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.takeOrThrow">takeOrThrow</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.timeout">timeout</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">CispyPromise</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-cispy_promise.html">cispy/promise</a>~</span>
+        
+        CispyPromise
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="promise.js.html">promise.js</a>, <a href="promise.js.html#line47">line 47</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+        
+            <div class="description"><p>The core namespace under which all of the main promise-based functions reside in the API. This includes <strong>only</strong> the
+blocking channel functions and utility functions. All other functions included in this library are the same as the
+ones in the generator-based library. They are listed here for convenience.</p>
+<ul>
+<li><code><a href="module-cispy-Cispy.html#.chan">chan</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.timeout">timeout</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.close">close</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></code></li>
+<li><code>takeAsync</code></li>
+<li><code><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.config">config</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.fixedBuffer">fixedBuffer</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.slidingBuffer">slidingBuffer</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.droppingBuffer">droppingBuffer</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a></code></li>
+<li><code><a href="module-cispy-Cispy.html#.EMPTY">EMPTY</a></code></li>
+<li><code>SET\_IMMEDIATE</code></li>
+<li><code>MESSAGE\_CHANNEL</code></li>
+<li><code>SET\_TIMEOUT</code></li>
+</ul></div>
+        
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".util"><span class="type-signature">(static) </span>util<span class="type-signature"> :<a href="module-cispy_promise_util-CispyPromiseUtil.html">module:cispy/promise/util~CispyPromiseUtil</a></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="promise.js.html">promise.js</a>, <a href="promise.js.html#line103">line 103</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>A set of utility functions for working with channels.</strong></p>
+<p>This is a small 'standard library' of promise-based operations that are useful when working with channels.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="module-cispy_promise_util-CispyPromiseUtil.html">module:cispy/promise/util~CispyPromiseUtil</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".put"><span class="type-signature">(static) </span>put<span class="signature">(channel, value<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="promise_operations.js.html">promise/operations.js</a>, <a href="promise_operations.js.html#line52">line 52</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Puts a value onto a channel, blocking the process until that value is taken from the channel by a different
+process (or until the channel closes).</strong></p>
+<p>A value is always put onto the channel, but if that value isn't specified by the second parameter, it is
+<code>undefined</code>. Any value may be put on a channel, with the sole exception of the special value
+<code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>.</p>
+<p>This function <em>must</em> be called from within an <code>async</code> function and as part of an <code>await</code> expression.</p>
+<p>When <code>put</code> is completed and its process unblocks, its <code>await</code> expression evaluates to a status boolean that
+indicates what caused the process to unblock. That value is <code>true</code> if the put value was successfully taken by
+another process, or <code>false</code> if the unblocking happened because the target channel closed.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>channel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The channel that the process is putting a value onto.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The value being put onto the channel.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A promise that will resolve to <code>true</code> or <code>false</code> depending on whether the put value is actually
+    taken.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".sleep"><span class="type-signature">(static) </span>sleep<span class="signature">(delay<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="promise_operations.js.html">promise/operations.js</a>, <a href="promise_operations.js.html#line191">line 191</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Blocks the process for the specified time (in milliseconds) and then unblocks it.</strong></p>
+<p>This implements a delay, but one that's superior to other kinds of delays (<code>setTimeout</code>, etc.) because it blocks
+the process and allows the dispatcher to allow other processes to run while this one waits. If the delay is set to
+<code>0</code> or is missing altogether, the process will relinquish control to the next process in the queue and immediately
+reschedule itself to be continued, rather than blocking.</p>
+<p>This function <em>must</em> be called from within an <code>async</code> function and as part of an <code>await</code> expression.</p>
+<p>When this function completes and its process unblocks, the <code>await</code> expression doesn't take on any meaningful value.
+The purpose of this function is simply to delay, not to communicate any data.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>delay</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>0</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>the number of milliseconds that the process will block for. At the end of that time, the
+    process is again eligible to be run by the dispatcher again. If this is missing or set to <code>0</code>, the process
+    will cede execution to the next one but immediately requeue itself to be run again.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A promise that resolves with no meaningful result when the time has elapsed.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".take"><span class="type-signature">(static) </span>take<span class="signature">(channel)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="promise_operations.js.html">promise/operations.js</a>, <a href="promise_operations.js.html#line75">line 75</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the
+channel closes with no more values on it to be taken).</strong></p>
+<p>This function <em>must</em> be called from within an <code>async</code> function and as part of an <code>await</code> expression.</p>
+<p>When <code>take</code> is completed and its process unblocks, its <code>await</code> expression evaluates to the actual value that was
+taken. If the target channel closed, then all of the values already placed onto it are resolved by <code>take</code> as
+normal, and once no more values are available, the special value <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code> is
+returned.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>channel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The channel that the process is taking a value from.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A promise that will resolve to the value taken from the channel once that take is completed. If the
+    channel closes without a value being made available, this will resolve to
+    <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".takeOrThrow"><span class="type-signature">(static) </span>takeOrThrow<span class="signature">(channel)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="promise_operations.js.html">promise/operations.js</a>, <a href="promise_operations.js.html#line109">line 109</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p><strong>Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the
+channel closes with no more values on it to be taken). If the taken value is an error object, that error is thrown
+at that point.</strong></p>
+<p>This function <em>must</em> be called from within an <code>async</code> function and as part of an <code>await</code> expression.</p>
+<p>It functions in every way like <code><a href="module-cispy_promise-CispyPromise.html#.take">take</a></code> <em>except</em> in the case that the
+value on the channel is an object that has <code>Error.prototype</code> in its prototype chain (any built-in error, any
+properly-constructed custom error). If that happens, the error is thrown, which will cause the returned promise to be
+rejected with the error. It can then be handled up the promise chain like any other rejected promise.</p>
+<p><code>takeOrThrow</code> is roughly equivalent to:</p>
+<pre class="prettyprint source"><code>const value = await take(ch);
+if (Error.prototype.isPrototypeOf(value)) {
+  throw value;
+}</code></pre>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>channel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy_core_channel-Channel.html">module:cispy/core/channel~Channel</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The channel that the process is taking a value from.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>A promise that will resolve to the value taken from the channel once that take is completed. If the
+    channel closes without a value being made available, this will resolve to
+    <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>. If the taken value is an error, the promise will instead be rejected
+    with the error object as the reason.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

@@ -19,13 +19,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// cispy.js
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// All of the CSP functions are pulled together into this file and exported. The process-related functions (put, take,
-// alts, putAsync, takeAsync, raise, sleep) and some others are just passed along, but a number of other
-// functions are defined here (go, spawn, chan). All three types of buffers are also supplied, along with the special
-// values CLOSED, EMPTY, and DEFAULT.
+/**
+ * All of the external, process-based CSP functions are gathered here and exported as a whole. This includes core CSP
+ * functions for channels and processes, but it also includes buffers, special values, and utility functions.
+ *
+ * @module cispy
+ */
 
 const { fixed, sliding, dropping, EMPTY } = require('./core/buffers');
 const { chan, timeout, close, CLOSED, DEFAULT } = require('./core/channel');
@@ -35,6 +34,63 @@ const { config, SET_IMMEDIATE, MESSAGE_CHANNEL, SET_TIMEOUT } = require('./core/
 const { go, goSafe, spawn, put, take, takeOrThrow, alts, sleep } = require('./generator/operations');
 
 const util = require('./generator/util');
+
+/**
+ * The core namespace under which all of the main functions reside in the API. Everything in this namespace is
+ * accessible as a member of the main `cispy` object that is required, imported, or accessed as a global object.
+ *
+ * @namespace Cispy
+ */
+
+/**
+ * An error handling function. This is used to handle exceptions thrown in processes and transducers. The return value
+ * of an exception handler is typically put onto a channel; if the exception happened within a process, it will be put
+ * to that process's output channel, and if the exception happened in a transducer, it will be put to the channel to
+ * which the transducer is attached.
+ *
+ * @callback exceptionHandler
+ * @param {Object} err The error object that was thrown to cause the error being handled.
+ * @return {*} A value that will be put onto a channel..
+ */
+
+/**
+ * A callback run when a non-blocking channel operation completes. The value that this function receives is identical
+ * to what is returned by a blocking call: the value being taken from the channel for a `take`, or `true` or `false`
+ * depending on the channel status for a `put`. It need not return anything; any return value is ignored.
+ *
+ * @callback nbCallback
+ * @param {*} value Either the value taken from the channel, or whether or not a value was successfully put.
+ */
+
+/**
+ * A callback run when a non-blocking alts operation completes. Th evalue that this function recieves is an object
+ * with two properties: the value that the alts operation completed with (either the value taken from the channel in
+ * a take operation, or `true` or `false` in a puts operation), along with the channel where the operation actually
+ * took place. This function need not return anything; any return value is ignored.
+ *
+ * @callback altsCallback
+ * @param {Object} data The value returned from the alts operation.
+ * @param {*} data.value The value of the completed operation. If the operation was a take, this is the value that was
+ *     taken from the channel (or `{@link module:cispy~CLOSED|CLOSED}` if the channel was closed without a value being
+ *     taken). If the operation was a put, this is `true` if the put value was taken and `false` if the channel was
+ *     closed before that value could be taken.
+ * @param {module:cispy/core/channel~Channel} data.channel The channel on which the operation that was completed acted.
+ */
+
+/**
+ * A function that transforms data and can be chained to other transducers. This is handled by separate libraries; the
+ * only involvement of this library is as a consumer of transducers. A transducer is stepped through each time a value
+ * is taken from a channel.
+ *
+ * Transducers work by having step functions that are known via protocol, and it is these step functions that take the
+ * data to be transformed as arguments. The arguments to the transducers themselves are other transducers that are then
+ * composed into a single transducer, which is then returned. These values should not be a concern of a user of this
+ * library; just pass a transducer to {@link module:cispy~chan|chan} and everything else will be handled.
+ *
+ * @callback transducer
+ * @param {module:cispy~transducer} xform A transducer to chain this transducer to.
+ * @return {module:cispy~transducer} A new transducer chaining this one to `xform`.
+ */
 
 module.exports = {
   go,
@@ -58,8 +114,17 @@ module.exports = {
   CLOSED,
   DEFAULT,
   EMPTY,
-  util,
   SET_IMMEDIATE,
   MESSAGE_CHANNEL,
-  SET_TIMEOUT
+  SET_TIMEOUT,
+
+  /**
+   * **A set of utility functions for working with channels.**
+   *
+   * This is a small 'standard library' of operations that are useful when working with channels.
+   *
+   * @type {module:cispy/util~CispyUtil}
+   * @memberOf module:cispy~Cispy
+   */
+  util
 };
