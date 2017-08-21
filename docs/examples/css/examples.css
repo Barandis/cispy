@@ -43,3 +43,36 @@
   padding: 0.5em;
   margin-top: 1em;
 }
+
+table#process-10k {
+  border: none;
+  margin: 0 auto;
+}
+table#process-10k td {
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.6em;
+  line-height: 0.8em;
+}
+.group-0 {
+  color: #000;
+}
+.group-1 {
+  color: #f00;
+}
+.group-2 {
+  color: #0f0;
+}
+.group-3 {
+  color: #00f;
+}
+.group-4 {
+  color: #ff0;
+}
+.group-5 {
+  color: #0ff;
+}
+.group-6 {
+  color: #f0f;
+}
