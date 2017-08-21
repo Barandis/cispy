@@ -47,6 +47,7 @@
 table#process-10k {
   border: none;
   margin: 0 auto;
+  border-collapse: collapse;
 }
 table#process-10k td {
   border: none;
