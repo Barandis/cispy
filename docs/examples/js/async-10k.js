@@ -44,15 +44,15 @@ function renderLoop(rate) {
   let queue = [];
 
   // The single process that controls the rendering
-  go(function*() {
+  go(async () => {
     // The main rendering loop. Takes two-element arrays off the main
     // channel and queues them, pausing to call render() every time
     // the refresh channel times out.
     while (true) {
-      const { value, channel } = yield alts([main, refresh]);
+      const { value, channel } = await alts([main, refresh]);
       if (channel === refresh) {
         render(queue);
-        yield sleep();
+        await sleep();
         queue = [];
         refresh = timeout(rate);
       } else {
@@ -69,14 +69,14 @@ createUi(document.getElementById('process-10k'));
 const ch = renderLoop(rate);
 for (let i = 0, limit = width * height; i < limit; ++i) {
   // One process per table cell
-  go(function*() {
+  go(async () => {
     while (true) {
       // Sleep from 1-10 seconds
-      yield sleep(1000 + Math.floor(Math.random() * 9000));
+      await sleep(1000 + Math.floor(Math.random() * 9000));
       // This is what puts the two-element arrays onto the main
       // channel, which eventually get queued and sent to
       // render().
-      yield put(ch, [i, Math.floor(Math.random() * 10)]);
+      await put(ch, [i, Math.floor(Math.random() * 10)]);
     }
   });
 }

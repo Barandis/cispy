@@ -7,7 +7,11 @@
   <link rel="stylesheet" href="css/examples.css">
   <link rel="stylesheet" href="../css/tomorrow-night-eighties.css">
   <script src="../js/highlight.pack.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="../js/highlightjs-line-numbers.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+  </script>
 </head>
 <body>
   <header>
@@ -23,28 +27,50 @@
     <p>
       This was a nifty little thing that I found on
       <a href="http://swannodette.github.io/2013/08/02/100000-processes">swannodette's blog</a> which demonstrates the
-      creation and execution of 10,001 processes in the browser. Just kinda cool, so I decided to implement it with
-      Cispy.
+      creation and execution of 10,000 processes in the browser. I thought it was very cool, so I tried implementing it
+      (with a couple of modifications ) with Cispy.
     </p>
 
     <table id="process-10k"></table>
 
     <p>
-      This is 10,001 processes running simultaneously, all communicating over a single channel. 10,000 of these
-      processes are responsible for putting values onto the channel, which they do every 1-10 seconds (the time is
-      chosen randomly for every process). The values include an index of one of the 10,000 numbers in the display and
-      the new digit that should be in that place.
+      This is 10,001 processes running simultaneously, all communicating over a single channel. 10,000 of these are each
+      responsible for a single element of a 10,000-element array, changing its value every 1-10 seconds (randomly
+      chosen each pass) to a different number from 0-9.
     </p>
     <p>
       The 10,001st process takes these values from the channel as they come in and collects them in a queue. It does
       this through an `alts` call which reads two channels: the one where all of the values are, and a timeout channel
-      that closes every 40 milliseconds. When that timeout channel closes, the queued values are all displayed (in one
-      of a set of colors that cycles and repeats), the timeout channel is restarted, and the queue begins to fill again.
+      that closes every 40 milliseconds. When that timeout channel closes, a new color is chosen (one in a cycle of
+      seven), the elements in the queue (i.e., the ones that have been updated in the last 40ms) are displayed in their
+      appropriate places on the screen, the timeout channel is restarted, and the queue begins to fill again.
     </p>
     <p>
       Those who have done multi-threading in other languages will know that 10,000 threads would be impossible within
       memory and CPU constraints. Processes are much lighter in weight though, to the degree that a browser engine can
       handle them fine.
+    </p>
+    <p>
+      The changes from the original are threefold:
+      <ol>
+        <li>
+          Channels, by default, can have up to 1024 pending operations queued up before they complain (I don't know what
+          the limit is in Clojure). Operations after that simply don't get queued, meaning that puts don't get taken,
+          meaning that the process whose put is rejected blocks forever (and its digit never changes again).
+          Intermittent browser slowdowns when your computer is otherwise busy will cause this limit to be exceeded, so
+          I've bumped it up to 4096 pending operations.
+        </li>
+        <li>
+          I added a sixth (non-black) color, because magenta was under-represented.
+        </li>
+        <li>
+          The original had each of the 10,000 processes choose a random cell to update. I think the idea of having each
+          cell serviced by its own individual process is elegant, so that's what I did.
+        </li>
+      </ol>
+    </p>
+    <p>
+      I've also implemented an <a href="async-10k.html">async function version</a> of this same example.
     </p>
     <p>
       Here is the code for your viewing pleasure.
@@ -63,6 +89,7 @@
         const code = document.getElementById('code');
         code.innerText = xhr.responseText;
         hljs.highlightBlock(code);
+        hljs.lineNumbersBlock(code);
       }
     };
     xhr.send();
