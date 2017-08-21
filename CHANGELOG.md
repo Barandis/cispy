@@ -2,6 +2,11 @@
 
 All notable changes to the library will be documented in this file.
 
+## [Unreleased]
+### Added
+- a new set of dist files: untranspiled, packed ES2017 code. This is suitable for browsers, but obviously only for ones that understand generators (and async functions, if you use those). There is not yet a good solution for minifying these.
+- a new set of examples based around creating more than 10,000 processes and running them simultaneously.
+
 ## [1.0.0] 2017-08-20
 ### Added
 - an entire new promise-based implementation of processes. This is completely agnostic to channels; channels have not had to change to accommodate these functions. These are best used with the `async`/`await` keywords from ES7, which are seeing relatively wide implementation, though they will work fine with straight promises as well (though it's very clunky that way). Since the JS engine handles promises, there is no need for custom process machinery, `goSafe` and `spawn` are not necessary. (`go` is also not necessary, but I'ive included it as a convenience function.) It also means that testing is difficult because Sinon fake timers don't deal well with native promises, so tests have been written and executed but are marked as skipped in the github repository so they don't blow up CI. This means that this is beta quality at best.
