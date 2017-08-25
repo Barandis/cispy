@@ -46,8 +46,7 @@
     "rimraf": "^2.6.1",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.8.0",
-    "webpack": "^2.2.1",
-    "xduce": "^0.8.1"
+    "webpack": "^2.2.1"
   },
   "dependencies": {}
 }
