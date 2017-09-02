@@ -6,9 +6,10 @@ const { fixed, dropping, sliding } = require('../../../src/core/buffers');
 const { chan, timeout, close, CLOSED } = require('../../../src/core/channel');
 const { config, SET_TIMEOUT } = require('../../../src/core/dispatcher');
 const { go, sleep, put, take, alts } = require('../../../src/generator/operations');
-const p = require('../../../src/core/protocol').protocols;
 
-const t = require('xduce');
+const { compose, protocols, transducers } = require('xduce');
+const t = transducers;
+const p = protocols;
 
 describe('CSP channel', () => {
   describe('chan() creation function', () => {
@@ -250,7 +251,7 @@ describe('CSP channel', () => {
       });
 
       it('handles composed transformers', done => {
-        const xform = t.compose(t.map(x => x * 3), t.filter(even), t.take(3));
+        const xform = compose(t.map(x => x * 3), t.filter(even), t.take(3));
         const ch = chan(10, xform);
 
         go(function*() {
@@ -269,7 +270,7 @@ describe('CSP channel', () => {
       });
 
       it('correctly closes the channel even if another taker is active', done => {
-        const ch = chan(10, t.compose(t.flatten(), t.take(3)));
+        const ch = chan(10, compose(t.flatten(), t.take(3)));
         const out = chan();
         const ctrl = chan();
 
