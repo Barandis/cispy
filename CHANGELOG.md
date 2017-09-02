@@ -2,7 +2,7 @@
 
 All notable changes to the library will be documented in this file.
 
-## [Unreleased]
+## [1.0.1] 2017-09-02
 ### Added
 - a new set of dist files: untranspiled, packed ES2017 code. This is suitable for browsers, but obviously only for ones that understand generators (and async functions, if you use those). There is not yet a good solution for minifying these. (UPDATE: There *is* a good solution for minifying these, but I'm not going to do that until I re-arrange the project. See below.)
 - a new set of examples based around creating more than 10,000 processes and running them simultaneously.
