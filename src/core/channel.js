@@ -51,7 +51,7 @@
 
 const { queue, fixed, EMPTY } = require('./buffers');
 const { dispatch } = require('./dispatcher');
-const p = require('./protocol').protocols;
+const p = require('xduce').protocols;
 
 /**
  * The maximum number of dirty operations that can be queued on a channel before a cleanup is triggered.

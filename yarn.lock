@@ -3589,9 +3589,9 @@ write@^0.2.1:
   dependencies:
     mkdirp "^0.5.1"
 
-xduce@^0.8.1:
-  version "0.8.1"
-  resolved "https://registry.yarnpkg.com/xduce/-/xduce-0.8.1.tgz#9933cdd5deab2ad1929d5d7302fe92e352c58bde"
+xduce@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/xduce/-/xduce-1.0.0.tgz#a3554866f5e5c0609c793511e6f16c47df04a6cf"
 
 xmlcreate@^1.0.1:
   version "1.0.2"

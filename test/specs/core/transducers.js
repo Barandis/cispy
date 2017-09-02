@@ -3,7 +3,7 @@ const { expect } = require('../../helper');
 const { chan, close, CLOSED } = require('../../../src/core/channel');
 const { go, put, take } = require('../../../src/generator/operations');
 
-const t = require('xduce');
+const t = require('xduce').transducers;
 
 const add1 = x => x + 1;
 const even = x => x % 2 === 0;
@@ -157,17 +157,17 @@ describe('Transducers', () => {
     });
   });
 
-  describe('uniq', () => {
+  describe('unique', () => {
     it('works on channels', done => {
-      const ch = chan(5, t.uniq());
+      const ch = chan(5, t.unique());
       fillChannelWith(ch, [1, 1, 2, 3, 3, 3, 4, 5, 3, 1, 5]);
       expectChannel(ch, [1, 2, 3, 4, 5], done);
     });
   });
 
-  describe('uniqBy', () => {
+  describe('uniqueBy', () => {
     it('works on channels', done => {
-      const ch = chan(5, t.uniqBy(xprop));
+      const ch = chan(5, t.uniqueBy(xprop));
       const array = [
         { x: 1, y: 1 },
         { x: 1, y: 2 },
@@ -187,9 +187,9 @@ describe('Transducers', () => {
     });
   });
 
-  describe('uniqWith', () => {
+  describe('uniqueWith', () => {
     it('works on channels', done => {
-      const ch = chan(5, t.uniqWith(magComp));
+      const ch = chan(5, t.uniqueWith(magComp));
       fillChannelWith(ch, [6, 42, 632, 23, 56, 893, 1729, 32768, 1000]);
       expectChannel(ch, [6, 42, 632, 1729, 32768], done);
     });
