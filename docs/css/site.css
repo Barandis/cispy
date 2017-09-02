@@ -40,12 +40,25 @@ section#content {
   padding: 2em 0;
 }
 
-table {
+section#requirements table {
   border-collapse: collapse;
   border: 1px solid lightgray;
 }
-th, td {
+section#requirements th,
+section#requirements td {
   text-align: left;
   border: 1px solid lightgray;
   padding: 0.5em;
+}
+
+.hljs-ln td.hljs-ln-numbers {
+  user-select: none;
+  text-align: right;
+  vertical-align: top;
+  color: #666;
+  border-right: 1px solid #666;
+  padding-right: 5px;
+}
+.hljs-ln td.hljs-ln-code {
+  padding-left: 10px;
 }

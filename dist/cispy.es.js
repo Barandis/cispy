@@ -73,155 +73,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 129);
+/******/ 	return __webpack_require__(__webpack_require__.s = 20);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
-
-var core = module.exports = {version: '2.4.0'};
-if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
-
-var store      = __webpack_require__(36)('wks')
-  , uid        = __webpack_require__(23)
-  , Symbol     = __webpack_require__(2).Symbol
-  , USE_SYMBOL = typeof Symbol == 'function';
-
-var $exports = module.exports = function(name){
-  return store[name] || (store[name] =
-    USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : uid)('Symbol.' + name));
-};
-
-$exports.store = store;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-var global = module.exports = typeof window != 'undefined' && window.Math == Math
-  ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
-if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var anObject       = __webpack_require__(7)
-  , IE8_DOM_DEFINE = __webpack_require__(49)
-  , toPrimitive    = __webpack_require__(39)
-  , dP             = Object.defineProperty;
-
-exports.f = __webpack_require__(4) ? Object.defineProperty : function defineProperty(O, P, Attributes){
-  anObject(O);
-  P = toPrimitive(P, true);
-  anObject(Attributes);
-  if(IE8_DOM_DEFINE)try {
-    return dP(O, P, Attributes);
-  } catch(e){ /* empty */ }
-  if('get' in Attributes || 'set' in Attributes)throw TypeError('Accessors not supported!');
-  if('value' in Attributes)O[P] = Attributes.value;
-  return O;
-};
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// Thank's IE8 for his funny defineProperty
-module.exports = !__webpack_require__(12)(function(){
-  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
-});
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var global    = __webpack_require__(2)
-  , core      = __webpack_require__(0)
-  , ctx       = __webpack_require__(21)
-  , hide      = __webpack_require__(10)
-  , PROTOTYPE = 'prototype';
-
-var $export = function(type, name, source){
-  var IS_FORCED = type & $export.F
-    , IS_GLOBAL = type & $export.G
-    , IS_STATIC = type & $export.S
-    , IS_PROTO  = type & $export.P
-    , IS_BIND   = type & $export.B
-    , IS_WRAP   = type & $export.W
-    , exports   = IS_GLOBAL ? core : core[name] || (core[name] = {})
-    , expProto  = exports[PROTOTYPE]
-    , target    = IS_GLOBAL ? global : IS_STATIC ? global[name] : (global[name] || {})[PROTOTYPE]
-    , key, own, out;
-  if(IS_GLOBAL)source = name;
-  for(key in source){
-    // contains in native
-    own = !IS_FORCED && target && target[key] !== undefined;
-    if(own && key in exports)continue;
-    // export native or passed
-    out = own ? target[key] : source[key];
-    // prevent global pollution for namespaces
-    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
-    // bind timers to global for call from export context
-    : IS_BIND && own ? ctx(out, global)
-    // wrap global constructors for prevent change them in library
-    : IS_WRAP && target[key] == out ? (function(C){
-      var F = function(a, b, c){
-        if(this instanceof C){
-          switch(arguments.length){
-            case 0: return new C;
-            case 1: return new C(a);
-            case 2: return new C(a, b);
-          } return new C(a, b, c);
-        } return C.apply(this, arguments);
-      };
-      F[PROTOTYPE] = C[PROTOTYPE];
-      return F;
-    // make static versions for prototype methods
-    })(out) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
-    // export proto methods to core.%CONSTRUCTOR%.methods.%NAME%
-    if(IS_PROTO){
-      (exports.virtual || (exports.virtual = {}))[key] = out;
-      // export proto methods to core.%CONSTRUCTOR%.prototype.%NAME%
-      if(type & $export.R && expProto && !expProto[key])hide(expProto, key, out);
-    }
-  }
-};
-// type bitmap
-$export.F = 1;   // forced
-$export.G = 2;   // global
-$export.S = 4;   // static
-$export.P = 8;   // proto
-$export.B = 16;  // bind
-$export.W = 32;  // wrap
-$export.U = 64;  // safe
-$export.R = 128; // real proto method for `library` 
-module.exports = $export;
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _defineProperty2 = __webpack_require__(69);
-
-var _defineProperty3 = _interopRequireDefault(_defineProperty2);
-
-var _symbol = __webpack_require__(20);
-
-var _symbol2 = _interopRequireDefault(_symbol);
-
-var _bufferReducer;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -274,15 +131,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @module cispy/core/channel
  */
 
-var _require = __webpack_require__(18),
-    queue = _require.queue,
-    fixed = _require.fixed,
-    EMPTY = _require.EMPTY;
-
-var _require2 = __webpack_require__(27),
-    dispatch = _require2.dispatch;
-
-var p = __webpack_require__(110).protocols;
+const { queue, fixed, EMPTY } = __webpack_require__(2);
+const { dispatch } = __webpack_require__(3);
+const p = __webpack_require__(10).protocols;
 
 /**
  * The maximum number of dirty operations that can be queued on a channel before a cleanup is triggered.
@@ -290,7 +141,7 @@ var p = __webpack_require__(110).protocols;
  * @type {number}
  * @private
  */
-var MAX_DIRTY = 64;
+const MAX_DIRTY = 64;
 
 /**
  * The maximum number of opertions that can be queued on a channel before new operations are rejected.
@@ -298,7 +149,7 @@ var MAX_DIRTY = 64;
  * @type {number}
  * @private
  */
-var MAX_QUEUED = 1024;
+const MAX_QUEUED = 1024;
 
 /**
  * A unique value used to indicate for certain that an object is indeed a box. Since there is no access to this object
@@ -307,7 +158,7 @@ var MAX_QUEUED = 1024;
  * @type {Symbol}
  * @private
  */
-var BOX = (0, _symbol2.default)();
+const BOX = Symbol();
 
 /**
  * **The value returned from a take on a channel when that channel is closed and has no more values available.**
@@ -320,7 +171,7 @@ var BOX = (0, _symbol2.default)();
  * @type {Symbol}
  * @memberOf module:cispy~Cispy
  */
-var CLOSED = (0, _symbol2.default)('CLOSED');
+const CLOSED = Symbol('CLOSED');
 
 /**
  * **The name of the channel returned from `yield {@link module:cispy~Cispy.alts|alts}` (generator),
@@ -333,7 +184,7 @@ var CLOSED = (0, _symbol2.default)('CLOSED');
  * @type {Symbol}
  * @memberOf module:cispy~Cispy
  */
-var DEFAULT = (0, _symbol2.default)('DEFAULT');
+const DEFAULT = Symbol('DEFAULT');
 
 /**
  * Determines whether an object is reduced. This is done using the transducer protocol; an object with the protocol-
@@ -368,7 +219,7 @@ function isReduced(value) {
  */
 function box(value) {
   return {
-    value: value,
+    value,
     box: BOX
   };
 }
@@ -392,8 +243,8 @@ function box(value) {
  */
 function putBox(handler, value) {
   return {
-    handler: handler,
-    value: value,
+    handler,
+    value,
     box: BOX
   };
 }
@@ -427,20 +278,12 @@ function isBox(value) {
  * @return {module:cispy/core/channel~Channel} A new channel object.
  * @private
  */
-function channel(buffer, xform) {
-  var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-  var _ref = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
-      _ref$maxDirty = _ref.maxDirty,
-      maxDirty = _ref$maxDirty === undefined ? MAX_DIRTY : _ref$maxDirty,
-      _ref$maxQueued = _ref.maxQueued,
-      maxQueued = _ref$maxQueued === undefined ? MAX_QUEUED : _ref$maxQueued;
-
-  var takes = queue();
-  var puts = queue();
-  var dirtyTakes = 0;
-  var dirtyPuts = 0;
-  var closed = false;
+function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueued = MAX_QUEUED } = {}) {
+  const takes = queue();
+  const puts = queue();
+  let dirtyTakes = 0;
+  let dirtyPuts = 0;
+  let closed = false;
 
   /**
    * A channel, used by processes to communicate with one another. This is one of the two core objects of the library,
@@ -534,7 +377,7 @@ function channel(buffer, xform) {
      *     corresponding take.
      * @private
      */
-    put: function put(value, handler) {
+    put(value, handler) {
       if (value === CLOSED) {
         throw Error('Cannot put CLOSED on a channel');
       }
@@ -544,8 +387,7 @@ function channel(buffer, xform) {
         return box(false);
       }
 
-      var taker = void 0,
-          callback = void 0;
+      let taker, callback;
 
       // Push the incoming value through the buffer, even if there's already a taker waiting for the value. This is to
       // make sure that the transducer step function has a chance to act on the value (which could change the value or
@@ -555,7 +397,7 @@ function channel(buffer, xform) {
       // anyway). If the buffer is full, the transformation is deferred until later when the buffer is not full.
       if (buffer && !buffer.full) {
         handler.commit();
-        var done = isReduced(xform[p.step](buffer, value));
+        const done = isReduced(xform[p.step](buffer, value));
 
         for (;;) {
           if (buffer.count === 0) {
@@ -566,15 +408,11 @@ function channel(buffer, xform) {
             break;
           }
           if (taker.active) {
-            (function () {
-              callback = taker.commit();
-              var val = buffer.remove();
-              if (callback) {
-                dispatch(function () {
-                  return callback(val);
-                });
-              }
-            })();
+            callback = taker.commit();
+            const val = buffer.remove();
+            if (callback) {
+              dispatch(() => callback(val));
+            }
           }
         }
 
@@ -597,9 +435,7 @@ function channel(buffer, xform) {
           handler.commit();
           callback = taker.commit();
           if (callback) {
-            dispatch(function () {
-              return callback(value);
-            });
+            dispatch(() => callback(value));
           }
           return box(true);
         }
@@ -609,22 +445,19 @@ function channel(buffer, xform) {
       // the put to let it wait for a take to become available. Puts whose handlers have gone inactive (because they
       // were part of an ALTS instruction) are periodically purged.
       if (dirtyPuts > maxDirty) {
-        puts.filter(function (putter) {
-          return putter.handler.active;
-        });
+        puts.filter(putter => putter.handler.active);
         dirtyPuts = 0;
       } else {
         dirtyPuts++;
       }
 
       if (puts.count >= maxQueued) {
-        throw Error('No more than ' + maxQueued + ' pending puts are allowed on a single channel');
+        throw Error(`No more than ${maxQueued} pending puts are allowed on a single channel`);
       }
       puts.enqueue(putBox(handler, value));
 
       return null;
     },
-
 
     /**
      * Takes a value from this channel. The specified handler is used to control whether the take is active and what to
@@ -644,17 +477,15 @@ function channel(buffer, xform) {
      *     must be queued to await a corresponding put.
      * @private
      */
-    take: function take(handler) {
-      var putter = void 0,
-          putHandler = void 0,
-          callback = void 0;
+    take(handler) {
+      let putter, putHandler, callback;
 
       // Happens when this is a buffered channel and the buffer is not empty (an empty buffer means there are no pending
       // puts). We immediately process any puts that were queued when there were no pending takes, up until the buffer
       // is filled with put values.
       if (buffer && buffer.count > 0) {
         handler.commit();
-        var value = buffer.remove();
+        const value = buffer.remove();
 
         for (;;) {
           if (buffer.full) {
@@ -669,9 +500,7 @@ function channel(buffer, xform) {
           if (putHandler.active) {
             callback = putHandler.commit();
             if (callback) {
-              dispatch(function () {
-                return callback(true);
-              });
+              dispatch(() => callback(true));
             }
             if (isReduced(xform[p.step](buffer, putter.value))) {
               this.close();
@@ -693,9 +522,7 @@ function channel(buffer, xform) {
         if (putHandler.active) {
           callback = putHandler.commit();
           if (callback) {
-            dispatch(function () {
-              return callback(true);
-            });
+            dispatch(() => callback(true));
           }
           return box(putter.value);
         }
@@ -713,22 +540,19 @@ function channel(buffer, xform) {
       // still open, the take is queued to be processed when a put is available. Takes whose handlers have gone inactive
       // as the result of alts processing are periodically purged.
       if (dirtyTakes > maxDirty) {
-        takes.filter(function (taker) {
-          return taker.active;
-        });
+        takes.filter(taker => taker.active);
         dirtyTakes = 0;
       } else {
         dirtyTakes++;
       }
 
       if (takes.count >= maxQueued) {
-        throw Error('No more than ' + maxQueued + ' pending takes are allowed on a single channel');
+        throw Error(`No more than ${maxQueued} pending takes are allowed on a single channel`);
       }
       takes.enqueue(handler);
 
       return null;
     },
-
 
     /**
      * Closes the channel, if it isn't already closed. This immediately returns any buffered values to pending takes. If
@@ -745,15 +569,13 @@ function channel(buffer, xform) {
      *
      * @private
      */
-    close: function close() {
+    close() {
       if (closed) {
         return;
       }
       closed = true;
 
-      var taker = void 0,
-          putter = void 0,
-          callback = void 0;
+      let taker, putter, callback;
 
       // If there is a buffer and it has at least one value in it, send those values to any pending takes that might be
       // queued.
@@ -768,15 +590,11 @@ function channel(buffer, xform) {
             break;
           }
           if (taker.active) {
-            (function () {
-              callback = taker.commit();
-              var value = buffer.remove();
-              if (callback) {
-                dispatch(function () {
-                  return callback(value);
-                });
-              }
-            })();
+            callback = taker.commit();
+            const value = buffer.remove();
+            if (callback) {
+              dispatch(() => callback(value));
+            }
           }
         }
       }
@@ -790,9 +608,7 @@ function channel(buffer, xform) {
         if (taker.active) {
           callback = taker.commit();
           if (callback) {
-            dispatch(function () {
-              return callback(CLOSED);
-            });
+            dispatch(() => callback(CLOSED));
           }
         }
       }
@@ -806,9 +622,7 @@ function channel(buffer, xform) {
         if (putter.handler.active) {
           callback = putter.handler.commit();
           if (callback) {
-            dispatch(function () {
-              return callback(false);
-            });
+            dispatch(() => callback(false));
           }
         }
       }
@@ -824,9 +638,7 @@ function channel(buffer, xform) {
  * @type {function}
  * @private
  */
-var DEFAULT_HANDLER = function DEFAULT_HANDLER() {
-  return CLOSED;
-};
+const DEFAULT_HANDLER = () => CLOSED;
 
 /**
  * A handler function for exceptions that are thrown by a transducer while transforming values on a channel.
@@ -852,7 +664,7 @@ var DEFAULT_HANDLER = function DEFAULT_HANDLER() {
  * @private
  */
 function handleException(buffer, handler, ex) {
-  var value = handler(ex);
+  const value = handler(ex);
   if (value !== CLOSED) {
     buffer.add(value);
   }
@@ -870,24 +682,24 @@ function handleException(buffer, handler, ex) {
  *     with the exception handler.
  * @private
  */
-function wrapTransformer(xform) {
-  var _ref2;
+function wrapTransformer(xform, handler = DEFAULT_HANDLER) {
+  return {
+    [p.step](buffer, input) {
+      try {
+        return xform[p.step](buffer, input);
+      } catch (ex) {
+        return handleException(buffer, handler, ex);
+      }
+    },
 
-  var handler = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_HANDLER;
-
-  return _ref2 = {}, (0, _defineProperty3.default)(_ref2, p.step, function (buffer, input) {
-    try {
-      return xform[p.step](buffer, input);
-    } catch (ex) {
-      return handleException(buffer, handler, ex);
+    [p.result](buffer) {
+      try {
+        return xform[p.result](buffer);
+      } catch (ex) {
+        return handleException(buffer, handler, ex);
+      }
     }
-  }), (0, _defineProperty3.default)(_ref2, p.result, function (buffer) {
-    try {
-      return xform[p.result](buffer);
-    } catch (ex) {
-      return handleException(buffer, handler, ex);
-    }
-  }), _ref2;
+  };
 }
 
 /**
@@ -901,14 +713,20 @@ function wrapTransformer(xform) {
  * @type {Object}
  * @private
  */
-var bufferReducer = (_bufferReducer = {}, (0, _defineProperty3.default)(_bufferReducer, p.init, function () {
-  throw Error('init not available');
-}), (0, _defineProperty3.default)(_bufferReducer, p.step, function (buffer, input) {
-  buffer.add(input);
-  return buffer;
-}), (0, _defineProperty3.default)(_bufferReducer, p.result, function (buffer) {
-  return buffer;
-}), _bufferReducer);
+const bufferReducer = {
+  [p.init]() {
+    throw Error('init not available');
+  },
+
+  [p.step](buffer, input) {
+    buffer.add(input);
+    return buffer;
+  },
+
+  [p.result](buffer) {
+    return buffer;
+  }
+};
 
 /**
  * **Creates and returns a new channel.**
@@ -957,19 +775,14 @@ var bufferReducer = (_bufferReducer = {}, (0, _defineProperty3.default)(_bufferR
  *     time. This prevents infinite loops from accidentally eating up all of the available memory.
  * @return {module:cispy/core/channel~Channel} A new channel.
  */
-function chan() {
-  var buffer = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-  var xform = arguments[1];
-  var handler = arguments[2];
-  var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-
-  var buf = buffer === 0 ? null : buffer;
-  var b = typeof buf === 'number' ? fixed(buf) : buf;
+function chan(buffer = 0, xform, handler, options = {}) {
+  const buf = buffer === 0 ? null : buffer;
+  const b = typeof buf === 'number' ? fixed(buf) : buf;
 
   if (xform && !b) {
     throw Error('Only buffered channels can use transformers');
   }
-  var xf = wrapTransformer(xform ? xform(bufferReducer) : bufferReducer, handler);
+  const xf = wrapTransformer(xform ? xform(bufferReducer) : bufferReducer, handler);
 
   return channel(b, xf, false, options);
 }
@@ -988,10 +801,8 @@ function chan() {
  * @return {module:cispy/core/channel~Channel} A new channel that automatically closes after the delay completes.
  */
 function timeout(delay) {
-  var ch = channel(null, wrapTransformer(bufferReducer), true);
-  setTimeout(function () {
-    return close(ch);
-  }, delay);
+  const ch = channel(null, wrapTransformer(bufferReducer), true);
+  setTimeout(() => close(ch), delay);
   return ch;
 }
 
@@ -1014,113 +825,19 @@ function close(channel) {
 }
 
 module.exports = {
-  CLOSED: CLOSED,
-  DEFAULT: DEFAULT,
-  box: box,
-  isBox: isBox,
-  chan: chan,
-  timeout: timeout,
-  close: close
+  CLOSED,
+  DEFAULT,
+  box,
+  isBox,
+  chan,
+  timeout,
+  close
 };
 
+
 /***/ }),
-/* 7 */
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
-
-var isObject = __webpack_require__(17);
-module.exports = function(it){
-  if(!isObject(it))throw TypeError(it + ' is not an object!');
-  return it;
-};
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-var hasOwnProperty = {}.hasOwnProperty;
-module.exports = function(it, key){
-  return hasOwnProperty.call(it, key);
-};
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// to indexed object, toObject with fallback for non-array-like ES3 strings
-var IObject = __webpack_require__(50)
-  , defined = __webpack_require__(30);
-module.exports = function(it){
-  return IObject(defined(it));
-};
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var dP         = __webpack_require__(3)
-  , createDesc = __webpack_require__(14);
-module.exports = __webpack_require__(4) ? function(object, key, value){
-  return dP.f(object, key, createDesc(1, value));
-} : function(object, key, value){
-  object[key] = value;
-  return object;
-};
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-module.exports = {};
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports) {
-
-module.exports = function(exec){
-  try {
-    return !!exec();
-  } catch(e){
-    return true;
-  }
-};
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 19.1.2.14 / 15.2.3.14 Object.keys(O)
-var $keys       = __webpack_require__(53)
-  , enumBugKeys = __webpack_require__(32);
-
-module.exports = Object.keys || function keys(O){
-  return $keys(O, enumBugKeys);
-};
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports) {
-
-module.exports = function(bitmap, value){
-  return {
-    enumerable  : !(bitmap & 1),
-    configurable: !(bitmap & 2),
-    writable    : !(bitmap & 4),
-    value       : value
-  };
-};
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _slicedToArray2 = __webpack_require__(41);
-
-var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -1152,10 +869,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @private
  */
 
-var _require = __webpack_require__(6),
-    box = _require.box,
-    isBox = _require.isBox,
-    DEFAULT = _require.DEFAULT;
+const { box, isBox, DEFAULT } = __webpack_require__(0);
 
 /**
  * These two handlers are used by channels to track execution of instructions (put, take, and alts). They provide two
@@ -1200,15 +914,13 @@ var _require = __webpack_require__(6),
  *     completes.
  * @return {module:cispy/core/operations~Handler} The new handler.
  */
-
-
 function opHandler(fn) {
   return {
     get active() {
       return true;
     },
 
-    commit: function commit() {
+    commit() {
       return fn;
     }
   };
@@ -1229,7 +941,7 @@ function altsHandler(active, fn) {
       return active.value;
     },
 
-    commit: function commit() {
+    commit() {
       active.value = false;
       return fn;
     }
@@ -1246,13 +958,13 @@ function altsHandler(active, fn) {
  * @private
  */
 function randomArray(n) {
-  var a = [];
-  for (var k = 0; k < n; ++k) {
+  const a = [];
+  for (let k = 0; k < n; ++k) {
     a.push(k);
   }
-  for (var j = n - 1; j > 0; --j) {
-    var i = Math.floor(Math.random() * (j + 1));
-    var temp = a[j];
+  for (let j = n - 1; j > 0; --j) {
+    const i = Math.floor(Math.random() * (j + 1));
+    const temp = a[j];
     a[j] = a[i];
     a[i] = temp;
   }
@@ -1291,37 +1003,32 @@ function randomArray(n) {
  *     ones returned.
  */
 function altsAsync(ops, callback, options) {
-  var count = ops.length;
+  const count = ops.length;
   if (count === 0) {
     throw Error('Alts called with no operations');
   }
 
-  var priority = !!options.priority;
-  var indices = priority ? [] : randomArray(count);
+  const priority = !!options.priority;
+  const indices = priority ? [] : randomArray(count);
 
-  var active = box(true);
+  const active = box(true);
 
   function createAltsHandler(channel) {
-    return altsHandler(active, function (value) {
-      callback({ value: value, channel: channel });
+    return altsHandler(active, value => {
+      callback({ value, channel });
     });
   }
 
-  var result = void 0;
+  let result;
 
-  for (var i = 0; i < count; ++i) {
+  for (let i = 0; i < count; ++i) {
     // Choose an operation randomly (or not randomly if priority is specified)
-    var op = ops[priority ? i : indices[i]];
-    var channel = void 0,
-        value = void 0;
+    const op = ops[priority ? i : indices[i]];
+    let channel, value;
 
     // Put every operation onto its channel, one at a time
     if (Array.isArray(op)) {
-      var _op = (0, _slicedToArray3.default)(op, 2);
-
-      channel = _op[0];
-      value = _op[1];
-
+      [channel, value] = op;
       result = channel.put(value, createAltsHandler(channel));
     } else {
       channel = op;
@@ -1334,7 +1041,7 @@ function altsAsync(ops, callback, options) {
     if (isBox(result)) {
       callback({
         value: result.value,
-        channel: channel
+        channel
       });
       break;
     }
@@ -1378,7 +1085,7 @@ function altsAsync(ops, callback, options) {
  *     and `false` in the latter.
  */
 function putAsync(channel, value, callback) {
-  var result = channel.put(value, opHandler(callback));
+  const result = channel.put(value, opHandler(callback));
   if (result && callback) {
     callback(result.value);
   }
@@ -1408,60 +1115,22 @@ function putAsync(channel, value, callback) {
  *     function can take one parameter, which is the value that is taken from the channel.
  */
 function takeAsync(channel, callback) {
-  var result = channel.take(opHandler(callback));
+  const result = channel.take(opHandler(callback));
   if (result && callback) {
     callback(result.value);
   }
 }
 
 module.exports = {
-  altsAsync: altsAsync,
-  putAsync: putAsync,
-  takeAsync: takeAsync
+  altsAsync,
+  putAsync,
+  takeAsync
 };
 
+
 /***/ }),
-/* 16 */
+/* 2 */
 /***/ (function(module, exports) {
-
-var toString = {}.toString;
-
-module.exports = function(it){
-  return toString.call(it).slice(8, -1);
-};
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports) {
-
-module.exports = function(it){
-  return typeof it === 'object' ? it !== null : typeof it === 'function';
-};
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _getIterator2 = __webpack_require__(19);
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-var _create = __webpack_require__(66);
-
-var _create2 = _interopRequireDefault(_create);
-
-var _assign = __webpack_require__(28);
-
-var _assign2 = _interopRequireDefault(_assign);
-
-var _symbol = __webpack_require__(20);
-
-var _symbol2 = _interopRequireDefault(_symbol);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -1503,7 +1172,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @type {Symbol}
  * @memberOf module:cispy~Cispy
  */
-var EMPTY = (0, _symbol2.default)('EMPTY');
+const EMPTY = Symbol('EMPTY');
 
 /**
  * A general purpose, highly efficient JavaScript queue. It is backed by a JavaScript array, but it does not
@@ -1527,7 +1196,7 @@ var EMPTY = (0, _symbol2.default)('EMPTY');
  * @private
  */
 function queue() {
-  var obj = {
+  const obj = {
     store: [],
     pointer: 0,
 
@@ -1565,10 +1234,9 @@ function queue() {
      * @instance
      * @param {*} item The value being added to the queue.
      */
-    enqueue: function enqueue(item) {
+    enqueue(item) {
       this.store.push(item);
     },
-
 
     /**
      * Removes an item from the queue and returns that item. If the removal causes the amount of empty space at the
@@ -1579,12 +1247,12 @@ function queue() {
      * @instance
      * @return {*} The oldest stored item in the queue.
      */
-    dequeue: function dequeue() {
+    dequeue() {
       if (this.empty) {
         return EMPTY;
       }
 
-      var item = this.store[this.pointer];
+      const item = this.store[this.pointer];
       // Removes the items in the backing array before the current pointer, if there is enough empty space before the
       // pointer to justify it.
       if (++this.pointer * 2 >= this.store.length) {
@@ -1594,7 +1262,6 @@ function queue() {
       return item;
     },
 
-
     /**
      * Returns the next item in the queue without removing it.
      *
@@ -1603,10 +1270,9 @@ function queue() {
      * @instance
      * @return {*} The oldest item stored in the queue.
      */
-    peek: function peek() {
+    peek() {
       return this.empty ? EMPTY : this.store[this.pointer];
     },
-
 
     /**
      * Filters out any item in the queue that does not cause the supplied predicate functoin to return `true` when
@@ -1618,9 +1284,9 @@ function queue() {
      * @instance
      * @param {Function} fn The predicate function that determines whether an element remains in the queue.
      */
-    filter: function filter(fn) {
-      for (var i = 0, count = this.count; i < count; ++i) {
-        var item = this.dequeue();
+    filter(fn) {
+      for (let i = 0, { count } = this; i < count; ++i) {
+        const item = this.dequeue();
         if (fn(item)) {
           this.enqueue(item);
         }
@@ -1662,7 +1328,7 @@ function queue() {
  * @private
  */
 function base(size) {
-  var q = queue();
+  const q = queue();
 
   return {
     /**
@@ -1715,7 +1381,7 @@ function base(size) {
      * @instance
      * @return {*} The oldest item in the buffer.
      */
-    remove: function remove() {
+    remove() {
       return this.queue.dequeue();
     }
   };
@@ -1747,64 +1413,42 @@ function fixed(size) {
    * @namespace FixedBuffer
    * @augments {module:cispy/core/buffers~Buffer}
    */
-  return (0, _assign2.default)((0, _create2.default)(base(size), {
-    // Object.assign doesn't handle getters and setters properly, so we add this getter as a property descriptor
-    // in the second argument of Object.create instead.
-    full: {
+  return Object.assign(
+    Object.create(base(size), {
+      // Object.assign doesn't handle getters and setters properly, so we add this getter as a property descriptor
+      // in the second argument of Object.create instead.
+      full: {
+        /**
+         * Whether or not the buffer has as many or more items stored as its
+         * {@link module:cispy/core/buffers~Buffer#size|size}.
+         *
+         * @name full
+         * @memberOf module:cispy/core/buffers~FixedBuffer
+         * @instance
+         * @type {number}
+         * @readonly
+         */
+        get() {
+          return this.queue.count >= this.size;
+        }
+      }
+    }),
+    {
       /**
-       * Whether or not the buffer has as many or more items stored as its
-       * {@link module:cispy/core/buffers~Buffer#size|size}.
+       * Adds one or more items to the buffer. These items will be added even if the buffer is full.
        *
-       * @name full
+       * @function add
        * @memberOf module:cispy/core/buffers~FixedBuffer
        * @instance
-       * @type {number}
-       * @readonly
+       * @param {...*} items The items to be added to the buffer.
        */
-      get: function get() {
-        return this.queue.count >= this.size;
-      }
-    }
-  }), {
-    /**
-     * Adds one or more items to the buffer. These items will be added even if the buffer is full.
-     *
-     * @function add
-     * @memberOf module:cispy/core/buffers~FixedBuffer
-     * @instance
-     * @param {...*} items The items to be added to the buffer.
-     */
-    add: function add() {
-      for (var _len = arguments.length, items = Array(_len), _key = 0; _key < _len; _key++) {
-        items[_key] = arguments[_key];
-      }
-
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = (0, _getIterator3.default)(items), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var item = _step.value;
-
+      add(...items) {
+        for (const item of items) {
           this.queue.enqueue(item);
         }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
       }
     }
-  });
+  );
 }
 
 /**
@@ -1832,65 +1476,43 @@ function dropping(size) {
    * @namespace DroppingBuffer
    * @extends {module:cispy/core/buffers~Buffer}
    */
-  return (0, _assign2.default)((0, _create2.default)(base(size), {
-    full: {
+  return Object.assign(
+    Object.create(base(size), {
+      full: {
+        /**
+         * Whether or not the buffer is full. As a {@link module:cispy/core/buffers~DroppingBuffer|DroppingBuffer} is
+         * never considered full, this will always return `false`.
+         *
+         * @name full
+         * @memberOf module:cispy/core/buffers~DroppingBuffer
+         * @instance
+         * @type {number}
+         * @readonly
+         */
+        get() {
+          return false;
+        }
+      }
+    }),
+    {
       /**
-       * Whether or not the buffer is full. As a {@link module:cispy/core/buffers~DroppingBuffer|DroppingBuffer} is
-       * never considered full, this will always return `false`.
+       * Adds one or more items to the buffer. If the buffer has already reached its capacity, then the item is silently
+       * dropped instead.
        *
-       * @name full
+       * @function add
        * @memberOf module:cispy/core/buffers~DroppingBuffer
        * @instance
-       * @type {number}
-       * @readonly
+       * @param {...*} items the items added to the buffer.
        */
-      get: function get() {
-        return false;
-      }
-    }
-  }), {
-    /**
-     * Adds one or more items to the buffer. If the buffer has already reached its capacity, then the item is silently
-     * dropped instead.
-     *
-     * @function add
-     * @memberOf module:cispy/core/buffers~DroppingBuffer
-     * @instance
-     * @param {...*} items the items added to the buffer.
-     */
-    add: function add() {
-      for (var _len2 = arguments.length, items = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        items[_key2] = arguments[_key2];
-      }
-
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = (0, _getIterator3.default)(items), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var item = _step2.value;
-
+      add(...items) {
+        for (const item of items) {
           if (this.queue.count < this.size) {
             this.queue.enqueue(item);
           }
         }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
       }
     }
-  });
+  );
 }
 
 /**
@@ -1918,188 +1540,60 @@ function sliding(size) {
    * @namespace SlidingBuffer
    * @extends {module:cispy/core/buffers~Buffer}
    */
-  return (0, _assign2.default)((0, _create2.default)(base(size), {
-    /**
-     * Whether or not the buffer is full. As a {@link module:cispy/core/buffers~SlidingBuffer|SlidingBuffer} is
-     * never considered full, this will always return `false`.
-     *
-     * @name full
-     * @memberOf module:cispy/core/buffers~SlidingBuffer
-     * @instance
-     * @type {number}
-     * @readonly
-     */
-    full: {
-      get: function get() {
-        return false;
+  return Object.assign(
+    Object.create(base(size), {
+      /**
+       * Whether or not the buffer is full. As a {@link module:cispy/core/buffers~SlidingBuffer|SlidingBuffer} is
+       * never considered full, this will always return `false`.
+       *
+       * @name full
+       * @memberOf module:cispy/core/buffers~SlidingBuffer
+       * @instance
+       * @type {number}
+       * @readonly
+       */
+      full: {
+        get() {
+          return false;
+        }
       }
-    }
-  }), {
-    /**
-     * Adds one or more items to the buffer. If the buffer has already reached its capacity, then the oldest items in
-     * the buffer are dropped to make way for the new items.
-     *
-     * @function add
-     * @memberOf module:cispy/core/buffers~SlidingBuffer
-     * @instance
-     * @param {...*} items The items to be added to the buffer.
-     */
-    add: function add() {
-      for (var _len3 = arguments.length, items = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-        items[_key3] = arguments[_key3];
-      }
-
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
-
-      try {
-        for (var _iterator3 = (0, _getIterator3.default)(items), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var item = _step3.value;
-
+    }),
+    {
+      /**
+       * Adds one or more items to the buffer. If the buffer has already reached its capacity, then the oldest items in
+       * the buffer are dropped to make way for the new items.
+       *
+       * @function add
+       * @memberOf module:cispy/core/buffers~SlidingBuffer
+       * @instance
+       * @param {...*} items The items to be added to the buffer.
+       */
+      add(...items) {
+        for (const item of items) {
           if (this.queue.count === this.size) {
             this.queue.dequeue();
           }
           this.queue.enqueue(item);
         }
-      } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-            _iterator3.return();
-          }
-        } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
-          }
-        }
       }
     }
-  });
+  );
 }
 
 module.exports = {
-  EMPTY: EMPTY,
-  queue: queue,
-  fixed: fixed,
-  dropping: dropping,
-  sliding: sliding
+  EMPTY,
+  queue,
+  fixed,
+  dropping,
+  sliding
 };
 
+
 /***/ }),
-/* 19 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = { "default": __webpack_require__(72), __esModule: true };
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(78), __esModule: true };
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// optional / simple context binding
-var aFunction = __webpack_require__(47);
-module.exports = function(fn, that, length){
-  aFunction(fn);
-  if(that === undefined)return fn;
-  switch(length){
-    case 1: return function(a){
-      return fn.call(that, a);
-    };
-    case 2: return function(a, b){
-      return fn.call(that, a, b);
-    };
-    case 3: return function(a, b, c){
-      return fn.call(that, a, b, c);
-    };
-  }
-  return function(/* ...args */){
-    return fn.apply(that, arguments);
-  };
-};
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports) {
-
-exports.f = {}.propertyIsEnumerable;
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports) {
-
-var id = 0
-  , px = Math.random();
-module.exports = function(key){
-  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
-};
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports) {
-
-module.exports = true;
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var def = __webpack_require__(3).f
-  , has = __webpack_require__(8)
-  , TAG = __webpack_require__(1)('toStringTag');
-
-module.exports = function(it, tag, stat){
-  if(it && !has(it = stat ? it : it.prototype, TAG))def(it, TAG, {configurable: true, value: tag});
-};
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var $at  = __webpack_require__(94)(true);
-
-// 21.1.3.27 String.prototype[@@iterator]()
-__webpack_require__(51)(String, 'String', function(iterated){
-  this._t = String(iterated); // target
-  this._i = 0;                // next index
-// 21.1.5.2.1 %StringIteratorPrototype%.next()
-}, function(){
-  var O     = this._t
-    , index = this._i
-    , point;
-  if(index >= O.length)return {value: undefined, done: true};
-  point = $at(O, index);
-  this._i += point.length;
-  return {value: point, done: false};
-});
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _setImmediate2 = __webpack_require__(67);
-
-var _setImmediate3 = _interopRequireDefault(_setImmediate2);
-
-var _symbol = __webpack_require__(20);
-
-var _symbol2 = _interopRequireDefault(_symbol);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/*
+/* WEBPACK VAR INJECTION */(function(setImmediate) {/*
  * Copyright (c) 2017 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -2149,10 +1643,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @private
  */
 
-var buffers = __webpack_require__(18);
+const buffers = __webpack_require__(2);
 
-var queue = buffers.queue();
-var EMPTY = buffers.EMPTY;
+const queue = buffers.queue();
+const EMPTY = buffers.EMPTY;
 
 /**
  * **The dispatch method option indicating that `setImmediate` should be used to dispatch tasks.**
@@ -2164,7 +1658,7 @@ var EMPTY = buffers.EMPTY;
  * @type {Symbol}
  * @see {@link module:cispy~Cispy.config|config}
  */
-var SET_IMMEDIATE = (0, _symbol2.default)('SET_IMMEDIATE');
+const SET_IMMEDIATE = Symbol('SET_IMMEDIATE');
 
 /**
  * **The dispatch method option indicating that a `MessageChannel` should be used to dispatch tasks.**
@@ -2176,7 +1670,7 @@ var SET_IMMEDIATE = (0, _symbol2.default)('SET_IMMEDIATE');
  * @type {Symbol}
  * @see  {@link module:cispy~Cispy.config|config}
  */
-var MESSAGE_CHANNEL = (0, _symbol2.default)('MESSAGE_CHANNEL');
+const MESSAGE_CHANNEL = Symbol('MESSAGE_CHANNEL');
 
 /**
  * **The dispatch method option indicating that `setTimeout` should be used to dispatch tasks.**
@@ -2188,14 +1682,14 @@ var MESSAGE_CHANNEL = (0, _symbol2.default)('MESSAGE_CHANNEL');
  * @type {Symbol}
  * @see  {@link module:cispy~Cispy.config|config}
  */
-var SET_TIMEOUT = (0, _symbol2.default)('SET_TIMEOUT');
+const SET_TIMEOUT = Symbol('SET_TIMEOUT');
 
-var options = {
+const options = {
   batchSize: 1024,
   dispatchMethod: SET_IMMEDIATE
 };
 
-var dispatcher = createDispatcher();
+let dispatcher = createDispatcher();
 
 /**
  * **Sets one of the dispatcher configuration options.**
@@ -2221,7 +1715,7 @@ var dispatcher = createDispatcher();
  *     available in that environment, then it will silently fall back to the next method that is available.
  */
 function config(opts) {
-  for (var key in options) {
+  for (const key in options) {
     if (opts.hasOwnProperty(key)) {
       options[key] = opts[key];
 
@@ -2232,8 +1726,8 @@ function config(opts) {
   }
 }
 
-var running = false;
-var queued = false;
+let running = false;
+let queued = false;
 
 /**
  * Uses a combination of available methods and the dispatchMethod option to determine which of hte three dispatch
@@ -2256,7 +1750,7 @@ function getDispatchMethod() {
       return SET_TIMEOUT;
 
     default:
-      if (typeof _setImmediate3.default !== 'undefined') {
+      if (typeof setImmediate !== 'undefined') {
         return SET_IMMEDIATE;
       }
       if (typeof MessageChannel !== 'undefined') {
@@ -2276,34 +1770,31 @@ function createDispatcher() {
   switch (getDispatchMethod()) {
     // We prefer setImmediate if it's available.
     case SET_IMMEDIATE:
-      return function () {
+      return () => {
         if (!(queued && running)) {
           queued = true;
-          (0, _setImmediate3.default)(processTasks);
+          setImmediate(processTasks);
         }
       };
 
     // Most modern browsers implement MessageChannel. This is basically a last-ditch effort to avoid using setTimeout,
     // since that's always the slowest way to do it. This was chosen over postMessage because postMessage doesn't work
     // in Web workers, where MessageChannel does.
-    case MESSAGE_CHANNEL:
-      {
-        var channel = new MessageChannel();
-        channel.port1.onmessage = function () {
-          return processTasks();
-        };
-        return function () {
-          if (!(queued && running)) {
-            queued = true;
-            channel.port2.postMessage(0);
-          }
-        };
-      }
+    case MESSAGE_CHANNEL: {
+      const channel = new MessageChannel();
+      channel.port1.onmessage = () => processTasks();
+      return () => {
+        if (!(queued && running)) {
+          queued = true;
+          channel.port2.postMessage(0);
+        }
+      };
+    }
 
     // If all else fails, just use setTimeout. It may be a few milliseconds slower than the others over the long haul,
     // but it works everywhere.
     case SET_TIMEOUT:
-      return function () {
+      return () => {
         if (!(queued && running)) {
           queued = true;
           setTimeout(processTasks, 0);
@@ -2335,10 +1826,10 @@ function setDispatcher() {
 function processTasks() {
   running = true;
   queued = false;
-  var count = 0;
+  let count = 0;
 
   for (;;) {
-    var task = queue.dequeue();
+    const task = queue.dequeue();
     if (task === EMPTY) {
       break;
     }
@@ -2369,584 +1860,18 @@ function dispatch(task) {
 }
 
 module.exports = {
-  config: config,
-  dispatch: dispatch,
-  SET_IMMEDIATE: SET_IMMEDIATE,
-  MESSAGE_CHANNEL: MESSAGE_CHANNEL,
-  SET_TIMEOUT: SET_TIMEOUT
+  config,
+  dispatch,
+  SET_IMMEDIATE,
+  MESSAGE_CHANNEL,
+  SET_TIMEOUT
 };
 
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).setImmediate))
+
 /***/ }),
-/* 28 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(74), __esModule: true };
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(108);
-
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports) {
-
-// 7.2.1 RequireObjectCoercible(argument)
-module.exports = function(it){
-  if(it == undefined)throw TypeError("Can't call method on  " + it);
-  return it;
-};
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var isObject = __webpack_require__(17)
-  , document = __webpack_require__(2).document
-  // in old IE typeof document.createElement is 'object'
-  , is = isObject(document) && isObject(document.createElement);
-module.exports = function(it){
-  return is ? document.createElement(it) : {};
-};
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports) {
-
-// IE 8- don't enum bug keys
-module.exports = (
-  'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
-).split(',');
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-var anObject    = __webpack_require__(7)
-  , dPs         = __webpack_require__(90)
-  , enumBugKeys = __webpack_require__(32)
-  , IE_PROTO    = __webpack_require__(35)('IE_PROTO')
-  , Empty       = function(){ /* empty */ }
-  , PROTOTYPE   = 'prototype';
-
-// Create object with fake `null` prototype: use iframe Object with cleared prototype
-var createDict = function(){
-  // Thrash, waste and sodomy: IE GC bug
-  var iframe = __webpack_require__(31)('iframe')
-    , i      = enumBugKeys.length
-    , lt     = '<'
-    , gt     = '>'
-    , iframeDocument;
-  iframe.style.display = 'none';
-  __webpack_require__(48).appendChild(iframe);
-  iframe.src = 'javascript:'; // eslint-disable-line no-script-url
-  // createDict = iframe.contentWindow.Object;
-  // html.removeChild(iframe);
-  iframeDocument = iframe.contentWindow.document;
-  iframeDocument.open();
-  iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
-  iframeDocument.close();
-  createDict = iframeDocument.F;
-  while(i--)delete createDict[PROTOTYPE][enumBugKeys[i]];
-  return createDict();
-};
-
-module.exports = Object.create || function create(O, Properties){
-  var result;
-  if(O !== null){
-    Empty[PROTOTYPE] = anObject(O);
-    result = new Empty;
-    Empty[PROTOTYPE] = null;
-    // add "__proto__" for Object.getPrototypeOf polyfill
-    result[IE_PROTO] = O;
-  } else result = createDict();
-  return Properties === undefined ? result : dPs(result, Properties);
-};
-
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports) {
-
-exports.f = Object.getOwnPropertySymbols;
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var shared = __webpack_require__(36)('keys')
-  , uid    = __webpack_require__(23);
-module.exports = function(key){
-  return shared[key] || (shared[key] = uid(key));
-};
-
-/***/ }),
-/* 36 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var global = __webpack_require__(2)
-  , SHARED = '__core-js_shared__'
-  , store  = global[SHARED] || (global[SHARED] = {});
-module.exports = function(key){
-  return store[key] || (store[key] = {});
-};
-
-/***/ }),
-/* 37 */
-/***/ (function(module, exports) {
-
-// 7.1.4 ToInteger
-var ceil  = Math.ceil
-  , floor = Math.floor;
-module.exports = function(it){
-  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
-};
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 7.1.13 ToObject(argument)
-var defined = __webpack_require__(30);
-module.exports = function(it){
-  return Object(defined(it));
-};
-
-/***/ }),
-/* 39 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 7.1.1 ToPrimitive(input [, PreferredType])
-var isObject = __webpack_require__(17);
-// instead of the ES6 spec version, we didn't implement @@toPrimitive case
-// and the second argument - flag - preferred type is a string
-module.exports = function(it, S){
-  if(!isObject(it))return it;
-  var fn, val;
-  if(S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
-  if(typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it)))return val;
-  if(!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
-  throw TypeError("Can't convert object to primitive value");
-};
-
-/***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var global         = __webpack_require__(2)
-  , core           = __webpack_require__(0)
-  , LIBRARY        = __webpack_require__(24)
-  , wksExt         = __webpack_require__(56)
-  , defineProperty = __webpack_require__(3).f;
-module.exports = function(name){
-  var $Symbol = core.Symbol || (core.Symbol = LIBRARY ? {} : global.Symbol || {});
-  if(name.charAt(0) != '_' && !(name in $Symbol))defineProperty($Symbol, name, {value: wksExt.f(name)});
-};
-
-/***/ }),
-/* 41 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _isIterable2 = __webpack_require__(65);
-
-var _isIterable3 = _interopRequireDefault(_isIterable2);
-
-var _getIterator2 = __webpack_require__(19);
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = function () {
-  function sliceIterator(arr, i) {
-    var _arr = [];
-    var _n = true;
-    var _d = false;
-    var _e = undefined;
-
-    try {
-      for (var _i = (0, _getIterator3.default)(arr), _s; !(_n = (_s = _i.next()).done); _n = true) {
-        _arr.push(_s.value);
-
-        if (i && _arr.length === i) break;
-      }
-    } catch (err) {
-      _d = true;
-      _e = err;
-    } finally {
-      try {
-        if (!_n && _i["return"]) _i["return"]();
-      } finally {
-        if (_d) throw _e;
-      }
-    }
-
-    return _arr;
-  }
-
-  return function (arr, i) {
-    if (Array.isArray(arr)) {
-      return arr;
-    } else if ((0, _isIterable3.default)(Object(arr))) {
-      return sliceIterator(arr, i);
-    } else {
-      throw new TypeError("Invalid attempt to destructure non-iterable instance");
-    }
-  };
-}();
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// getting tag from 19.1.3.6 Object.prototype.toString()
-var cof = __webpack_require__(16)
-  , TAG = __webpack_require__(1)('toStringTag')
-  // ES3 wrong here
-  , ARG = cof(function(){ return arguments; }()) == 'Arguments';
-
-// fallback for IE11 Script Access Denied error
-var tryGet = function(it, key){
-  try {
-    return it[key];
-  } catch(e){ /* empty */ }
-};
-
-module.exports = function(it){
-  var O, T, B;
-  return it === undefined ? 'Undefined' : it === null ? 'Null'
-    // @@toStringTag case
-    : typeof (T = tryGet(O = Object(it), TAG)) == 'string' ? T
-    // builtinTag case
-    : ARG ? cof(O)
-    // ES3 arguments fallback
-    : (B = cof(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : B;
-};
-
-/***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 7.1.15 ToLength
-var toInteger = __webpack_require__(37)
-  , min       = Math.min;
-module.exports = function(it){
-  return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
-};
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var classof   = __webpack_require__(42)
-  , ITERATOR  = __webpack_require__(1)('iterator')
-  , Iterators = __webpack_require__(11);
-module.exports = __webpack_require__(0).getIteratorMethod = function(it){
-  if(it != undefined)return it[ITERATOR]
-    || it['@@iterator']
-    || Iterators[classof(it)];
-};
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(99);
-var global        = __webpack_require__(2)
-  , hide          = __webpack_require__(10)
-  , Iterators     = __webpack_require__(11)
-  , TO_STRING_TAG = __webpack_require__(1)('toStringTag');
-
-for(var collections = ['NodeList', 'DOMTokenList', 'MediaList', 'StyleSheetList', 'CSSRuleList'], i = 0; i < 5; i++){
-  var NAME       = collections[i]
-    , Collection = global[NAME]
-    , proto      = Collection && Collection.prototype;
-  if(proto && !proto[TO_STRING_TAG])hide(proto, TO_STRING_TAG, NAME);
-  Iterators[NAME] = Iterators.Array;
-}
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(76), __esModule: true };
-
-/***/ }),
-/* 47 */
-/***/ (function(module, exports) {
-
-module.exports = function(it){
-  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
-  return it;
-};
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(2).document && document.documentElement;
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = !__webpack_require__(4) && !__webpack_require__(12)(function(){
-  return Object.defineProperty(__webpack_require__(31)('div'), 'a', {get: function(){ return 7; }}).a != 7;
-});
-
-/***/ }),
-/* 50 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// fallback for non-array-like ES3 and non-enumerable old V8 strings
-var cof = __webpack_require__(16);
-module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
-  return cof(it) == 'String' ? it.split('') : Object(it);
-};
-
-/***/ }),
-/* 51 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var LIBRARY        = __webpack_require__(24)
-  , $export        = __webpack_require__(5)
-  , redefine       = __webpack_require__(54)
-  , hide           = __webpack_require__(10)
-  , has            = __webpack_require__(8)
-  , Iterators      = __webpack_require__(11)
-  , $iterCreate    = __webpack_require__(85)
-  , setToStringTag = __webpack_require__(25)
-  , getPrototypeOf = __webpack_require__(93)
-  , ITERATOR       = __webpack_require__(1)('iterator')
-  , BUGGY          = !([].keys && 'next' in [].keys()) // Safari has buggy iterators w/o `next`
-  , FF_ITERATOR    = '@@iterator'
-  , KEYS           = 'keys'
-  , VALUES         = 'values';
-
-var returnThis = function(){ return this; };
-
-module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED){
-  $iterCreate(Constructor, NAME, next);
-  var getMethod = function(kind){
-    if(!BUGGY && kind in proto)return proto[kind];
-    switch(kind){
-      case KEYS: return function keys(){ return new Constructor(this, kind); };
-      case VALUES: return function values(){ return new Constructor(this, kind); };
-    } return function entries(){ return new Constructor(this, kind); };
-  };
-  var TAG        = NAME + ' Iterator'
-    , DEF_VALUES = DEFAULT == VALUES
-    , VALUES_BUG = false
-    , proto      = Base.prototype
-    , $native    = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT]
-    , $default   = $native || getMethod(DEFAULT)
-    , $entries   = DEFAULT ? !DEF_VALUES ? $default : getMethod('entries') : undefined
-    , $anyNative = NAME == 'Array' ? proto.entries || $native : $native
-    , methods, key, IteratorPrototype;
-  // Fix native
-  if($anyNative){
-    IteratorPrototype = getPrototypeOf($anyNative.call(new Base));
-    if(IteratorPrototype !== Object.prototype){
-      // Set @@toStringTag to native iterators
-      setToStringTag(IteratorPrototype, TAG, true);
-      // fix for some old engines
-      if(!LIBRARY && !has(IteratorPrototype, ITERATOR))hide(IteratorPrototype, ITERATOR, returnThis);
-    }
-  }
-  // fix Array#{values, @@iterator}.name in V8 / FF
-  if(DEF_VALUES && $native && $native.name !== VALUES){
-    VALUES_BUG = true;
-    $default = function values(){ return $native.call(this); };
-  }
-  // Define iterator
-  if((!LIBRARY || FORCED) && (BUGGY || VALUES_BUG || !proto[ITERATOR])){
-    hide(proto, ITERATOR, $default);
-  }
-  // Plug for library
-  Iterators[NAME] = $default;
-  Iterators[TAG]  = returnThis;
-  if(DEFAULT){
-    methods = {
-      values:  DEF_VALUES ? $default : getMethod(VALUES),
-      keys:    IS_SET     ? $default : getMethod(KEYS),
-      entries: $entries
-    };
-    if(FORCED)for(key in methods){
-      if(!(key in proto))redefine(proto, key, methods[key]);
-    } else $export($export.P + $export.F * (BUGGY || VALUES_BUG), NAME, methods);
-  }
-  return methods;
-};
-
-/***/ }),
-/* 52 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
-var $keys      = __webpack_require__(53)
-  , hiddenKeys = __webpack_require__(32).concat('length', 'prototype');
-
-exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O){
-  return $keys(O, hiddenKeys);
-};
-
-/***/ }),
-/* 53 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var has          = __webpack_require__(8)
-  , toIObject    = __webpack_require__(9)
-  , arrayIndexOf = __webpack_require__(80)(false)
-  , IE_PROTO     = __webpack_require__(35)('IE_PROTO');
-
-module.exports = function(object, names){
-  var O      = toIObject(object)
-    , i      = 0
-    , result = []
-    , key;
-  for(key in O)if(key != IE_PROTO)has(O, key) && result.push(key);
-  // Don't enum bug & hidden keys
-  while(names.length > i)if(has(O, key = names[i++])){
-    ~arrayIndexOf(result, key) || result.push(key);
-  }
-  return result;
-};
-
-/***/ }),
-/* 54 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(10);
-
-/***/ }),
-/* 55 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var ctx                = __webpack_require__(21)
-  , invoke             = __webpack_require__(83)
-  , html               = __webpack_require__(48)
-  , cel                = __webpack_require__(31)
-  , global             = __webpack_require__(2)
-  , process            = global.process
-  , setTask            = global.setImmediate
-  , clearTask          = global.clearImmediate
-  , MessageChannel     = global.MessageChannel
-  , counter            = 0
-  , queue              = {}
-  , ONREADYSTATECHANGE = 'onreadystatechange'
-  , defer, channel, port;
-var run = function(){
-  var id = +this;
-  if(queue.hasOwnProperty(id)){
-    var fn = queue[id];
-    delete queue[id];
-    fn();
-  }
-};
-var listener = function(event){
-  run.call(event.data);
-};
-// Node.js 0.9+ & IE10+ has setImmediate, otherwise:
-if(!setTask || !clearTask){
-  setTask = function setImmediate(fn){
-    var args = [], i = 1;
-    while(arguments.length > i)args.push(arguments[i++]);
-    queue[++counter] = function(){
-      invoke(typeof fn == 'function' ? fn : Function(fn), args);
-    };
-    defer(counter);
-    return counter;
-  };
-  clearTask = function clearImmediate(id){
-    delete queue[id];
-  };
-  // Node.js 0.8-
-  if(__webpack_require__(16)(process) == 'process'){
-    defer = function(id){
-      process.nextTick(ctx(run, id, 1));
-    };
-  // Browsers with MessageChannel, includes WebWorkers
-  } else if(MessageChannel){
-    channel = new MessageChannel;
-    port    = channel.port2;
-    channel.port1.onmessage = listener;
-    defer = ctx(port.postMessage, port, 1);
-  // Browsers with postMessage, skip WebWorkers
-  // IE8 has postMessage, but it's sync & typeof its postMessage is 'object'
-  } else if(global.addEventListener && typeof postMessage == 'function' && !global.importScripts){
-    defer = function(id){
-      global.postMessage(id + '', '*');
-    };
-    global.addEventListener('message', listener, false);
-  // IE8-
-  } else if(ONREADYSTATECHANGE in cel('script')){
-    defer = function(id){
-      html.appendChild(cel('script'))[ONREADYSTATECHANGE] = function(){
-        html.removeChild(this);
-        run.call(id);
-      };
-    };
-  // Rest old browsers
-  } else {
-    defer = function(id){
-      setTimeout(ctx(run, id, 1), 0);
-    };
-  }
-}
-module.exports = {
-  set:   setTask,
-  clear: clearTask
-};
-
-/***/ }),
-/* 56 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports.f = __webpack_require__(1);
-
-/***/ }),
-/* 57 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 58 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -2976,24 +1901,10 @@ module.exports = g;
  * @private
  */
 
-var _require = __webpack_require__(114),
-    process = _require.process,
-    instruction = _require.instruction,
-    TAKE = _require.TAKE,
-    PUT = _require.PUT,
-    ALTS = _require.ALTS,
-    SLEEP = _require.SLEEP;
-
-var _require2 = __webpack_require__(18),
-    fixed = _require2.fixed;
-
-var _require3 = __webpack_require__(6),
-    chan = _require3.chan,
-    close = _require3.close,
-    CLOSED = _require3.CLOSED;
-
-var _require4 = __webpack_require__(15),
-    putAsync = _require4.putAsync;
+const { process, instruction, TAKE, PUT, ALTS, SLEEP } = __webpack_require__(13);
+const { fixed } = __webpack_require__(2);
+const { chan, close, CLOSED } = __webpack_require__(0);
+const { putAsync } = __webpack_require__(1);
 
 /**
  * **Takes a value from a channel, blocking the process until a value becomes available to be taken (or until the
@@ -3014,10 +1925,8 @@ var _require4 = __webpack_require__(15),
  *     `{@link module:cispy~Cispy.CLOSED|CLOSED} `if the target channel has closed and no more values are available to
  *     be taken.
  */
-
-
 function take(channel) {
-  return instruction(TAKE, { channel: channel, except: false });
+  return instruction(TAKE, { channel, except: false });
 }
 
 /**
@@ -3056,7 +1965,7 @@ function take(channel) {
  *     be taken, or no value at all if the taken value was an error object.
  */
 function takeOrThrow(channel) {
-  return instruction(TAKE, { channel: channel, except: true });
+  return instruction(TAKE, { channel, except: true });
 }
 
 /**
@@ -3082,7 +1991,7 @@ function takeOrThrow(channel) {
  *     closed.
  */
 function put(channel, value) {
-  return instruction(PUT, { channel: channel, value: value });
+  return instruction(PUT, { channel, value });
 }
 
 /**
@@ -3132,10 +2041,8 @@ function put(channel, value) {
  *     `{@link module:cispy~Cispy.put|put}` or `{@link module:cispy~Cispy.take|take}` function was called instead), and
  *     `channel` will have the channel object that completed the operation that allowed the `alts` process to unblock.
  */
-function alts(ops) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  return instruction(ALTS, { ops: ops, options: options });
+function alts(ops, options = {}) {
+  return instruction(ALTS, { ops, options });
 }
 
 /**
@@ -3160,10 +2067,8 @@ function alts(ops) {
  *     otherwise. After the process unblocks, the `yield timeout` expression doesn't take on any value (it's in fact
  *     set to `undefined`).
  */
-function sleep() {
-  var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-  return instruction(SLEEP, { delay: delay });
+function sleep(delay = 0) {
+  return instruction(SLEEP, { delay });
 }
 
 /**
@@ -3180,14 +2085,12 @@ function sleep() {
  *     that is the return value of the generator. This channel automatically closes when that value is taken from it.
  */
 function spawn(gen, exh) {
-  var ch = chan(fixed(1));
-  process(gen, exh, function (value) {
+  const ch = chan(fixed(1));
+  process(gen, exh, value => {
     if (value === CLOSED) {
       ch.close();
     } else {
-      putAsync(ch, value, function () {
-        return close(ch);
-      });
+      putAsync(ch, value, () => close(ch));
     }
   }).run();
   return ch;
@@ -3215,12 +2118,8 @@ function spawn(gen, exh) {
  *     that is the return value of the generator function. This channel automatically closes when that value is taken
  *     from it.
  */
-function go(fn) {
-  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    args[_key - 1] = arguments[_key];
-  }
-
-  return spawn(fn.apply(undefined, args));
+function go(fn, ...args) {
+  return spawn(fn(...args));
 }
 
 /**
@@ -3244,991 +2143,25 @@ function go(fn) {
  *     handler function (if an uncaught error is thrown and passed to the handler). This channel automatically closes
  *     when that value is taken from it.
  */
-function goSafe(fn, handler) {
-  for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-    args[_key2 - 2] = arguments[_key2];
-  }
-
-  return spawn(fn.apply(undefined, args), handler);
+function goSafe(fn, handler, ...args) {
+  return spawn(fn(...args), handler);
 }
 
 module.exports = {
-  put: put,
-  take: take,
-  takeOrThrow: takeOrThrow,
-  alts: alts,
-  sleep: sleep,
-  go: go,
-  goSafe: goSafe,
-  spawn: spawn
-};
-
-/***/ }),
-/* 59 */,
-/* 60 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// check on default Array iterator
-var Iterators  = __webpack_require__(11)
-  , ITERATOR   = __webpack_require__(1)('iterator')
-  , ArrayProto = Array.prototype;
-
-module.exports = function(it){
-  return it !== undefined && (Iterators.Array === it || ArrayProto[ITERATOR] === it);
-};
-
-/***/ }),
-/* 61 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// call something on iterator step with safe closing on error
-var anObject = __webpack_require__(7);
-module.exports = function(iterator, fn, value, entries){
-  try {
-    return entries ? fn(anObject(value)[0], value[1]) : fn(value);
-  // 7.4.6 IteratorClose(iterator, completion)
-  } catch(e){
-    var ret = iterator['return'];
-    if(ret !== undefined)anObject(ret.call(iterator));
-    throw e;
-  }
-};
-
-/***/ }),
-/* 62 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var ITERATOR     = __webpack_require__(1)('iterator')
-  , SAFE_CLOSING = false;
-
-try {
-  var riter = [7][ITERATOR]();
-  riter['return'] = function(){ SAFE_CLOSING = true; };
-  Array.from(riter, function(){ throw 2; });
-} catch(e){ /* empty */ }
-
-module.exports = function(exec, skipClosing){
-  if(!skipClosing && !SAFE_CLOSING)return false;
-  var safe = false;
-  try {
-    var arr  = [7]
-      , iter = arr[ITERATOR]();
-    iter.next = function(){ return {done: safe = true}; };
-    arr[ITERATOR] = function(){ return iter; };
-    exec(arr);
-  } catch(e){ /* empty */ }
-  return safe;
-};
-
-/***/ }),
-/* 63 */
-/***/ (function(module, exports) {
-
-
-
-/***/ }),
-/* 64 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(71), __esModule: true };
-
-/***/ }),
-/* 65 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(73), __esModule: true };
-
-/***/ }),
-/* 66 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(75), __esModule: true };
-
-/***/ }),
-/* 67 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = { "default": __webpack_require__(77), __esModule: true };
-
-/***/ }),
-/* 68 */,
-/* 69 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _defineProperty = __webpack_require__(46);
-
-var _defineProperty2 = _interopRequireDefault(_defineProperty);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = function (obj, key, value) {
-  if (key in obj) {
-    (0, _defineProperty2.default)(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-};
-
-/***/ }),
-/* 70 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _from = __webpack_require__(64);
-
-var _from2 = _interopRequireDefault(_from);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = function (arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
-      arr2[i] = arr[i];
-    }
-
-    return arr2;
-  } else {
-    return (0, _from2.default)(arr);
-  }
-};
-
-/***/ }),
-/* 71 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(26);
-__webpack_require__(98);
-module.exports = __webpack_require__(0).Array.from;
-
-/***/ }),
-/* 72 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(45);
-__webpack_require__(26);
-module.exports = __webpack_require__(96);
-
-/***/ }),
-/* 73 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(45);
-__webpack_require__(26);
-module.exports = __webpack_require__(97);
-
-/***/ }),
-/* 74 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(100);
-module.exports = __webpack_require__(0).Object.assign;
-
-/***/ }),
-/* 75 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(101);
-var $Object = __webpack_require__(0).Object;
-module.exports = function create(P, D){
-  return $Object.create(P, D);
-};
-
-/***/ }),
-/* 76 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(102);
-var $Object = __webpack_require__(0).Object;
-module.exports = function defineProperty(it, key, desc){
-  return $Object.defineProperty(it, key, desc);
-};
-
-/***/ }),
-/* 77 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(106);
-module.exports = __webpack_require__(0).setImmediate;
-
-/***/ }),
-/* 78 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(103);
-__webpack_require__(63);
-__webpack_require__(104);
-__webpack_require__(105);
-module.exports = __webpack_require__(0).Symbol;
-
-/***/ }),
-/* 79 */
-/***/ (function(module, exports) {
-
-module.exports = function(){ /* empty */ };
-
-/***/ }),
-/* 80 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// false -> Array#indexOf
-// true  -> Array#includes
-var toIObject = __webpack_require__(9)
-  , toLength  = __webpack_require__(43)
-  , toIndex   = __webpack_require__(95);
-module.exports = function(IS_INCLUDES){
-  return function($this, el, fromIndex){
-    var O      = toIObject($this)
-      , length = toLength(O.length)
-      , index  = toIndex(fromIndex, length)
-      , value;
-    // Array#includes uses SameValueZero equality algorithm
-    if(IS_INCLUDES && el != el)while(length > index){
-      value = O[index++];
-      if(value != value)return true;
-    // Array#toIndex ignores holes, Array#includes - not
-    } else for(;length > index; index++)if(IS_INCLUDES || index in O){
-      if(O[index] === el)return IS_INCLUDES || index || 0;
-    } return !IS_INCLUDES && -1;
-  };
-};
-
-/***/ }),
-/* 81 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var $defineProperty = __webpack_require__(3)
-  , createDesc      = __webpack_require__(14);
-
-module.exports = function(object, index, value){
-  if(index in object)$defineProperty.f(object, index, createDesc(0, value));
-  else object[index] = value;
-};
-
-/***/ }),
-/* 82 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// all enumerable object keys, includes symbols
-var getKeys = __webpack_require__(13)
-  , gOPS    = __webpack_require__(34)
-  , pIE     = __webpack_require__(22);
-module.exports = function(it){
-  var result     = getKeys(it)
-    , getSymbols = gOPS.f;
-  if(getSymbols){
-    var symbols = getSymbols(it)
-      , isEnum  = pIE.f
-      , i       = 0
-      , key;
-    while(symbols.length > i)if(isEnum.call(it, key = symbols[i++]))result.push(key);
-  } return result;
-};
-
-/***/ }),
-/* 83 */
-/***/ (function(module, exports) {
-
-// fast apply, http://jsperf.lnkit.com/fast-apply/5
-module.exports = function(fn, args, that){
-  var un = that === undefined;
-  switch(args.length){
-    case 0: return un ? fn()
-                      : fn.call(that);
-    case 1: return un ? fn(args[0])
-                      : fn.call(that, args[0]);
-    case 2: return un ? fn(args[0], args[1])
-                      : fn.call(that, args[0], args[1]);
-    case 3: return un ? fn(args[0], args[1], args[2])
-                      : fn.call(that, args[0], args[1], args[2]);
-    case 4: return un ? fn(args[0], args[1], args[2], args[3])
-                      : fn.call(that, args[0], args[1], args[2], args[3]);
-  } return              fn.apply(that, args);
-};
-
-/***/ }),
-/* 84 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 7.2.2 IsArray(argument)
-var cof = __webpack_require__(16);
-module.exports = Array.isArray || function isArray(arg){
-  return cof(arg) == 'Array';
-};
-
-/***/ }),
-/* 85 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var create         = __webpack_require__(33)
-  , descriptor     = __webpack_require__(14)
-  , setToStringTag = __webpack_require__(25)
-  , IteratorPrototype = {};
-
-// 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-__webpack_require__(10)(IteratorPrototype, __webpack_require__(1)('iterator'), function(){ return this; });
-
-module.exports = function(Constructor, NAME, next){
-  Constructor.prototype = create(IteratorPrototype, {next: descriptor(1, next)});
-  setToStringTag(Constructor, NAME + ' Iterator');
-};
-
-/***/ }),
-/* 86 */
-/***/ (function(module, exports) {
-
-module.exports = function(done, value){
-  return {value: value, done: !!done};
-};
-
-/***/ }),
-/* 87 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var getKeys   = __webpack_require__(13)
-  , toIObject = __webpack_require__(9);
-module.exports = function(object, el){
-  var O      = toIObject(object)
-    , keys   = getKeys(O)
-    , length = keys.length
-    , index  = 0
-    , key;
-  while(length > index)if(O[key = keys[index++]] === el)return key;
-};
-
-/***/ }),
-/* 88 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var META     = __webpack_require__(23)('meta')
-  , isObject = __webpack_require__(17)
-  , has      = __webpack_require__(8)
-  , setDesc  = __webpack_require__(3).f
-  , id       = 0;
-var isExtensible = Object.isExtensible || function(){
-  return true;
-};
-var FREEZE = !__webpack_require__(12)(function(){
-  return isExtensible(Object.preventExtensions({}));
-});
-var setMeta = function(it){
-  setDesc(it, META, {value: {
-    i: 'O' + ++id, // object ID
-    w: {}          // weak collections IDs
-  }});
-};
-var fastKey = function(it, create){
-  // return primitive with prefix
-  if(!isObject(it))return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
-  if(!has(it, META)){
-    // can't set metadata to uncaught frozen object
-    if(!isExtensible(it))return 'F';
-    // not necessary to add metadata
-    if(!create)return 'E';
-    // add missing metadata
-    setMeta(it);
-  // return object ID
-  } return it[META].i;
-};
-var getWeak = function(it, create){
-  if(!has(it, META)){
-    // can't set metadata to uncaught frozen object
-    if(!isExtensible(it))return true;
-    // not necessary to add metadata
-    if(!create)return false;
-    // add missing metadata
-    setMeta(it);
-  // return hash weak collections IDs
-  } return it[META].w;
-};
-// add metadata on freeze-family methods calling
-var onFreeze = function(it){
-  if(FREEZE && meta.NEED && isExtensible(it) && !has(it, META))setMeta(it);
-  return it;
-};
-var meta = module.exports = {
-  KEY:      META,
-  NEED:     false,
-  fastKey:  fastKey,
-  getWeak:  getWeak,
-  onFreeze: onFreeze
-};
-
-/***/ }),
-/* 89 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-// 19.1.2.1 Object.assign(target, source, ...)
-var getKeys  = __webpack_require__(13)
-  , gOPS     = __webpack_require__(34)
-  , pIE      = __webpack_require__(22)
-  , toObject = __webpack_require__(38)
-  , IObject  = __webpack_require__(50)
-  , $assign  = Object.assign;
-
-// should work with symbols and should have deterministic property order (V8 bug)
-module.exports = !$assign || __webpack_require__(12)(function(){
-  var A = {}
-    , B = {}
-    , S = Symbol()
-    , K = 'abcdefghijklmnopqrst';
-  A[S] = 7;
-  K.split('').forEach(function(k){ B[k] = k; });
-  return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
-}) ? function assign(target, source){ // eslint-disable-line no-unused-vars
-  var T     = toObject(target)
-    , aLen  = arguments.length
-    , index = 1
-    , getSymbols = gOPS.f
-    , isEnum     = pIE.f;
-  while(aLen > index){
-    var S      = IObject(arguments[index++])
-      , keys   = getSymbols ? getKeys(S).concat(getSymbols(S)) : getKeys(S)
-      , length = keys.length
-      , j      = 0
-      , key;
-    while(length > j)if(isEnum.call(S, key = keys[j++]))T[key] = S[key];
-  } return T;
-} : $assign;
-
-/***/ }),
-/* 90 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var dP       = __webpack_require__(3)
-  , anObject = __webpack_require__(7)
-  , getKeys  = __webpack_require__(13);
-
-module.exports = __webpack_require__(4) ? Object.defineProperties : function defineProperties(O, Properties){
-  anObject(O);
-  var keys   = getKeys(Properties)
-    , length = keys.length
-    , i = 0
-    , P;
-  while(length > i)dP.f(O, P = keys[i++], Properties[P]);
-  return O;
-};
-
-/***/ }),
-/* 91 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var pIE            = __webpack_require__(22)
-  , createDesc     = __webpack_require__(14)
-  , toIObject      = __webpack_require__(9)
-  , toPrimitive    = __webpack_require__(39)
-  , has            = __webpack_require__(8)
-  , IE8_DOM_DEFINE = __webpack_require__(49)
-  , gOPD           = Object.getOwnPropertyDescriptor;
-
-exports.f = __webpack_require__(4) ? gOPD : function getOwnPropertyDescriptor(O, P){
-  O = toIObject(O);
-  P = toPrimitive(P, true);
-  if(IE8_DOM_DEFINE)try {
-    return gOPD(O, P);
-  } catch(e){ /* empty */ }
-  if(has(O, P))return createDesc(!pIE.f.call(O, P), O[P]);
-};
-
-/***/ }),
-/* 92 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
-var toIObject = __webpack_require__(9)
-  , gOPN      = __webpack_require__(52).f
-  , toString  = {}.toString;
-
-var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
-  ? Object.getOwnPropertyNames(window) : [];
-
-var getWindowNames = function(it){
-  try {
-    return gOPN(it);
-  } catch(e){
-    return windowNames.slice();
-  }
-};
-
-module.exports.f = function getOwnPropertyNames(it){
-  return windowNames && toString.call(it) == '[object Window]' ? getWindowNames(it) : gOPN(toIObject(it));
+  put,
+  take,
+  takeOrThrow,
+  alts,
+  sleep,
+  go,
+  goSafe,
+  spawn
 };
 
 
 /***/ }),
-/* 93 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
-var has         = __webpack_require__(8)
-  , toObject    = __webpack_require__(38)
-  , IE_PROTO    = __webpack_require__(35)('IE_PROTO')
-  , ObjectProto = Object.prototype;
-
-module.exports = Object.getPrototypeOf || function(O){
-  O = toObject(O);
-  if(has(O, IE_PROTO))return O[IE_PROTO];
-  if(typeof O.constructor == 'function' && O instanceof O.constructor){
-    return O.constructor.prototype;
-  } return O instanceof Object ? ObjectProto : null;
-};
-
-/***/ }),
-/* 94 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var toInteger = __webpack_require__(37)
-  , defined   = __webpack_require__(30);
-// true  -> String#at
-// false -> String#codePointAt
-module.exports = function(TO_STRING){
-  return function(that, pos){
-    var s = String(defined(that))
-      , i = toInteger(pos)
-      , l = s.length
-      , a, b;
-    if(i < 0 || i >= l)return TO_STRING ? '' : undefined;
-    a = s.charCodeAt(i);
-    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
-      ? TO_STRING ? s.charAt(i) : a
-      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
-  };
-};
-
-/***/ }),
-/* 95 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var toInteger = __webpack_require__(37)
-  , max       = Math.max
-  , min       = Math.min;
-module.exports = function(index, length){
-  index = toInteger(index);
-  return index < 0 ? max(index + length, 0) : min(index, length);
-};
-
-/***/ }),
-/* 96 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var anObject = __webpack_require__(7)
-  , get      = __webpack_require__(44);
-module.exports = __webpack_require__(0).getIterator = function(it){
-  var iterFn = get(it);
-  if(typeof iterFn != 'function')throw TypeError(it + ' is not iterable!');
-  return anObject(iterFn.call(it));
-};
-
-/***/ }),
-/* 97 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var classof   = __webpack_require__(42)
-  , ITERATOR  = __webpack_require__(1)('iterator')
-  , Iterators = __webpack_require__(11);
-module.exports = __webpack_require__(0).isIterable = function(it){
-  var O = Object(it);
-  return O[ITERATOR] !== undefined
-    || '@@iterator' in O
-    || Iterators.hasOwnProperty(classof(O));
-};
-
-/***/ }),
-/* 98 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var ctx            = __webpack_require__(21)
-  , $export        = __webpack_require__(5)
-  , toObject       = __webpack_require__(38)
-  , call           = __webpack_require__(61)
-  , isArrayIter    = __webpack_require__(60)
-  , toLength       = __webpack_require__(43)
-  , createProperty = __webpack_require__(81)
-  , getIterFn      = __webpack_require__(44);
-
-$export($export.S + $export.F * !__webpack_require__(62)(function(iter){ Array.from(iter); }), 'Array', {
-  // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
-  from: function from(arrayLike/*, mapfn = undefined, thisArg = undefined*/){
-    var O       = toObject(arrayLike)
-      , C       = typeof this == 'function' ? this : Array
-      , aLen    = arguments.length
-      , mapfn   = aLen > 1 ? arguments[1] : undefined
-      , mapping = mapfn !== undefined
-      , index   = 0
-      , iterFn  = getIterFn(O)
-      , length, result, step, iterator;
-    if(mapping)mapfn = ctx(mapfn, aLen > 2 ? arguments[2] : undefined, 2);
-    // if object isn't iterable or it's array with default iterator - use simple case
-    if(iterFn != undefined && !(C == Array && isArrayIter(iterFn))){
-      for(iterator = iterFn.call(O), result = new C; !(step = iterator.next()).done; index++){
-        createProperty(result, index, mapping ? call(iterator, mapfn, [step.value, index], true) : step.value);
-      }
-    } else {
-      length = toLength(O.length);
-      for(result = new C(length); length > index; index++){
-        createProperty(result, index, mapping ? mapfn(O[index], index) : O[index]);
-      }
-    }
-    result.length = index;
-    return result;
-  }
-});
-
-
-/***/ }),
-/* 99 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var addToUnscopables = __webpack_require__(79)
-  , step             = __webpack_require__(86)
-  , Iterators        = __webpack_require__(11)
-  , toIObject        = __webpack_require__(9);
-
-// 22.1.3.4 Array.prototype.entries()
-// 22.1.3.13 Array.prototype.keys()
-// 22.1.3.29 Array.prototype.values()
-// 22.1.3.30 Array.prototype[@@iterator]()
-module.exports = __webpack_require__(51)(Array, 'Array', function(iterated, kind){
-  this._t = toIObject(iterated); // target
-  this._i = 0;                   // next index
-  this._k = kind;                // kind
-// 22.1.5.2.1 %ArrayIteratorPrototype%.next()
-}, function(){
-  var O     = this._t
-    , kind  = this._k
-    , index = this._i++;
-  if(!O || index >= O.length){
-    this._t = undefined;
-    return step(1);
-  }
-  if(kind == 'keys'  )return step(0, index);
-  if(kind == 'values')return step(0, O[index]);
-  return step(0, [index, O[index]]);
-}, 'values');
-
-// argumentsList[@@iterator] is %ArrayProto_values% (9.4.4.6, 9.4.4.7)
-Iterators.Arguments = Iterators.Array;
-
-addToUnscopables('keys');
-addToUnscopables('values');
-addToUnscopables('entries');
-
-/***/ }),
-/* 100 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// 19.1.3.1 Object.assign(target, source)
-var $export = __webpack_require__(5);
-
-$export($export.S + $export.F, 'Object', {assign: __webpack_require__(89)});
-
-/***/ }),
-/* 101 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var $export = __webpack_require__(5)
-// 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-$export($export.S, 'Object', {create: __webpack_require__(33)});
-
-/***/ }),
-/* 102 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var $export = __webpack_require__(5);
-// 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
-$export($export.S + $export.F * !__webpack_require__(4), 'Object', {defineProperty: __webpack_require__(3).f});
-
-/***/ }),
-/* 103 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-// ECMAScript 6 symbols shim
-var global         = __webpack_require__(2)
-  , has            = __webpack_require__(8)
-  , DESCRIPTORS    = __webpack_require__(4)
-  , $export        = __webpack_require__(5)
-  , redefine       = __webpack_require__(54)
-  , META           = __webpack_require__(88).KEY
-  , $fails         = __webpack_require__(12)
-  , shared         = __webpack_require__(36)
-  , setToStringTag = __webpack_require__(25)
-  , uid            = __webpack_require__(23)
-  , wks            = __webpack_require__(1)
-  , wksExt         = __webpack_require__(56)
-  , wksDefine      = __webpack_require__(40)
-  , keyOf          = __webpack_require__(87)
-  , enumKeys       = __webpack_require__(82)
-  , isArray        = __webpack_require__(84)
-  , anObject       = __webpack_require__(7)
-  , toIObject      = __webpack_require__(9)
-  , toPrimitive    = __webpack_require__(39)
-  , createDesc     = __webpack_require__(14)
-  , _create        = __webpack_require__(33)
-  , gOPNExt        = __webpack_require__(92)
-  , $GOPD          = __webpack_require__(91)
-  , $DP            = __webpack_require__(3)
-  , $keys          = __webpack_require__(13)
-  , gOPD           = $GOPD.f
-  , dP             = $DP.f
-  , gOPN           = gOPNExt.f
-  , $Symbol        = global.Symbol
-  , $JSON          = global.JSON
-  , _stringify     = $JSON && $JSON.stringify
-  , PROTOTYPE      = 'prototype'
-  , HIDDEN         = wks('_hidden')
-  , TO_PRIMITIVE   = wks('toPrimitive')
-  , isEnum         = {}.propertyIsEnumerable
-  , SymbolRegistry = shared('symbol-registry')
-  , AllSymbols     = shared('symbols')
-  , OPSymbols      = shared('op-symbols')
-  , ObjectProto    = Object[PROTOTYPE]
-  , USE_NATIVE     = typeof $Symbol == 'function'
-  , QObject        = global.QObject;
-// Don't use setters in Qt Script, https://github.com/zloirock/core-js/issues/173
-var setter = !QObject || !QObject[PROTOTYPE] || !QObject[PROTOTYPE].findChild;
-
-// fallback for old Android, https://code.google.com/p/v8/issues/detail?id=687
-var setSymbolDesc = DESCRIPTORS && $fails(function(){
-  return _create(dP({}, 'a', {
-    get: function(){ return dP(this, 'a', {value: 7}).a; }
-  })).a != 7;
-}) ? function(it, key, D){
-  var protoDesc = gOPD(ObjectProto, key);
-  if(protoDesc)delete ObjectProto[key];
-  dP(it, key, D);
-  if(protoDesc && it !== ObjectProto)dP(ObjectProto, key, protoDesc);
-} : dP;
-
-var wrap = function(tag){
-  var sym = AllSymbols[tag] = _create($Symbol[PROTOTYPE]);
-  sym._k = tag;
-  return sym;
-};
-
-var isSymbol = USE_NATIVE && typeof $Symbol.iterator == 'symbol' ? function(it){
-  return typeof it == 'symbol';
-} : function(it){
-  return it instanceof $Symbol;
-};
-
-var $defineProperty = function defineProperty(it, key, D){
-  if(it === ObjectProto)$defineProperty(OPSymbols, key, D);
-  anObject(it);
-  key = toPrimitive(key, true);
-  anObject(D);
-  if(has(AllSymbols, key)){
-    if(!D.enumerable){
-      if(!has(it, HIDDEN))dP(it, HIDDEN, createDesc(1, {}));
-      it[HIDDEN][key] = true;
-    } else {
-      if(has(it, HIDDEN) && it[HIDDEN][key])it[HIDDEN][key] = false;
-      D = _create(D, {enumerable: createDesc(0, false)});
-    } return setSymbolDesc(it, key, D);
-  } return dP(it, key, D);
-};
-var $defineProperties = function defineProperties(it, P){
-  anObject(it);
-  var keys = enumKeys(P = toIObject(P))
-    , i    = 0
-    , l = keys.length
-    , key;
-  while(l > i)$defineProperty(it, key = keys[i++], P[key]);
-  return it;
-};
-var $create = function create(it, P){
-  return P === undefined ? _create(it) : $defineProperties(_create(it), P);
-};
-var $propertyIsEnumerable = function propertyIsEnumerable(key){
-  var E = isEnum.call(this, key = toPrimitive(key, true));
-  if(this === ObjectProto && has(AllSymbols, key) && !has(OPSymbols, key))return false;
-  return E || !has(this, key) || !has(AllSymbols, key) || has(this, HIDDEN) && this[HIDDEN][key] ? E : true;
-};
-var $getOwnPropertyDescriptor = function getOwnPropertyDescriptor(it, key){
-  it  = toIObject(it);
-  key = toPrimitive(key, true);
-  if(it === ObjectProto && has(AllSymbols, key) && !has(OPSymbols, key))return;
-  var D = gOPD(it, key);
-  if(D && has(AllSymbols, key) && !(has(it, HIDDEN) && it[HIDDEN][key]))D.enumerable = true;
-  return D;
-};
-var $getOwnPropertyNames = function getOwnPropertyNames(it){
-  var names  = gOPN(toIObject(it))
-    , result = []
-    , i      = 0
-    , key;
-  while(names.length > i){
-    if(!has(AllSymbols, key = names[i++]) && key != HIDDEN && key != META)result.push(key);
-  } return result;
-};
-var $getOwnPropertySymbols = function getOwnPropertySymbols(it){
-  var IS_OP  = it === ObjectProto
-    , names  = gOPN(IS_OP ? OPSymbols : toIObject(it))
-    , result = []
-    , i      = 0
-    , key;
-  while(names.length > i){
-    if(has(AllSymbols, key = names[i++]) && (IS_OP ? has(ObjectProto, key) : true))result.push(AllSymbols[key]);
-  } return result;
-};
-
-// 19.4.1.1 Symbol([description])
-if(!USE_NATIVE){
-  $Symbol = function Symbol(){
-    if(this instanceof $Symbol)throw TypeError('Symbol is not a constructor!');
-    var tag = uid(arguments.length > 0 ? arguments[0] : undefined);
-    var $set = function(value){
-      if(this === ObjectProto)$set.call(OPSymbols, value);
-      if(has(this, HIDDEN) && has(this[HIDDEN], tag))this[HIDDEN][tag] = false;
-      setSymbolDesc(this, tag, createDesc(1, value));
-    };
-    if(DESCRIPTORS && setter)setSymbolDesc(ObjectProto, tag, {configurable: true, set: $set});
-    return wrap(tag);
-  };
-  redefine($Symbol[PROTOTYPE], 'toString', function toString(){
-    return this._k;
-  });
-
-  $GOPD.f = $getOwnPropertyDescriptor;
-  $DP.f   = $defineProperty;
-  __webpack_require__(52).f = gOPNExt.f = $getOwnPropertyNames;
-  __webpack_require__(22).f  = $propertyIsEnumerable;
-  __webpack_require__(34).f = $getOwnPropertySymbols;
-
-  if(DESCRIPTORS && !__webpack_require__(24)){
-    redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
-  }
-
-  wksExt.f = function(name){
-    return wrap(wks(name));
-  }
-}
-
-$export($export.G + $export.W + $export.F * !USE_NATIVE, {Symbol: $Symbol});
-
-for(var symbols = (
-  // 19.4.2.2, 19.4.2.3, 19.4.2.4, 19.4.2.6, 19.4.2.8, 19.4.2.9, 19.4.2.10, 19.4.2.11, 19.4.2.12, 19.4.2.13, 19.4.2.14
-  'hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables'
-).split(','), i = 0; symbols.length > i; )wks(symbols[i++]);
-
-for(var symbols = $keys(wks.store), i = 0; symbols.length > i; )wksDefine(symbols[i++]);
-
-$export($export.S + $export.F * !USE_NATIVE, 'Symbol', {
-  // 19.4.2.1 Symbol.for(key)
-  'for': function(key){
-    return has(SymbolRegistry, key += '')
-      ? SymbolRegistry[key]
-      : SymbolRegistry[key] = $Symbol(key);
-  },
-  // 19.4.2.5 Symbol.keyFor(sym)
-  keyFor: function keyFor(key){
-    if(isSymbol(key))return keyOf(SymbolRegistry, key);
-    throw TypeError(key + ' is not a symbol!');
-  },
-  useSetter: function(){ setter = true; },
-  useSimple: function(){ setter = false; }
-});
-
-$export($export.S + $export.F * !USE_NATIVE, 'Object', {
-  // 19.1.2.2 Object.create(O [, Properties])
-  create: $create,
-  // 19.1.2.4 Object.defineProperty(O, P, Attributes)
-  defineProperty: $defineProperty,
-  // 19.1.2.3 Object.defineProperties(O, Properties)
-  defineProperties: $defineProperties,
-  // 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
-  getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
-  // 19.1.2.7 Object.getOwnPropertyNames(O)
-  getOwnPropertyNames: $getOwnPropertyNames,
-  // 19.1.2.8 Object.getOwnPropertySymbols(O)
-  getOwnPropertySymbols: $getOwnPropertySymbols
-});
-
-// 24.3.2 JSON.stringify(value [, replacer [, space]])
-$JSON && $export($export.S + $export.F * (!USE_NATIVE || $fails(function(){
-  var S = $Symbol();
-  // MS Edge converts symbol values to JSON as {}
-  // WebKit converts symbol values to JSON as null
-  // V8 throws on boxed symbols
-  return _stringify([S]) != '[null]' || _stringify({a: S}) != '{}' || _stringify(Object(S)) != '{}';
-})), 'JSON', {
-  stringify: function stringify(it){
-    if(it === undefined || isSymbol(it))return; // IE8 returns string on undefined
-    var args = [it]
-      , i    = 1
-      , replacer, $replacer;
-    while(arguments.length > i)args.push(arguments[i++]);
-    replacer = args[1];
-    if(typeof replacer == 'function')$replacer = replacer;
-    if($replacer || !isArray(replacer))replacer = function(key, value){
-      if($replacer)value = $replacer.call(this, key, value);
-      if(!isSymbol(value))return value;
-    };
-    args[1] = replacer;
-    return _stringify.apply($JSON, args);
-  }
-});
-
-// 19.4.3.4 Symbol.prototype[@@toPrimitive](hint)
-$Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(10)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
-// 19.4.3.5 Symbol.prototype[@@toStringTag]
-setToStringTag($Symbol, 'Symbol');
-// 20.2.1.9 Math[@@toStringTag]
-setToStringTag(Math, 'Math', true);
-// 24.3.3 JSON[@@toStringTag]
-setToStringTag(global.JSON, 'JSON', true);
-
-/***/ }),
-/* 104 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(40)('asyncIterator');
-
-/***/ }),
-/* 105 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(40)('observable');
-
-/***/ }),
-/* 106 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var $export = __webpack_require__(5)
-  , $task   = __webpack_require__(55);
-$export($export.G + $export.B, {
-  setImmediate:   $task.set,
-  clearImmediate: $task.clear
-});
-
-/***/ }),
-/* 107 */
+/* 5 */,
+/* 6 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -4414,775 +2347,286 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 108 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {// This method of obtaining a reference to the global object needs to be
-// kept identical to the way it is obtained in runtime.js
-var g =
-  typeof global === "object" ? global :
-  typeof window === "object" ? window :
-  typeof self === "object" ? self : this;
+/* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
+    "use strict";
 
-// Use `getOwnPropertyNames` because not all browsers support calling
-// `hasOwnProperty` on the global `self` object in a worker. See #183.
-var hadRuntime = g.regeneratorRuntime &&
-  Object.getOwnPropertyNames(g).indexOf("regeneratorRuntime") >= 0;
-
-// Save the old regeneratorRuntime in case it needs to be restored later.
-var oldRuntime = hadRuntime && g.regeneratorRuntime;
-
-// Force reevalutation of runtime.js.
-g.regeneratorRuntime = undefined;
-
-module.exports = __webpack_require__(109);
-
-if (hadRuntime) {
-  // Restore the original runtime.
-  g.regeneratorRuntime = oldRuntime;
-} else {
-  // Remove the global property added by runtime.js.
-  try {
-    delete g.regeneratorRuntime;
-  } catch(e) {
-    g.regeneratorRuntime = undefined;
-  }
-}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(57)))
-
-/***/ }),
-/* 109 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global, process) {/**
- * Copyright (c) 2014, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
- * additional grant of patent rights can be found in the PATENTS file in
- * the same directory.
- */
-
-!(function(global) {
-  "use strict";
-
-  var Op = Object.prototype;
-  var hasOwn = Op.hasOwnProperty;
-  var undefined; // More compressible than void 0.
-  var $Symbol = typeof Symbol === "function" ? Symbol : {};
-  var iteratorSymbol = $Symbol.iterator || "@@iterator";
-  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
-
-  var inModule = typeof module === "object";
-  var runtime = global.regeneratorRuntime;
-  if (runtime) {
-    if (inModule) {
-      // If regeneratorRuntime is defined globally and we're in a module,
-      // make the exports object identical to regeneratorRuntime.
-      module.exports = runtime;
+    if (global.setImmediate) {
+        return;
     }
-    // Don't bother evaluating the rest of this file if the runtime was
-    // already defined globally.
-    return;
-  }
 
-  // Define the runtime globally (as expected by generated code) as either
-  // module.exports (if we're in a module) or a new, empty object.
-  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+    var nextHandle = 1; // Spec says greater than zero
+    var tasksByHandle = {};
+    var currentlyRunningATask = false;
+    var doc = global.document;
+    var registerImmediate;
 
-  function wrap(innerFn, outerFn, self, tryLocsList) {
-    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
-    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
-    var generator = Object.create(protoGenerator.prototype);
-    var context = new Context(tryLocsList || []);
-
-    // The ._invoke method unifies the implementations of the .next,
-    // .throw, and .return methods.
-    generator._invoke = makeInvokeMethod(innerFn, self, context);
-
-    return generator;
-  }
-  runtime.wrap = wrap;
-
-  // Try/catch helper to minimize deoptimizations. Returns a completion
-  // record like context.tryEntries[i].completion. This interface could
-  // have been (and was previously) designed to take a closure to be
-  // invoked without arguments, but in all the cases we care about we
-  // already have an existing method we want to call, so there's no need
-  // to create a new function object. We can even get away with assuming
-  // the method takes exactly one argument, since that happens to be true
-  // in every case, so we don't have to touch the arguments object. The
-  // only additional allocation required is the completion record, which
-  // has a stable shape and so hopefully should be cheap to allocate.
-  function tryCatch(fn, obj, arg) {
-    try {
-      return { type: "normal", arg: fn.call(obj, arg) };
-    } catch (err) {
-      return { type: "throw", arg: err };
-    }
-  }
-
-  var GenStateSuspendedStart = "suspendedStart";
-  var GenStateSuspendedYield = "suspendedYield";
-  var GenStateExecuting = "executing";
-  var GenStateCompleted = "completed";
-
-  // Returning this object from the innerFn has the same effect as
-  // breaking out of the dispatch switch statement.
-  var ContinueSentinel = {};
-
-  // Dummy constructor functions that we use as the .constructor and
-  // .constructor.prototype properties for functions that return Generator
-  // objects. For full spec compliance, you may wish to configure your
-  // minifier not to mangle the names of these two functions.
-  function Generator() {}
-  function GeneratorFunction() {}
-  function GeneratorFunctionPrototype() {}
-
-  // This is a polyfill for %IteratorPrototype% for environments that
-  // don't natively support it.
-  var IteratorPrototype = {};
-  IteratorPrototype[iteratorSymbol] = function () {
-    return this;
-  };
-
-  var getProto = Object.getPrototypeOf;
-  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-  if (NativeIteratorPrototype &&
-      NativeIteratorPrototype !== Op &&
-      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
-    // This environment has a native %IteratorPrototype%; use it instead
-    // of the polyfill.
-    IteratorPrototype = NativeIteratorPrototype;
-  }
-
-  var Gp = GeneratorFunctionPrototype.prototype =
-    Generator.prototype = Object.create(IteratorPrototype);
-  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-  GeneratorFunctionPrototype.constructor = GeneratorFunction;
-  GeneratorFunctionPrototype[toStringTagSymbol] =
-    GeneratorFunction.displayName = "GeneratorFunction";
-
-  // Helper for defining the .next, .throw, and .return methods of the
-  // Iterator interface in terms of a single ._invoke method.
-  function defineIteratorMethods(prototype) {
-    ["next", "throw", "return"].forEach(function(method) {
-      prototype[method] = function(arg) {
-        return this._invoke(method, arg);
-      };
-    });
-  }
-
-  runtime.isGeneratorFunction = function(genFun) {
-    var ctor = typeof genFun === "function" && genFun.constructor;
-    return ctor
-      ? ctor === GeneratorFunction ||
-        // For the native GeneratorFunction constructor, the best we can
-        // do is to check its .name property.
-        (ctor.displayName || ctor.name) === "GeneratorFunction"
-      : false;
-  };
-
-  runtime.mark = function(genFun) {
-    if (Object.setPrototypeOf) {
-      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
-    } else {
-      genFun.__proto__ = GeneratorFunctionPrototype;
-      if (!(toStringTagSymbol in genFun)) {
-        genFun[toStringTagSymbol] = "GeneratorFunction";
+    function setImmediate(callback) {
+      // Callback can either be a function or a string
+      if (typeof callback !== "function") {
+        callback = new Function("" + callback);
       }
+      // Copy function arguments
+      var args = new Array(arguments.length - 1);
+      for (var i = 0; i < args.length; i++) {
+          args[i] = arguments[i + 1];
+      }
+      // Store and register the task
+      var task = { callback: callback, args: args };
+      tasksByHandle[nextHandle] = task;
+      registerImmediate(nextHandle);
+      return nextHandle++;
     }
-    genFun.prototype = Object.create(Gp);
-    return genFun;
-  };
 
-  // Within the body of any async function, `await x` is transformed to
-  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
-  // `hasOwn.call(value, "__await")` to determine if the yielded value is
-  // meant to be awaited.
-  runtime.awrap = function(arg) {
-    return { __await: arg };
-  };
+    function clearImmediate(handle) {
+        delete tasksByHandle[handle];
+    }
 
-  function AsyncIterator(generator) {
-    function invoke(method, arg, resolve, reject) {
-      var record = tryCatch(generator[method], generator, arg);
-      if (record.type === "throw") {
-        reject(record.arg);
-      } else {
-        var result = record.arg;
-        var value = result.value;
-        if (value &&
-            typeof value === "object" &&
-            hasOwn.call(value, "__await")) {
-          return Promise.resolve(value.__await).then(function(value) {
-            invoke("next", value, resolve, reject);
-          }, function(err) {
-            invoke("throw", err, resolve, reject);
-          });
+    function run(task) {
+        var callback = task.callback;
+        var args = task.args;
+        switch (args.length) {
+        case 0:
+            callback();
+            break;
+        case 1:
+            callback(args[0]);
+            break;
+        case 2:
+            callback(args[0], args[1]);
+            break;
+        case 3:
+            callback(args[0], args[1], args[2]);
+            break;
+        default:
+            callback.apply(undefined, args);
+            break;
         }
-
-        return Promise.resolve(value).then(function(unwrapped) {
-          // When a yielded Promise is resolved, its final value becomes
-          // the .value of the Promise<{value,done}> result for the
-          // current iteration. If the Promise is rejected, however, the
-          // result for this iteration will be rejected with the same
-          // reason. Note that rejections of yielded Promises are not
-          // thrown back into the generator function, as is the case
-          // when an awaited Promise is rejected. This difference in
-          // behavior between yield and await is important, because it
-          // allows the consumer to decide what to do with the yielded
-          // rejection (swallow it and continue, manually .throw it back
-          // into the generator, abandon iteration, whatever). With
-          // await, by contrast, there is no opportunity to examine the
-          // rejection reason outside the generator function, so the
-          // only option is to throw it from the await expression, and
-          // let the generator function handle the exception.
-          result.value = unwrapped;
-          resolve(result);
-        }, reject);
-      }
     }
 
-    if (typeof process === "object" && process.domain) {
-      invoke = process.domain.bind(invoke);
-    }
-
-    var previousPromise;
-
-    function enqueue(method, arg) {
-      function callInvokeWithMethodAndArg() {
-        return new Promise(function(resolve, reject) {
-          invoke(method, arg, resolve, reject);
-        });
-      }
-
-      return previousPromise =
-        // If enqueue has been called before, then we want to wait until
-        // all previous Promises have been resolved before calling invoke,
-        // so that results are always delivered in the correct order. If
-        // enqueue has not been called before, then it is important to
-        // call invoke immediately, without waiting on a callback to fire,
-        // so that the async generator function has the opportunity to do
-        // any necessary setup in a predictable way. This predictability
-        // is why the Promise constructor synchronously invokes its
-        // executor callback, and why async functions synchronously
-        // execute code before the first await. Since we implement simple
-        // async functions in terms of async generators, it is especially
-        // important to get this right, even though it requires care.
-        previousPromise ? previousPromise.then(
-          callInvokeWithMethodAndArg,
-          // Avoid propagating failures to Promises returned by later
-          // invocations of the iterator.
-          callInvokeWithMethodAndArg
-        ) : callInvokeWithMethodAndArg();
-    }
-
-    // Define the unified helper method that is used to implement .next,
-    // .throw, and .return (see defineIteratorMethods).
-    this._invoke = enqueue;
-  }
-
-  defineIteratorMethods(AsyncIterator.prototype);
-  runtime.AsyncIterator = AsyncIterator;
-
-  // Note that simple async functions are implemented on top of
-  // AsyncIterator objects; they just return a Promise for the value of
-  // the final result produced by the iterator.
-  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-    var iter = new AsyncIterator(
-      wrap(innerFn, outerFn, self, tryLocsList)
-    );
-
-    return runtime.isGeneratorFunction(outerFn)
-      ? iter // If outerFn is a generator, return the full iterator.
-      : iter.next().then(function(result) {
-          return result.done ? result.value : iter.next();
-        });
-  };
-
-  function makeInvokeMethod(innerFn, self, context) {
-    var state = GenStateSuspendedStart;
-
-    return function invoke(method, arg) {
-      if (state === GenStateExecuting) {
-        throw new Error("Generator is already running");
-      }
-
-      if (state === GenStateCompleted) {
-        if (method === "throw") {
-          throw arg;
-        }
-
-        // Be forgiving, per 25.3.3.3.3 of the spec:
-        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-        return doneResult();
-      }
-
-      context.method = method;
-      context.arg = arg;
-
-      while (true) {
-        var delegate = context.delegate;
-        if (delegate) {
-          var delegateResult = maybeInvokeDelegate(delegate, context);
-          if (delegateResult) {
-            if (delegateResult === ContinueSentinel) continue;
-            return delegateResult;
-          }
-        }
-
-        if (context.method === "next") {
-          // Setting context._sent for legacy support of Babel's
-          // function.sent implementation.
-          context.sent = context._sent = context.arg;
-
-        } else if (context.method === "throw") {
-          if (state === GenStateSuspendedStart) {
-            state = GenStateCompleted;
-            throw context.arg;
-          }
-
-          context.dispatchException(context.arg);
-
-        } else if (context.method === "return") {
-          context.abrupt("return", context.arg);
-        }
-
-        state = GenStateExecuting;
-
-        var record = tryCatch(innerFn, self, context);
-        if (record.type === "normal") {
-          // If an exception is thrown from innerFn, we leave state ===
-          // GenStateExecuting and loop back for another invocation.
-          state = context.done
-            ? GenStateCompleted
-            : GenStateSuspendedYield;
-
-          if (record.arg === ContinueSentinel) {
-            continue;
-          }
-
-          return {
-            value: record.arg,
-            done: context.done
-          };
-
-        } else if (record.type === "throw") {
-          state = GenStateCompleted;
-          // Dispatch the exception by looping back around to the
-          // context.dispatchException(context.arg) call above.
-          context.method = "throw";
-          context.arg = record.arg;
-        }
-      }
-    };
-  }
-
-  // Call delegate.iterator[context.method](context.arg) and handle the
-  // result, either by returning a { value, done } result from the
-  // delegate iterator, or by modifying context.method and context.arg,
-  // setting context.delegate to null, and returning the ContinueSentinel.
-  function maybeInvokeDelegate(delegate, context) {
-    var method = delegate.iterator[context.method];
-    if (method === undefined) {
-      // A .throw or .return when the delegate iterator has no .throw
-      // method always terminates the yield* loop.
-      context.delegate = null;
-
-      if (context.method === "throw") {
-        if (delegate.iterator.return) {
-          // If the delegate iterator has a return method, give it a
-          // chance to clean up.
-          context.method = "return";
-          context.arg = undefined;
-          maybeInvokeDelegate(delegate, context);
-
-          if (context.method === "throw") {
-            // If maybeInvokeDelegate(context) changed context.method from
-            // "return" to "throw", let that override the TypeError below.
-            return ContinueSentinel;
-          }
-        }
-
-        context.method = "throw";
-        context.arg = new TypeError(
-          "The iterator does not provide a 'throw' method");
-      }
-
-      return ContinueSentinel;
-    }
-
-    var record = tryCatch(method, delegate.iterator, context.arg);
-
-    if (record.type === "throw") {
-      context.method = "throw";
-      context.arg = record.arg;
-      context.delegate = null;
-      return ContinueSentinel;
-    }
-
-    var info = record.arg;
-
-    if (! info) {
-      context.method = "throw";
-      context.arg = new TypeError("iterator result is not an object");
-      context.delegate = null;
-      return ContinueSentinel;
-    }
-
-    if (info.done) {
-      // Assign the result of the finished delegate to the temporary
-      // variable specified by delegate.resultName (see delegateYield).
-      context[delegate.resultName] = info.value;
-
-      // Resume execution at the desired location (see delegateYield).
-      context.next = delegate.nextLoc;
-
-      // If context.method was "throw" but the delegate handled the
-      // exception, let the outer generator proceed normally. If
-      // context.method was "next", forget context.arg since it has been
-      // "consumed" by the delegate iterator. If context.method was
-      // "return", allow the original .return call to continue in the
-      // outer generator.
-      if (context.method !== "return") {
-        context.method = "next";
-        context.arg = undefined;
-      }
-
-    } else {
-      // Re-yield the result returned by the delegate method.
-      return info;
-    }
-
-    // The delegate iterator is finished, so forget it and continue with
-    // the outer generator.
-    context.delegate = null;
-    return ContinueSentinel;
-  }
-
-  // Define Generator.prototype.{next,throw,return} in terms of the
-  // unified ._invoke helper method.
-  defineIteratorMethods(Gp);
-
-  Gp[toStringTagSymbol] = "Generator";
-
-  Gp.toString = function() {
-    return "[object Generator]";
-  };
-
-  function pushTryEntry(locs) {
-    var entry = { tryLoc: locs[0] };
-
-    if (1 in locs) {
-      entry.catchLoc = locs[1];
-    }
-
-    if (2 in locs) {
-      entry.finallyLoc = locs[2];
-      entry.afterLoc = locs[3];
-    }
-
-    this.tryEntries.push(entry);
-  }
-
-  function resetTryEntry(entry) {
-    var record = entry.completion || {};
-    record.type = "normal";
-    delete record.arg;
-    entry.completion = record;
-  }
-
-  function Context(tryLocsList) {
-    // The root entry object (effectively a try statement without a catch
-    // or a finally block) gives us a place to store values thrown from
-    // locations where there is no enclosing try statement.
-    this.tryEntries = [{ tryLoc: "root" }];
-    tryLocsList.forEach(pushTryEntry, this);
-    this.reset(true);
-  }
-
-  runtime.keys = function(object) {
-    var keys = [];
-    for (var key in object) {
-      keys.push(key);
-    }
-    keys.reverse();
-
-    // Rather than returning an object with a next method, we keep
-    // things simple and return the next function itself.
-    return function next() {
-      while (keys.length) {
-        var key = keys.pop();
-        if (key in object) {
-          next.value = key;
-          next.done = false;
-          return next;
-        }
-      }
-
-      // To avoid creating an additional object, we just hang the .value
-      // and .done properties off the next function object itself. This
-      // also ensures that the minifier will not anonymize the function.
-      next.done = true;
-      return next;
-    };
-  };
-
-  function values(iterable) {
-    if (iterable) {
-      var iteratorMethod = iterable[iteratorSymbol];
-      if (iteratorMethod) {
-        return iteratorMethod.call(iterable);
-      }
-
-      if (typeof iterable.next === "function") {
-        return iterable;
-      }
-
-      if (!isNaN(iterable.length)) {
-        var i = -1, next = function next() {
-          while (++i < iterable.length) {
-            if (hasOwn.call(iterable, i)) {
-              next.value = iterable[i];
-              next.done = false;
-              return next;
+    function runIfPresent(handle) {
+        // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
+        // So if we're currently running a task, we'll need to delay this invocation.
+        if (currentlyRunningATask) {
+            // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
+            // "too much recursion" error.
+            setTimeout(runIfPresent, 0, handle);
+        } else {
+            var task = tasksByHandle[handle];
+            if (task) {
+                currentlyRunningATask = true;
+                try {
+                    run(task);
+                } finally {
+                    clearImmediate(handle);
+                    currentlyRunningATask = false;
+                }
             }
-          }
+        }
+    }
 
-          next.value = undefined;
-          next.done = true;
+    function installNextTickImplementation() {
+        registerImmediate = function(handle) {
+            process.nextTick(function () { runIfPresent(handle); });
+        };
+    }
 
-          return next;
+    function canUsePostMessage() {
+        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
+        // where `global.postMessage` means something completely different and can't be used for this purpose.
+        if (global.postMessage && !global.importScripts) {
+            var postMessageIsAsynchronous = true;
+            var oldOnMessage = global.onmessage;
+            global.onmessage = function() {
+                postMessageIsAsynchronous = false;
+            };
+            global.postMessage("", "*");
+            global.onmessage = oldOnMessage;
+            return postMessageIsAsynchronous;
+        }
+    }
+
+    function installPostMessageImplementation() {
+        // Installs an event handler on `global` for the `message` event: see
+        // * https://developer.mozilla.org/en/DOM/window.postMessage
+        // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
+
+        var messagePrefix = "setImmediate$" + Math.random() + "$";
+        var onGlobalMessage = function(event) {
+            if (event.source === global &&
+                typeof event.data === "string" &&
+                event.data.indexOf(messagePrefix) === 0) {
+                runIfPresent(+event.data.slice(messagePrefix.length));
+            }
         };
 
-        return next.next = next;
-      }
+        if (global.addEventListener) {
+            global.addEventListener("message", onGlobalMessage, false);
+        } else {
+            global.attachEvent("onmessage", onGlobalMessage);
+        }
+
+        registerImmediate = function(handle) {
+            global.postMessage(messagePrefix + handle, "*");
+        };
     }
 
-    // Return an iterator with no values.
-    return { next: doneResult };
-  }
-  runtime.values = values;
+    function installMessageChannelImplementation() {
+        var channel = new MessageChannel();
+        channel.port1.onmessage = function(event) {
+            var handle = event.data;
+            runIfPresent(handle);
+        };
 
-  function doneResult() {
-    return { value: undefined, done: true };
-  }
-
-  Context.prototype = {
-    constructor: Context,
-
-    reset: function(skipTempReset) {
-      this.prev = 0;
-      this.next = 0;
-      // Resetting context._sent for legacy support of Babel's
-      // function.sent implementation.
-      this.sent = this._sent = undefined;
-      this.done = false;
-      this.delegate = null;
-
-      this.method = "next";
-      this.arg = undefined;
-
-      this.tryEntries.forEach(resetTryEntry);
-
-      if (!skipTempReset) {
-        for (var name in this) {
-          // Not sure about the optimal order of these conditions:
-          if (name.charAt(0) === "t" &&
-              hasOwn.call(this, name) &&
-              !isNaN(+name.slice(1))) {
-            this[name] = undefined;
-          }
-        }
-      }
-    },
-
-    stop: function() {
-      this.done = true;
-
-      var rootEntry = this.tryEntries[0];
-      var rootRecord = rootEntry.completion;
-      if (rootRecord.type === "throw") {
-        throw rootRecord.arg;
-      }
-
-      return this.rval;
-    },
-
-    dispatchException: function(exception) {
-      if (this.done) {
-        throw exception;
-      }
-
-      var context = this;
-      function handle(loc, caught) {
-        record.type = "throw";
-        record.arg = exception;
-        context.next = loc;
-
-        if (caught) {
-          // If the dispatched exception was caught by a catch block,
-          // then let that catch block handle the exception normally.
-          context.method = "next";
-          context.arg = undefined;
-        }
-
-        return !! caught;
-      }
-
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        var record = entry.completion;
-
-        if (entry.tryLoc === "root") {
-          // Exception thrown outside of any try block that could handle
-          // it, so set the completion value of the entire function to
-          // throw the exception.
-          return handle("end");
-        }
-
-        if (entry.tryLoc <= this.prev) {
-          var hasCatch = hasOwn.call(entry, "catchLoc");
-          var hasFinally = hasOwn.call(entry, "finallyLoc");
-
-          if (hasCatch && hasFinally) {
-            if (this.prev < entry.catchLoc) {
-              return handle(entry.catchLoc, true);
-            } else if (this.prev < entry.finallyLoc) {
-              return handle(entry.finallyLoc);
-            }
-
-          } else if (hasCatch) {
-            if (this.prev < entry.catchLoc) {
-              return handle(entry.catchLoc, true);
-            }
-
-          } else if (hasFinally) {
-            if (this.prev < entry.finallyLoc) {
-              return handle(entry.finallyLoc);
-            }
-
-          } else {
-            throw new Error("try statement without catch or finally");
-          }
-        }
-      }
-    },
-
-    abrupt: function(type, arg) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.tryLoc <= this.prev &&
-            hasOwn.call(entry, "finallyLoc") &&
-            this.prev < entry.finallyLoc) {
-          var finallyEntry = entry;
-          break;
-        }
-      }
-
-      if (finallyEntry &&
-          (type === "break" ||
-           type === "continue") &&
-          finallyEntry.tryLoc <= arg &&
-          arg <= finallyEntry.finallyLoc) {
-        // Ignore the finally entry if control is not jumping to a
-        // location outside the try/catch block.
-        finallyEntry = null;
-      }
-
-      var record = finallyEntry ? finallyEntry.completion : {};
-      record.type = type;
-      record.arg = arg;
-
-      if (finallyEntry) {
-        this.method = "next";
-        this.next = finallyEntry.finallyLoc;
-        return ContinueSentinel;
-      }
-
-      return this.complete(record);
-    },
-
-    complete: function(record, afterLoc) {
-      if (record.type === "throw") {
-        throw record.arg;
-      }
-
-      if (record.type === "break" ||
-          record.type === "continue") {
-        this.next = record.arg;
-      } else if (record.type === "return") {
-        this.rval = this.arg = record.arg;
-        this.method = "return";
-        this.next = "end";
-      } else if (record.type === "normal" && afterLoc) {
-        this.next = afterLoc;
-      }
-
-      return ContinueSentinel;
-    },
-
-    finish: function(finallyLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.finallyLoc === finallyLoc) {
-          this.complete(entry.completion, entry.afterLoc);
-          resetTryEntry(entry);
-          return ContinueSentinel;
-        }
-      }
-    },
-
-    "catch": function(tryLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.tryLoc === tryLoc) {
-          var record = entry.completion;
-          if (record.type === "throw") {
-            var thrown = record.arg;
-            resetTryEntry(entry);
-          }
-          return thrown;
-        }
-      }
-
-      // The context.catch method must only be called with a location
-      // argument that corresponds to a known catch block.
-      throw new Error("illegal catch attempt");
-    },
-
-    delegateYield: function(iterable, resultName, nextLoc) {
-      this.delegate = {
-        iterator: values(iterable),
-        resultName: resultName,
-        nextLoc: nextLoc
-      };
-
-      if (this.method === "next") {
-        // Deliberately forget the last sent value so that we don't
-        // accidentally pass it on to the delegate.
-        this.arg = undefined;
-      }
-
-      return ContinueSentinel;
+        registerImmediate = function(handle) {
+            channel.port2.postMessage(handle);
+        };
     }
-  };
-})(
-  // Among the various tricks for obtaining a reference to the global
-  // object, this seems to be the most reliable technique that does not
-  // use indirect eval (which violates Content Security Policy).
-  typeof global === "object" ? global :
-  typeof window === "object" ? window :
-  typeof self === "object" ? self : this
-);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(57), __webpack_require__(107)))
+    function installReadyStateChangeImplementation() {
+        var html = doc.documentElement;
+        registerImmediate = function(handle) {
+            // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
+            // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
+            var script = doc.createElement("script");
+            script.onreadystatechange = function () {
+                runIfPresent(handle);
+                script.onreadystatechange = null;
+                html.removeChild(script);
+                script = null;
+            };
+            html.appendChild(script);
+        };
+    }
+
+    function installSetTimeoutImplementation() {
+        registerImmediate = function(handle) {
+            setTimeout(runIfPresent, 0, handle);
+        };
+    }
+
+    // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
+    var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
+    attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
+
+    // Don't get fooled by e.g. browserify environments.
+    if ({}.toString.call(global.process) === "[object process]") {
+        // For Node.js before 0.9
+        installNextTickImplementation();
+
+    } else if (canUsePostMessage()) {
+        // For non-IE10 modern browsers
+        installPostMessageImplementation();
+
+    } else if (global.MessageChannel) {
+        // For web workers, where supported
+        installMessageChannelImplementation();
+
+    } else if (doc && "onreadystatechange" in doc.createElement("script")) {
+        // For IE 6–8
+        installReadyStateChangeImplementation();
+
+    } else {
+        // For older browsers
+        installSetTimeoutImplementation();
+    }
+
+    attachTo.setImmediate = setImmediate;
+    attachTo.clearImmediate = clearImmediate;
+}(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(6)))
 
 /***/ }),
-/* 110 */
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var apply = Function.prototype.apply;
+
+// DOM APIs, for completeness
+
+exports.setTimeout = function() {
+  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+};
+exports.setInterval = function() {
+  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+};
+exports.clearTimeout =
+exports.clearInterval = function(timeout) {
+  if (timeout) {
+    timeout.close();
+  }
+};
+
+function Timeout(id, clearFn) {
+  this._id = id;
+  this._clearFn = clearFn;
+}
+Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+Timeout.prototype.close = function() {
+  this._clearFn.call(window, this._id);
+};
+
+// Does not start the time, just sets up the members needed.
+exports.enroll = function(item, msecs) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = msecs;
+};
+
+exports.unenroll = function(item) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = -1;
+};
+
+exports._unrefActive = exports.active = function(item) {
+  clearTimeout(item._idleTimeoutId);
+
+  var msecs = item._idleTimeout;
+  if (msecs >= 0) {
+    item._idleTimeoutId = setTimeout(function onTimeout() {
+      if (item._onTimeout)
+        item._onTimeout();
+    }, msecs);
+  }
+};
+
+// setimmediate attaches itself to the global object
+__webpack_require__(7);
+exports.setImmediate = setImmediate;
+exports.clearImmediate = clearImmediate;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -11107,18 +8551,8 @@ module.exports = __webpack_require__(52);
 });
 
 /***/ }),
-/* 111 */,
-/* 112 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _assign = __webpack_require__(28);
-
-var _assign2 = _interopRequireDefault(_assign);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -11191,25 +8625,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @return {*} The output value, calculated based on the input values.
  */
 
-var conversion = __webpack_require__(115);
-var flow = __webpack_require__(116);
-var timing = __webpack_require__(117);
+const conversion = __webpack_require__(14);
+const flow = __webpack_require__(15);
+const timing = __webpack_require__(16);
 
-module.exports = (0, _assign2.default)({}, conversion, flow, timing);
+module.exports = Object.assign({}, conversion, flow, timing);
+
 
 /***/ }),
-/* 113 */,
-/* 114 */
+/* 12 */,
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _symbol = __webpack_require__(20);
-
-var _symbol2 = _interopRequireDefault(_symbol);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -11242,37 +8668,30 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // generator by its `yield` expressions. By passing special values out of those expressions (in the form of
 // instruction objects), the process can control when and how the generator is restarted.
 
-var _require = __webpack_require__(6),
-    chan = _require.chan;
-
-var _require2 = __webpack_require__(15),
-    putAsync = _require2.putAsync,
-    takeAsync = _require2.takeAsync,
-    altsAsync = _require2.altsAsync;
-
-var _require3 = __webpack_require__(27),
-    dispatch = _require3.dispatch;
+const { chan } = __webpack_require__(0);
+const { putAsync, takeAsync, altsAsync } = __webpack_require__(1);
+const { dispatch } = __webpack_require__(3);
 
 // Names of the actual instructions that are used within a CSP process. These are the five operations that are
 // explicitly supported by the Process object itself. Other instructions like putAsync and takeAsync are handled
 // outside of the process and do not have process instructions.
 
-var TAKE = 'take';
-var PUT = 'put';
-var ALTS = 'alts';
-var SLEEP = 'sleep';
+const TAKE = 'take';
+const PUT = 'put';
+const ALTS = 'alts';
+const SLEEP = 'sleep';
 
 // A unique value used to tag an object as an instruction. Since there's no access to this value outside of this module,
 // there's no way to emulate (accidentally or on purpose) an instruction in the process queue.
-var INSTRUCTION = (0, _symbol2.default)();
+const INSTRUCTION = Symbol();
 
 // A simple object basically used as a wrapper to associate some data with a  particular instruction. The op property
 // is the string name of the instruction (from the five choices in the constants above), while the data property
 // contains whatever data is necessary to process that instruction.
 function instruction(op, data) {
   return {
-    op: op,
-    data: data,
+    op,
+    data,
     instruction: INSTRUCTION
   };
 }
@@ -11296,17 +8715,15 @@ function isInstruction(value) {
 // expression (special or not) - will be scheduled by the dispatcher to run as a separate message in the message queue.
 function process(gen, exh, onFinish) {
   return {
-    gen: gen,
-    exh: exh,
-    onFinish: onFinish,
+    gen,
+    exh,
+    onFinish,
     finished: false,
 
     // Continues a process that has been paused by passing back the response (the value which will be assigned to the
     // `yield` expression inside the process) and running the code as a different JS task. If the response results from
     // a `yield raise`, the error handling code (which invokes the default handler, if required) will be run instead.
-    continue: function _continue(response) {
-      var except = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
+    continue(response, except = false) {
       if (Error.prototype.isPrototypeOf(response) && except) {
         this.injectError(response);
       } else {
@@ -11314,26 +8731,24 @@ function process(gen, exh, onFinish) {
       }
     },
 
-
     // Called with an arbitrary value when the process exits. This runs the onFinish callback (passing the value) as a
     // separate JS task.
-    done: function done(value) {
+    done(value) {
       if (!this.finished) {
         this.finished = true;
-        var finish = this.onFinish;
+        const finish = this.onFinish;
         if (typeof finish === 'function') {
           dispatch(finish.bind(this, value));
         }
       }
     },
 
-
     // Called if an error object is passed out of the process via `takeOrThrow`. The error object is thrown back into
     // the process. If it's caught, then the process continues as normal. Otherwise the error is thrown as though it
     // was generated in the process itself (i.e., it can be caught with an event handler if the process was created
     // with `goSafe`).
-    injectError: function injectError(response) {
-      var result = void 0;
+    injectError(response) {
+      let result;
       try {
         result = this.gen.throw(response);
       } catch (ex) {
@@ -11347,12 +8762,11 @@ function process(gen, exh, onFinish) {
       }
     },
 
-
     // Deals with errors that happen inside a running process. Calls that restart a process (`next` or `throw`) should
     // be wrapped in a `try` with a call to this function in the `catch` block. This simply runs the error handler
     // function for the process if it exists, passing the resulting value into the process's return channel and ending
     // the process. If there is no error handler, the error is simply thrown.
-    handleProcessError: function handleProcessError(ex) {
+    handleProcessError(ex) {
       if (typeof this.exh === 'function') {
         this.done(this.exh(ex));
       } else {
@@ -11360,23 +8774,20 @@ function process(gen, exh, onFinish) {
       }
     },
 
-
     // Runs the process until it reaches a `yield`, and then handles the result of that `yield`. If the result is that
     // the process is finished (returns { done: true }), then the process is closed and the onFinish callback is called.
-    run: function run(response) {
-      var _this = this;
-
+    run(response) {
       if (this.finished) {
         return;
       }
 
-      var item = void 0;
+      let item;
       if (isInstruction(response)) {
         // If this function was called by `injectError`, then `this.gen.throw()` was already called so we already
         // have an instruction as the result, no need to call `this.gen.next()`
         item = response;
       } else {
-        var iter = void 0;
+        let iter;
         try {
           iter = this.gen.next(response);
         } catch (ex) {
@@ -11393,60 +8804,35 @@ function process(gen, exh, onFinish) {
       if (isInstruction(item)) {
         // Handle any of the instructions, which are the only meaningful yield outputs inside a process.
         switch (item.op) {
-          case PUT:
-            {
-              var _item$data = item.data,
-                  channel = _item$data.channel,
-                  value = _item$data.value;
+          case PUT: {
+            const { channel, value } = item.data;
+            putAsync(channel, value, status => this.continue(status));
+            break;
+          }
 
-              putAsync(channel, value, function (status) {
-                return _this.continue(status);
-              });
-              break;
+          case TAKE: {
+            const { channel, except } = item.data;
+            takeAsync(channel, value => this.continue(value, except));
+            break;
+          }
+
+          case ALTS: {
+            const { ops, options } = item.data;
+            altsAsync(ops, result => this.continue(result), options);
+            break;
+          }
+
+          case SLEEP: {
+            const delay = item.data.delay;
+            if (delay === 0) {
+              setTimeout(() => this.continue(), 0);
+            } else {
+              const ch = chan();
+              setTimeout(() => ch.close(), delay);
+              takeAsync(ch, value => this.continue(value));
             }
-
-          case TAKE:
-            {
-              var _item$data2 = item.data,
-                  _channel = _item$data2.channel,
-                  except = _item$data2.except;
-
-              takeAsync(_channel, function (value) {
-                return _this.continue(value, except);
-              });
-              break;
-            }
-
-          case ALTS:
-            {
-              var _item$data3 = item.data,
-                  ops = _item$data3.ops,
-                  options = _item$data3.options;
-
-              altsAsync(ops, function (result) {
-                return _this.continue(result);
-              }, options);
-              break;
-            }
-
-          case SLEEP:
-            {
-              var delay = item.data.delay;
-              if (delay === 0) {
-                setTimeout(function () {
-                  return _this.continue();
-                }, 0);
-              } else {
-                var ch = chan();
-                setTimeout(function () {
-                  return ch.close();
-                }, delay);
-                takeAsync(ch, function (value) {
-                  return _this.continue(value);
-                });
-              }
-              break;
-            }
+            break;
+          }
         }
       } else {
         // Handles anything else, though this actually does nothing more than pass the response back into the process.
@@ -11457,34 +8843,18 @@ function process(gen, exh, onFinish) {
 }
 
 module.exports = {
-  TAKE: TAKE,
-  PUT: PUT,
-  ALTS: ALTS,
-  SLEEP: SLEEP,
-  instruction: instruction,
-  process: process
+  TAKE,
+  PUT,
+  ALTS,
+  SLEEP,
+  instruction,
+  process
 };
 
+
 /***/ }),
-/* 115 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _getIterator2 = __webpack_require__(19);
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-var _slicedToArray2 = __webpack_require__(41);
-
-var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
-
-var _regenerator = __webpack_require__(29);
-
-var _regenerator2 = _interopRequireDefault(_regenerator);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -11514,15 +8884,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @private
  */
 
-var _require = __webpack_require__(6),
-    chan = _require.chan,
-    close = _require.close,
-    CLOSED = _require.CLOSED;
-
-var _require2 = __webpack_require__(58),
-    go = _require2.go,
-    put = _require2.put,
-    take = _require2.take;
+const { chan, close, CLOSED } = __webpack_require__(0);
+const { go, put, take } = __webpack_require__(4);
 
 /**
  * **Creates a single value from a channel by running its values through a reducing function.**
@@ -11566,45 +8929,17 @@ var _require2 = __webpack_require__(58),
  * @return {module:cispy/core/channel~Channel} A channel that will, when the input channel closes, have the reduced
  *     value put into it. When this value is taken, the channel will automatically close.
  */
-
-
 function reduce(fn, ch, init) {
-  return go(_regenerator2.default.mark(function _callee() {
-    var result, value;
-    return _regenerator2.default.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            result = init;
-
-          case 1:
-            _context.next = 3;
-            return take(ch);
-
-          case 3:
-            value = _context.sent;
-
-            if (!(value === CLOSED)) {
-              _context.next = 6;
-              break;
-            }
-
-            return _context.abrupt('return', result);
-
-          case 6:
-            result = fn(result, value);
-
-          case 7:
-            _context.next = 1;
-            break;
-
-          case 9:
-          case 'end':
-            return _context.stop();
-        }
+  return go(function*() {
+    let result = init;
+    for (;;) {
+      const value = yield take(ch);
+      if (value === CLOSED) {
+        return result;
       }
-    }, _callee, this);
-  }));
+      result = fn(result, value);
+    }
+  });
 }
 
 /**
@@ -11639,83 +8974,14 @@ function reduce(fn, ch, init) {
  *     value is taken from it.
  */
 function onto(ch, array) {
-  var _ref = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array],
-      _ref2 = (0, _slicedToArray3.default)(_ref, 2),
-      chnl = _ref2[0],
-      arr = _ref2[1];
+  const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
 
-  go(_regenerator2.default.mark(function _callee2() {
-    var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, item;
-
-    return _regenerator2.default.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            _iteratorNormalCompletion = true;
-            _didIteratorError = false;
-            _iteratorError = undefined;
-            _context2.prev = 3;
-            _iterator = (0, _getIterator3.default)(arr);
-
-          case 5:
-            if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-              _context2.next = 12;
-              break;
-            }
-
-            item = _step.value;
-            _context2.next = 9;
-            return put(chnl, item);
-
-          case 9:
-            _iteratorNormalCompletion = true;
-            _context2.next = 5;
-            break;
-
-          case 12:
-            _context2.next = 18;
-            break;
-
-          case 14:
-            _context2.prev = 14;
-            _context2.t0 = _context2['catch'](3);
-            _didIteratorError = true;
-            _iteratorError = _context2.t0;
-
-          case 18:
-            _context2.prev = 18;
-            _context2.prev = 19;
-
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-
-          case 21:
-            _context2.prev = 21;
-
-            if (!_didIteratorError) {
-              _context2.next = 24;
-              break;
-            }
-
-            throw _iteratorError;
-
-          case 24:
-            return _context2.finish(21);
-
-          case 25:
-            return _context2.finish(18);
-
-          case 26:
-            close(chnl);
-
-          case 27:
-          case 'end':
-            return _context2.stop();
-        }
-      }
-    }, _callee2, this, [[3, 14, 18, 26], [19,, 21, 25]]);
-  }));
+  go(function*() {
+    for (const item of arr) {
+      yield put(chnl, item);
+    }
+    close(chnl);
+  });
   return chnl;
 }
 
@@ -11759,53 +9025,29 @@ function onto(ch, array) {
  *     channel values put onto it. When this array is taken, the channel will automatically close.
  */
 function into(array, ch) {
-  var _ref3 = Array.isArray(array) ? [array, ch] : [[], array],
-      _ref4 = (0, _slicedToArray3.default)(_ref3, 2),
-      arr = _ref4[0],
-      chnl = _ref4[1];
+  const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
+  const init = arr.slice();
 
-  var init = arr.slice();
-
-  return reduce(function (acc, input) {
-    acc.push(input);
-    return acc;
-  }, chnl, init);
+  return reduce(
+    (acc, input) => {
+      acc.push(input);
+      return acc;
+    },
+    chnl,
+    init
+  );
 }
 
 module.exports = {
-  reduce: reduce,
-  onto: onto,
-  into: into
+  reduce,
+  onto,
+  into
 };
 
+
 /***/ }),
-/* 116 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _toConsumableArray2 = __webpack_require__(70);
-
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
-
-var _defineProperty = __webpack_require__(46);
-
-var _defineProperty2 = _interopRequireDefault(_defineProperty);
-
-var _getIterator2 = __webpack_require__(19);
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-var _slicedToArray2 = __webpack_require__(41);
-
-var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
-
-var _regenerator = __webpack_require__(29);
-
-var _regenerator2 = _interopRequireDefault(_regenerator);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -11840,25 +9082,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @private
  */
 
-var _require = __webpack_require__(6),
-    chan = _require.chan,
-    close = _require.close,
-    CLOSED = _require.CLOSED;
-
-var _require2 = __webpack_require__(15),
-    putAsync = _require2.putAsync,
-    takeAsync = _require2.takeAsync;
-
-var _require3 = __webpack_require__(58),
-    go = _require3.go,
-    put = _require3.put,
-    take = _require3.take,
-    alts = _require3.alts;
+const { chan, close, CLOSED } = __webpack_require__(0);
+const { putAsync, takeAsync } = __webpack_require__(1);
+const { go, put, take, alts } = __webpack_require__(4);
 
 // This is only a string for testability, changing it to a symbol would be good
-
-
-var protocols = {
+const protocols = {
   taps: '@@multitap/taps'
 };
 
@@ -11911,51 +9140,20 @@ function isNumber(x) {
  * @return {module:cispy/core/channel~Channel} The destination channel.
  */
 function pipe(src, dest, keepOpen) {
-  go(_regenerator2.default.mark(function _callee() {
-    var value;
-    return _regenerator2.default.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            _context.next = 2;
-            return take(src);
-
-          case 2:
-            value = _context.sent;
-
-            if (!(value === CLOSED)) {
-              _context.next = 6;
-              break;
-            }
-
-            if (!keepOpen) {
-              dest.close();
-            }
-            return _context.abrupt('break', 12);
-
-          case 6:
-            _context.next = 8;
-            return put(dest, value);
-
-          case 8:
-            if (_context.sent) {
-              _context.next = 10;
-              break;
-            }
-
-            return _context.abrupt('break', 12);
-
-          case 10:
-            _context.next = 0;
-            break;
-
-          case 12:
-          case 'end':
-            return _context.stop();
+  go(function*() {
+    for (;;) {
+      const value = yield take(src);
+      if (value === CLOSED) {
+        if (!keepOpen) {
+          dest.close();
         }
+        break;
       }
-    }, _callee, this);
-  }));
+      if (!(yield put(dest, value))) {
+        break;
+      }
+    }
+  });
   return dest;
 }
 
@@ -12013,49 +9211,21 @@ function pipe(src, dest, keepOpen) {
  *     of the values that passed the predicate, the second is the destination channel with all of the values that did
  *     not pass the predicate.
  */
-function partition(fn, src) {
-  var tBuffer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-  var fBuffer = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+function partition(fn, src, tBuffer = 0, fBuffer = 0) {
+  const tDest = chan(tBuffer);
+  const fDest = chan(fBuffer);
 
-  var tDest = chan(tBuffer);
-  var fDest = chan(fBuffer);
-
-  go(_regenerator2.default.mark(function _callee2() {
-    var value;
-    return _regenerator2.default.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            _context2.next = 2;
-            return take(src);
-
-          case 2:
-            value = _context2.sent;
-
-            if (!(value === CLOSED)) {
-              _context2.next = 7;
-              break;
-            }
-
-            close(tDest);
-            close(fDest);
-            return _context2.abrupt('break', 11);
-
-          case 7:
-            _context2.next = 9;
-            return put(fn(value) ? tDest : fDest, value);
-
-          case 9:
-            _context2.next = 0;
-            break;
-
-          case 11:
-          case 'end':
-            return _context2.stop();
-        }
+  go(function*() {
+    for (;;) {
+      const value = yield take(src);
+      if (value === CLOSED) {
+        close(tDest);
+        close(fDest);
+        break;
       }
-    }, _callee2, this);
-  }));
+      yield put(fn(value) ? tDest : fDest, value);
+    }
+  });
   return [tDest, fDest];
 }
 
@@ -12106,63 +9276,25 @@ function partition(fn, src) {
  * @return {module:cispy/core/channel~Channel} The destination channel, which will receive all values put onto every
  *     source channel.
  */
-function merge(srcs) {
-  var buffer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+function merge(srcs, buffer = 0) {
+  const dest = chan(buffer);
+  const inputs = srcs.slice();
 
-  var dest = chan(buffer);
-  var inputs = srcs.slice();
-
-  go(_regenerator2.default.mark(function _callee3() {
-    var _ref, value, channel, index;
-
-    return _regenerator2.default.wrap(function _callee3$(_context3) {
-      while (1) {
-        switch (_context3.prev = _context3.next) {
-          case 0:
-            if (!(inputs.length === 0)) {
-              _context3.next = 2;
-              break;
-            }
-
-            return _context3.abrupt('break', 15);
-
-          case 2:
-            _context3.next = 4;
-            return alts(inputs);
-
-          case 4:
-            _ref = _context3.sent;
-            value = _ref.value;
-            channel = _ref.channel;
-
-            if (!(value === CLOSED)) {
-              _context3.next = 11;
-              break;
-            }
-
-            index = inputs.indexOf(channel);
-
-            inputs.splice(index, 1);
-            return _context3.abrupt('continue', 13);
-
-          case 11:
-            _context3.next = 13;
-            return put(dest, value);
-
-          case 13:
-            _context3.next = 0;
-            break;
-
-          case 15:
-            close(dest);
-
-          case 16:
-          case 'end':
-            return _context3.stop();
-        }
+  go(function*() {
+    for (;;) {
+      if (inputs.length === 0) {
+        break;
       }
-    }, _callee3, this);
-  }));
+      const { value, channel } = yield alts(inputs);
+      if (value === CLOSED) {
+        const index = inputs.indexOf(channel);
+        inputs.splice(index, 1);
+        continue;
+      }
+      yield put(dest, value);
+    }
+    close(dest);
+  });
   return dest;
 }
 
@@ -12214,182 +9346,47 @@ function merge(srcs) {
  *     with a fixed buffer, use `{@link cispy~Cispy.fixedBuffer}` explicitly.
  * @return {module:cispy/core/channel~Channel[]} An array of destination channels.
  */
-function split(src) {
-  var dests = [];
+function split(src, ...buffers) {
+  const dests = [];
 
-  for (var _len = arguments.length, buffers = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    buffers[_key - 1] = arguments[_key];
-  }
-
-  var bs = buffers.length === 0 ? [2] : buffers;
+  let bs = buffers.length === 0 ? [2] : buffers;
   if (bs.length === 1 && isNumber(bs[0])) {
-    var _bs = bs,
-        _bs2 = (0, _slicedToArray3.default)(_bs, 1),
-        count = _bs2[0];
-
+    const [count] = bs;
     bs = [];
-    for (var i = 0; i < count; ++i) {
+    for (let i = 0; i < count; ++i) {
       bs.push(0);
     }
   }
 
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = (0, _getIterator3.default)(bs), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var b = _step.value;
-
-      dests.push(chan(b));
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
+  for (const b of bs) {
+    dests.push(chan(b));
   }
 
-  var doneCh = chan();
-  var doneCount = 0;
+  const doneCh = chan();
+  let doneCount = 0;
   function done() {
     if (--doneCount === 0) {
       putAsync(doneCh);
     }
   }
 
-  go(_regenerator2.default.mark(function _callee4() {
-    var value, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, dest, _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, _dest;
-
-    return _regenerator2.default.wrap(function _callee4$(_context4) {
-      while (1) {
-        switch (_context4.prev = _context4.next) {
-          case 0:
-            _context4.next = 2;
-            return take(src);
-
-          case 2:
-            value = _context4.sent;
-
-            if (!(value === CLOSED)) {
-              _context4.next = 24;
-              break;
-            }
-
-            _iteratorNormalCompletion2 = true;
-            _didIteratorError2 = false;
-            _iteratorError2 = undefined;
-            _context4.prev = 7;
-
-            for (_iterator2 = (0, _getIterator3.default)(dests); !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-              dest = _step2.value;
-
-              close(dest);
-            }
-            _context4.next = 15;
-            break;
-
-          case 11:
-            _context4.prev = 11;
-            _context4.t0 = _context4['catch'](7);
-            _didIteratorError2 = true;
-            _iteratorError2 = _context4.t0;
-
-          case 15:
-            _context4.prev = 15;
-            _context4.prev = 16;
-
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-              _iterator2.return();
-            }
-
-          case 18:
-            _context4.prev = 18;
-
-            if (!_didIteratorError2) {
-              _context4.next = 21;
-              break;
-            }
-
-            throw _iteratorError2;
-
-          case 21:
-            return _context4.finish(18);
-
-          case 22:
-            return _context4.finish(15);
-
-          case 23:
-            return _context4.abrupt('break', 48);
-
-          case 24:
-
-            doneCount = dests.length;
-            _iteratorNormalCompletion3 = true;
-            _didIteratorError3 = false;
-            _iteratorError3 = undefined;
-            _context4.prev = 28;
-            for (_iterator3 = (0, _getIterator3.default)(dests); !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              _dest = _step3.value;
-
-              putAsync(_dest, value, done);
-            }
-            _context4.next = 36;
-            break;
-
-          case 32:
-            _context4.prev = 32;
-            _context4.t1 = _context4['catch'](28);
-            _didIteratorError3 = true;
-            _iteratorError3 = _context4.t1;
-
-          case 36:
-            _context4.prev = 36;
-            _context4.prev = 37;
-
-            if (!_iteratorNormalCompletion3 && _iterator3.return) {
-              _iterator3.return();
-            }
-
-          case 39:
-            _context4.prev = 39;
-
-            if (!_didIteratorError3) {
-              _context4.next = 42;
-              break;
-            }
-
-            throw _iteratorError3;
-
-          case 42:
-            return _context4.finish(39);
-
-          case 43:
-            return _context4.finish(36);
-
-          case 44:
-            _context4.next = 46;
-            return take(doneCh);
-
-          case 46:
-            _context4.next = 0;
-            break;
-
-          case 48:
-          case 'end':
-            return _context4.stop();
+  go(function*() {
+    for (;;) {
+      const value = yield take(src);
+      if (value === CLOSED) {
+        for (const dest of dests) {
+          close(dest);
         }
+        break;
       }
-    }, _callee4, this, [[7, 11, 15, 23], [16,, 18, 22], [28, 32, 36, 44], [37,, 39, 43]]);
-  }));
+
+      doneCount = dests.length;
+      for (const dest of dests) {
+        putAsync(dest, value, done);
+      }
+      yield take(doneCh);
+    }
+  });
   return dests;
 }
 
@@ -12404,101 +9401,35 @@ function split(src) {
  */
 function tapped(src) {
   // Make the new property non-enumerable
-  (0, _defineProperty2.default)(src, protocols.taps, {
+  Object.defineProperty(src, protocols.taps, {
     configurable: true,
     writable: true,
     value: []
   });
 
-  var doneCh = chan();
-  var doneCount = 0;
+  const doneCh = chan();
+  let doneCount = 0;
   function done() {
     if (--doneCount === 0) {
       putAsync(doneCh);
     }
   }
 
-  go(_regenerator2.default.mark(function _callee5() {
-    var value, _iteratorNormalCompletion4, _didIteratorError4, _iteratorError4, _iterator4, _step4, _tap;
-
-    return _regenerator2.default.wrap(function _callee5$(_context5) {
-      while (1) {
-        switch (_context5.prev = _context5.next) {
-          case 0:
-            _context5.next = 2;
-            return take(src);
-
-          case 2:
-            value = _context5.sent;
-
-            if (!(value === CLOSED || src[protocols.taps].length === 0)) {
-              _context5.next = 6;
-              break;
-            }
-
-            delete src[protocols.taps];
-            return _context5.abrupt('break', 30);
-
-          case 6:
-
-            doneCount = src[protocols.taps].length;
-            _iteratorNormalCompletion4 = true;
-            _didIteratorError4 = false;
-            _iteratorError4 = undefined;
-            _context5.prev = 10;
-            for (_iterator4 = (0, _getIterator3.default)(src[protocols.taps]); !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-              _tap = _step4.value;
-
-              putAsync(_tap, value, done);
-            }
-            _context5.next = 18;
-            break;
-
-          case 14:
-            _context5.prev = 14;
-            _context5.t0 = _context5['catch'](10);
-            _didIteratorError4 = true;
-            _iteratorError4 = _context5.t0;
-
-          case 18:
-            _context5.prev = 18;
-            _context5.prev = 19;
-
-            if (!_iteratorNormalCompletion4 && _iterator4.return) {
-              _iterator4.return();
-            }
-
-          case 21:
-            _context5.prev = 21;
-
-            if (!_didIteratorError4) {
-              _context5.next = 24;
-              break;
-            }
-
-            throw _iteratorError4;
-
-          case 24:
-            return _context5.finish(21);
-
-          case 25:
-            return _context5.finish(18);
-
-          case 26:
-            _context5.next = 28;
-            return take(doneCh);
-
-          case 28:
-            _context5.next = 0;
-            break;
-
-          case 30:
-          case 'end':
-            return _context5.stop();
-        }
+  go(function*() {
+    for (;;) {
+      const value = yield take(src);
+      if (value === CLOSED || src[protocols.taps].length === 0) {
+        delete src[protocols.taps];
+        break;
       }
-    }, _callee5, this, [[10, 14, 18, 26], [19,, 21, 25]]);
-  }));
+
+      doneCount = src[protocols.taps].length;
+      for (const tap of src[protocols.taps]) {
+        putAsync(tap, value, done);
+      }
+      yield take(doneCh);
+    }
+  });
 }
 
 /**
@@ -12543,9 +9474,7 @@ function tapped(src) {
  * @return {module:cispy/core/channel~Channel} The destination channel. This is the same as the second argument, if
  *     present; otherwise it is the newly-created channel tapping the source channel.
  */
-function tap(src) {
-  var dest = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : chan();
-
+function tap(src, dest = chan()) {
   if (!src[protocols.taps]) {
     tapped(src);
   }
@@ -12572,7 +9501,7 @@ function tap(src) {
  */
 function untap(src, dest) {
   if (src[protocols.taps]) {
-    var index = src[protocols.taps].indexOf(dest);
+    const index = src[protocols.taps].indexOf(dest);
     if (index !== -1) {
       src[protocols.taps].splice(index, 1);
       if (src[protocols.taps].length === 0) {
@@ -12660,149 +9589,59 @@ function untapAll(src) {
  *     not present, the channel will be unbuffered.
  * @return {module:cispy/core/channel~Channel} The destination channel.
  */
-function map(fn, srcs) {
-  var buffer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+function map(fn, srcs, buffer = 0) {
+  const dest = chan(buffer);
+  const srcLen = srcs.length;
+  const values = [];
+  const callbacks = [];
+  const temp = chan();
+  let count;
 
-  var dest = chan(buffer);
-  var srcLen = srcs.length;
-  var values = [];
-  var callbacks = [];
-  var temp = chan();
-  var count = void 0;
-
-  for (var i = 0; i < srcLen; ++i) {
-    callbacks[i] = function (index) {
-      return function (value) {
+  for (let i = 0; i < srcLen; ++i) {
+    callbacks[i] = (index => {
+      return value => {
         values[index] = value;
         if (--count === 0) {
           putAsync(temp, values.slice());
         }
       };
-    }(i);
+    })(i);
   }
 
-  go(_regenerator2.default.mark(function _callee6() {
-    var _i, _values, _iteratorNormalCompletion5, _didIteratorError5, _iteratorError5, _iterator5, _step5, value;
-
-    return _regenerator2.default.wrap(function _callee6$(_context6) {
-      while (1) {
-        switch (_context6.prev = _context6.next) {
-          case 0:
-            count = srcLen;
-            for (_i = 0; _i < srcLen; ++_i) {
-              takeAsync(srcs[_i], callbacks[_i]);
-            }
-            _context6.next = 4;
-            return take(temp);
-
-          case 4:
-            _values = _context6.sent;
-            _iteratorNormalCompletion5 = true;
-            _didIteratorError5 = false;
-            _iteratorError5 = undefined;
-            _context6.prev = 8;
-            _iterator5 = (0, _getIterator3.default)(_values);
-
-          case 10:
-            if (_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done) {
-              _context6.next = 18;
-              break;
-            }
-
-            value = _step5.value;
-
-            if (!(value === CLOSED)) {
-              _context6.next = 15;
-              break;
-            }
-
-            close(dest);
-            return _context6.abrupt('return');
-
-          case 15:
-            _iteratorNormalCompletion5 = true;
-            _context6.next = 10;
-            break;
-
-          case 18:
-            _context6.next = 24;
-            break;
-
-          case 20:
-            _context6.prev = 20;
-            _context6.t0 = _context6['catch'](8);
-            _didIteratorError5 = true;
-            _iteratorError5 = _context6.t0;
-
-          case 24:
-            _context6.prev = 24;
-            _context6.prev = 25;
-
-            if (!_iteratorNormalCompletion5 && _iterator5.return) {
-              _iterator5.return();
-            }
-
-          case 27:
-            _context6.prev = 27;
-
-            if (!_didIteratorError5) {
-              _context6.next = 30;
-              break;
-            }
-
-            throw _iteratorError5;
-
-          case 30:
-            return _context6.finish(27);
-
-          case 31:
-            return _context6.finish(24);
-
-          case 32:
-            _context6.next = 34;
-            return put(dest, fn.apply(undefined, (0, _toConsumableArray3.default)(_values)));
-
-          case 34:
-            _context6.next = 0;
-            break;
-
-          case 36:
-          case 'end':
-            return _context6.stop();
+  go(function*() {
+    for (;;) {
+      count = srcLen;
+      for (let i = 0; i < srcLen; ++i) {
+        takeAsync(srcs[i], callbacks[i]);
+      }
+      const values = yield take(temp);
+      for (const value of values) {
+        if (value === CLOSED) {
+          close(dest);
+          return;
         }
       }
-    }, _callee6, this, [[8, 20, 24, 32], [25,, 27, 31]]);
-  }));
+      yield put(dest, fn(...values));
+    }
+  });
   return dest;
 }
 
 module.exports = {
-  pipe: pipe,
-  partition: partition,
-  merge: merge,
-  split: split,
-  tap: tap,
-  untap: untap,
-  untapAll: untapAll,
-  map: map
+  pipe,
+  partition,
+  merge,
+  split,
+  tap,
+  untap,
+  untapAll,
+  map
 };
 
+
 /***/ }),
-/* 117 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _regenerator = __webpack_require__(29);
-
-var _regenerator2 = _interopRequireDefault(_regenerator);
-
-var _assign = __webpack_require__(28);
-
-var _assign2 = _interopRequireDefault(_assign);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -12832,16 +9671,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @private
  */
 
-var _require = __webpack_require__(6),
-    chan = _require.chan,
-    timeout = _require.timeout,
-    close = _require.close,
-    CLOSED = _require.CLOSED;
-
-var _require2 = __webpack_require__(58),
-    go = _require2.go,
-    put = _require2.put,
-    alts = _require2.alts;
+const { chan, timeout, close, CLOSED } = __webpack_require__(0);
+const { go, put, alts } = __webpack_require__(4);
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === '[object Number]' && isFinite(x);
@@ -12897,127 +9728,60 @@ function isNumber(x) {
  *     debounced from the source channel.
  */
 function debounce(src, buffer, delay, options) {
-  var buf = isNumber(delay) ? buffer : 0;
-  var del = isNumber(delay) ? delay : buffer;
-  var opts = (0, _assign2.default)({ leading: false, trailing: true, maxDelay: 0, cancel: chan() }, (isNumber(delay) ? options : delay) || {});
+  const buf = isNumber(delay) ? buffer : 0;
+  const del = isNumber(delay) ? delay : buffer;
+  const opts = Object.assign(
+    { leading: false, trailing: true, maxDelay: 0, cancel: chan() },
+    (isNumber(delay) ? options : delay) || {}
+  );
 
-  var dest = chan(buf);
-  var leading = opts.leading,
-      trailing = opts.trailing,
-      maxDelay = opts.maxDelay,
-      cancel = opts.cancel;
+  const dest = chan(buf);
+  const { leading, trailing, maxDelay, cancel } = opts;
 
+  go(function*() {
+    let timer = chan();
+    let max = chan();
+    let current = CLOSED;
 
-  go(_regenerator2.default.mark(function _callee() {
-    var timer, max, current, _ref, value, channel, timing;
+    for (;;) {
+      const { value, channel } = yield alts([src, timer, max, cancel]);
 
-    return _regenerator2.default.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            timer = chan();
-            max = chan();
-            current = CLOSED;
+      if (channel === cancel) {
+        close(dest);
+        break;
+      }
+      if (channel === src) {
+        if (value === CLOSED) {
+          close(dest);
+          break;
+        }
 
-          case 3:
-            _context.next = 5;
-            return alts([src, timer, max, cancel]);
+        const timing = timer.timeout;
+        timer = timeout(del);
 
-          case 5:
-            _ref = _context.sent;
-            value = _ref.value;
-            channel = _ref.channel;
+        if (!timing && maxDelay > 0) {
+          max = timeout(maxDelay);
+        }
 
-            if (!(channel === cancel)) {
-              _context.next = 11;
-              break;
-            }
-
-            close(dest);
-            return _context.abrupt('break', 38);
-
-          case 11:
-            if (!(channel === src)) {
-              _context.next = 30;
-              break;
-            }
-
-            if (!(value === CLOSED)) {
-              _context.next = 15;
-              break;
-            }
-
-            close(dest);
-            return _context.abrupt('break', 38);
-
-          case 15:
-            timing = timer.timeout;
-
-            timer = timeout(del);
-
-            if (!timing && maxDelay > 0) {
-              max = timeout(maxDelay);
-            }
-
-            if (!leading) {
-              _context.next = 27;
-              break;
-            }
-
-            if (timing) {
-              _context.next = 24;
-              break;
-            }
-
-            _context.next = 22;
-            return put(dest, value);
-
-          case 22:
-            _context.next = 25;
-            break;
-
-          case 24:
+        if (leading) {
+          if (!timing) {
+            yield put(dest, value);
+          } else {
             current = value;
-
-          case 25:
-            _context.next = 28;
-            break;
-
-          case 27:
-            if (trailing) {
-              current = value;
-            }
-
-          case 28:
-            _context.next = 36;
-            break;
-
-          case 30:
-            timer = chan();
-            max = chan();
-
-            if (!(trailing && current !== CLOSED)) {
-              _context.next = 36;
-              break;
-            }
-
-            _context.next = 35;
-            return put(dest, current);
-
-          case 35:
-            current = CLOSED;
-
-          case 36:
-            _context.next = 3;
-            break;
-
-          case 38:
-          case 'end':
-            return _context.stop();
+          }
+        } else if (trailing) {
+          current = value;
+        }
+      } else {
+        timer = chan();
+        max = chan();
+        if (trailing && current !== CLOSED) {
+          yield put(dest, current);
+          current = CLOSED;
         }
       }
-    }, _callee, this);
-  }));
+    }
+  });
 
   return dest;
 }
@@ -13070,154 +9834,71 @@ function debounce(src, buffer, delay, options) {
  *     throttled from the source channel.
  */
 function throttle(src, buffer, delay, options) {
-  var buf = isNumber(delay) ? buffer : 0;
-  var del = isNumber(delay) ? delay : buffer;
-  var opts = (0, _assign2.default)({ leading: true, trailing: true, cancel: chan() }, (isNumber(delay) ? options : delay) || {});
+  const buf = isNumber(delay) ? buffer : 0;
+  const del = isNumber(delay) ? delay : buffer;
+  const opts = Object.assign(
+    { leading: true, trailing: true, cancel: chan() },
+    (isNumber(delay) ? options : delay) || {}
+  );
 
-  var dest = chan(buf);
-  var leading = opts.leading,
-      trailing = opts.trailing,
-      cancel = opts.cancel;
+  const dest = chan(buf);
+  const { leading, trailing, cancel } = opts;
 
+  go(function*() {
+    let timer = chan();
+    let current = CLOSED;
 
-  go(_regenerator2.default.mark(function _callee2() {
-    var timer, current, _ref2, value, channel, timing;
+    for (;;) {
+      const { value, channel } = yield alts([src, timer, cancel]);
 
-    return _regenerator2.default.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            timer = chan();
-            current = CLOSED;
-
-          case 2:
-            _context2.next = 4;
-            return alts([src, timer, cancel]);
-
-          case 4:
-            _ref2 = _context2.sent;
-            value = _ref2.value;
-            channel = _ref2.channel;
-
-            if (!(channel === cancel)) {
-              _context2.next = 12;
-              break;
-            }
-
-            close(dest);
-            return _context2.abrupt('break', 40);
-
-          case 12:
-            if (!(channel === src)) {
-              _context2.next = 30;
-              break;
-            }
-
-            if (!(value === CLOSED)) {
-              _context2.next = 16;
-              break;
-            }
-
-            close(dest);
-            return _context2.abrupt('break', 40);
-
-          case 16:
-            timing = timer.timeout;
-
-            if (!timing) {
-              timer = timeout(del);
-            }
-
-            if (!leading) {
-              _context2.next = 27;
-              break;
-            }
-
-            if (timing) {
-              _context2.next = 24;
-              break;
-            }
-
-            _context2.next = 22;
-            return put(dest, value);
-
-          case 22:
-            _context2.next = 25;
-            break;
-
-          case 24:
-            if (trailing) {
-              current = value;
-            }
-
-          case 25:
-            _context2.next = 28;
-            break;
-
-          case 27:
-            if (trailing) {
-              current = value;
-            }
-
-          case 28:
-            _context2.next = 38;
-            break;
-
-          case 30:
-            if (!(trailing && current !== CLOSED)) {
-              _context2.next = 37;
-              break;
-            }
-
-            timer = timeout(del);
-            _context2.next = 34;
-            return put(dest, current);
-
-          case 34:
-            current = CLOSED;
-            _context2.next = 38;
-            break;
-
-          case 37:
-            timer = chan();
-
-          case 38:
-            _context2.next = 2;
-            break;
-
-          case 40:
-          case 'end':
-            return _context2.stop();
+      if (channel === cancel) {
+        close(dest);
+        break;
+      } else if (channel === src) {
+        if (value === CLOSED) {
+          close(dest);
+          break;
         }
+
+        const timing = timer.timeout;
+        if (!timing) {
+          timer = timeout(del);
+        }
+
+        if (leading) {
+          if (!timing) {
+            yield put(dest, value);
+          } else if (trailing) {
+            current = value;
+          }
+        } else if (trailing) {
+          current = value;
+        }
+      } else if (trailing && current !== CLOSED) {
+        timer = timeout(del);
+        yield put(dest, current);
+        current = CLOSED;
+      } else {
+        timer = chan();
       }
-    }, _callee2, this);
-  }));
+    }
+  });
 
   return dest;
 }
 
 module.exports = {
-  debounce: debounce,
-  throttle: throttle
+  debounce,
+  throttle
 };
 
+
 /***/ }),
-/* 118 */,
-/* 119 */,
-/* 120 */,
-/* 121 */,
-/* 122 */,
-/* 123 */,
-/* 124 */,
-/* 125 */,
-/* 126 */,
-/* 127 */,
-/* 128 */,
-/* 129 */
+/* 17 */,
+/* 18 */,
+/* 19 */,
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
 
 /*
  * Copyright (c) 2017 Thomas Otterson
@@ -13247,41 +9928,14 @@ module.exports = {
  * @module cispy
  */
 
-var _require = __webpack_require__(18),
-    fixed = _require.fixed,
-    sliding = _require.sliding,
-    dropping = _require.dropping,
-    EMPTY = _require.EMPTY;
+const { fixed, sliding, dropping, EMPTY } = __webpack_require__(2);
+const { chan, timeout, close, CLOSED, DEFAULT } = __webpack_require__(0);
+const { putAsync, takeAsync, altsAsync } = __webpack_require__(1);
+const { config, SET_IMMEDIATE, MESSAGE_CHANNEL, SET_TIMEOUT } = __webpack_require__(3);
 
-var _require2 = __webpack_require__(6),
-    chan = _require2.chan,
-    timeout = _require2.timeout,
-    close = _require2.close,
-    CLOSED = _require2.CLOSED,
-    DEFAULT = _require2.DEFAULT;
+const { go, goSafe, spawn, put, take, takeOrThrow, alts, sleep } = __webpack_require__(4);
 
-var _require3 = __webpack_require__(15),
-    putAsync = _require3.putAsync,
-    takeAsync = _require3.takeAsync,
-    altsAsync = _require3.altsAsync;
-
-var _require4 = __webpack_require__(27),
-    config = _require4.config,
-    SET_IMMEDIATE = _require4.SET_IMMEDIATE,
-    MESSAGE_CHANNEL = _require4.MESSAGE_CHANNEL,
-    SET_TIMEOUT = _require4.SET_TIMEOUT;
-
-var _require5 = __webpack_require__(58),
-    go = _require5.go,
-    goSafe = _require5.goSafe,
-    spawn = _require5.spawn,
-    put = _require5.put,
-    take = _require5.take,
-    takeOrThrow = _require5.takeOrThrow,
-    alts = _require5.alts,
-    sleep = _require5.sleep;
-
-var util = __webpack_require__(112);
+const util = __webpack_require__(11);
 
 /**
  * The core namespace under which all of the main functions reside in the API. Everything in this namespace is
@@ -13341,30 +9995,30 @@ var util = __webpack_require__(112);
  */
 
 module.exports = {
-  go: go,
-  goSafe: goSafe,
-  spawn: spawn,
-  put: put,
-  take: take,
-  takeOrThrow: takeOrThrow,
-  alts: alts,
-  sleep: sleep,
-  chan: chan,
-  timeout: timeout,
-  close: close,
-  putAsync: putAsync,
-  takeAsync: takeAsync,
-  altsAsync: altsAsync,
-  config: config,
+  go,
+  goSafe,
+  spawn,
+  put,
+  take,
+  takeOrThrow,
+  alts,
+  sleep,
+  chan,
+  timeout,
+  close,
+  putAsync,
+  takeAsync,
+  altsAsync,
+  config,
   fixedBuffer: fixed,
   slidingBuffer: sliding,
   droppingBuffer: dropping,
-  CLOSED: CLOSED,
-  DEFAULT: DEFAULT,
-  EMPTY: EMPTY,
-  SET_IMMEDIATE: SET_IMMEDIATE,
-  MESSAGE_CHANNEL: MESSAGE_CHANNEL,
-  SET_TIMEOUT: SET_TIMEOUT,
+  CLOSED,
+  DEFAULT,
+  EMPTY,
+  SET_IMMEDIATE,
+  MESSAGE_CHANNEL,
+  SET_TIMEOUT,
 
   /**
    * **A set of utility functions for working with channels.**
@@ -13374,8 +10028,9 @@ module.exports = {
    * @type {module:cispy/util~CispyUtil}
    * @memberOf module:cispy~Cispy
    */
-  util: util
+  util
 };
+
 
 /***/ })
 /******/ ]);

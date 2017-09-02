@@ -2,6 +2,18 @@
 
 All notable changes to the library will be documented in this file.
 
+## [Unreleased]
+### Added
+- a new set of dist files: untranspiled, packed ES2017 code. This is suitable for browsers, but obviously only for ones that understand generators (and async functions, if you use those). There is not yet a good solution for minifying these. (UPDATE: There *is* a good solution for minifying these, but I'm not going to do that until I re-arrange the project. See below.)
+- a new set of examples based around creating more than 10,000 processes and running them simultaneously.
+
+### Changed
+- Cispy now has a dependency: Xduce. Xduce is used *only* for its protocol implementation, which will allow its transducers to work with channels without having to worry about which version of protocol property names are being used by each (strings vs. symbols). This has no effect on the public API.
+
+### Important notes
+- This will be the last time this changelog is used. The next release will be using commitizen and semantic-release, which will generate the changelogs automatically from commit messages and post them to the Github Releases page.
+- In the next version, this project will be split into 5 projects. This is a more sensible way of distributing two different versions (generators vs. promises) and of distributing utility functions that any given user may or may not want. Once you download the appropriate version, everything else remains the same.
+
 ## [1.0.0] 2017-08-20
 ### Added
 - an entire new promise-based implementation of processes. This is completely agnostic to channels; channels have not had to change to accommodate these functions. These are best used with the `async`/`await` keywords from ES7, which are seeing relatively wide implementation, though they will work fine with straight promises as well (though it's very clunky that way). Since the JS engine handles promises, there is no need for custom process machinery, `goSafe` and `spawn` are not necessary. (`go` is also not necessary, but I'ive included it as a convenience function.) It also means that testing is difficult because Sinon fake timers don't deal well with native promises, so tests have been written and executed but are marked as skipped in the github repository so they don't blow up CI. This means that this is beta quality at best.

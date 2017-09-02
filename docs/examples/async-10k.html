@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>10,001 Async Functions</title>
+  <link rel="stylesheet" href="../css/site.css">
+  <link rel="stylesheet" href="css/examples.css">
+  <link rel="stylesheet" href="../css/tomorrow-night-eighties.css">
+  <script src="../js/highlight.pack.js"></script>
+  <script src="../js/highlightjs-line-numbers.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+  </script>
+</head>
+<body>
+  <header>
+    <h1><a href="../index.html">Cispy</a></h1>
+    <p>Communicating Sequential Processes for JavaScript</p>
+    <a href="https://github.com/Barandis/cispy">
+      <img id="fork-me" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png">
+    </a>
+  </header>
+  <section id="content">
+    <h1>10,001 Async Functions</h1>
+
+    <p>
+      Here's the async function version of the <a href="process-10k.html">10,001 Processes</a> example.
+    </p>
+
+    <table id="process-10k"></table>
+    <div id="performance"></div>
+
+    <p>
+      This is identical in every way to the generator-based process version except for three things.
+      <ol>
+        <li>All generator functions (<code>function*</code>) are changed to async functions.</li>
+        <li>All <code>yield</code> expressions are changed to <code>await</code> expressions.</li>
+        <li>The Cispy/promise library is used in place of Cispy.</li>
+      </ol>
+    </p>
+    <p>
+      This demonstrates how similar the two approaches are. I don't intend to duplicate any more examples both ways
+      unless it's particularly compelling, but I was curious to see how different performance would be between
+      generators and async functions, so I gave this one a go.
+    </p>
+    <p>
+      Again, here is the code.
+    </p>
+    <pre>
+      <code id="code"></code>
+    </pre>
+  </section>
+  <script src="../js/cispy.promise.js"></script>
+  <script src="js/async-10k.js"></script>
+  <script>
+    const xhr = new XMLHttpRequest();
+    xhr.open('get', 'js/async-10k.js', true);
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        const code = document.getElementById('code');
+        code.innerText = xhr.responseText;
+        hljs.highlightBlock(code);
+        hljs.lineNumbersBlock(code);
+      }
+    };
+    xhr.send();
+  </script>
+</body>
+</html>
