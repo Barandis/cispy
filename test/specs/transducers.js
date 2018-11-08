@@ -1,7 +1,7 @@
-const { expect } = require('../../helper');
+const { expect } = require('../helper');
 
-const { chan, close, CLOSED } = require('../../../src/core/channel');
-const { go, put, take } = require('../../../src/generator/operations');
+const { chan, close, CLOSED } = require('../../src/modules/channel');
+const { go, put, take } = require('../../src/modules/ops');
 
 const t = require('xduce').transducers;
 
@@ -16,9 +16,9 @@ function magComp(a, b) {
 }
 
 function fillChannel(channel, count, cl) {
-  go(function*() {
+  go(async () => {
     for (let i = 1; i <= count; ++i) {
-      yield put(channel, i);
+      await put(channel, i);
     }
     if (cl) {
       close(channel);
@@ -27,9 +27,9 @@ function fillChannel(channel, count, cl) {
 }
 
 function fillChannelWith(channel, array, cl) {
-  go(function*() {
+  go(async () => {
     for (const i of array) {
-      yield put(channel, i);
+      await put(channel, i);
     }
     if (cl) {
       close(channel);
@@ -38,10 +38,10 @@ function fillChannelWith(channel, array, cl) {
 }
 
 function expectChannel(channel, expected, done) {
-  go(function*() {
+  go(async () => {
     const values = [];
     for (let i = 0, count = expected.length; i < count; ++i) {
-      values.push(yield take(channel));
+      values.push(await take(channel));
     }
     expect(values).to.deep.equal(expected);
     done();
@@ -179,7 +179,7 @@ describe('Transducers', () => {
         { x: 5, y: 8 },
         { x: 3, y: 9 },
         { x: 1, y: 10 },
-        { x: 5, y: 11 }
+        { x: 5, y: 11 },
       ];
       const expected = [{ x: 1, y: 1 }, { x: 2, y: 3 }, { x: 3, y: 4 }, { x: 4, y: 7 }, { x: 5, y: 8 }];
       fillChannelWith(ch, array);
@@ -217,7 +217,7 @@ describe('Transducers', () => {
         { x: 5, y: 8 },
         { x: 3, y: 9 },
         { x: 1, y: 10 },
-        { x: 5, y: 11 }
+        { x: 5, y: 11 },
       ];
       const expected = [
         { x: 1, y: 1 },
@@ -227,7 +227,7 @@ describe('Transducers', () => {
         { x: 5, y: 8 },
         { x: 3, y: 9 },
         { x: 1, y: 10 },
-        { x: 5, y: 11 }
+        { x: 5, y: 11 },
       ];
       fillChannelWith(ch, array);
       expectChannel(ch, expected, done);

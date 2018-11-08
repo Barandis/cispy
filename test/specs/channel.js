@@ -1,11 +1,11 @@
 /* eslint-disable max-lines */
-const { expect } = require('../../helper');
+const { expect } = require('../helper');
 const sinon = require('sinon');
 
-const { fixed, dropping, sliding } = require('../../../src/core/buffers');
-const { chan, timeout, close, CLOSED } = require('../../../src/core/channel');
-const { config, SET_TIMEOUT } = require('../../../src/core/dispatcher');
-const { go, sleep, put, take, alts } = require('../../../src/generator/operations');
+const { fixed, dropping, sliding } = require('../../src/modules/buffers');
+const { chan, timeout, close, CLOSED } = require('../../src/modules/channel');
+const { config, SET_TIMEOUT } = require('../../src/modules/dispatcher');
+const { go, sleep, put, take, alts } = require('../../src/modules/ops');
 
 const { compose, protocols, transducers } = require('xduce');
 const t = transducers;
@@ -33,8 +33,8 @@ describe('CSP channel', () => {
 
       try {
         for (let i = 0; i < 1025; ++i) {
-          go(function*() {
-            yield put(ch, i);
+          go(async () => {
+            await put(ch, i);
           });
         }
         expect.fail();
@@ -50,8 +50,8 @@ describe('CSP channel', () => {
 
       try {
         for (let i = 0; i < 1025; ++i) {
-          go(function*() {
-            yield take(ch);
+          go(async () => {
+            await take(ch);
           });
         }
         expect.fail();
@@ -67,8 +67,8 @@ describe('CSP channel', () => {
 
       try {
         for (let i = 0; i < 3; ++i) {
-          go(function*() {
-            yield take(ch);
+          go(async () => {
+            await take(ch);
           });
         }
         expect.fail();
@@ -84,12 +84,12 @@ describe('CSP channel', () => {
         const ch = chan();
         expect(ch.buffered).to.be.false;
 
-        go(function*() {
-          yield put(ch, 1729);
+        go(async () => {
+          await put(ch, 1729);
         });
 
-        go(function*() {
-          expect(yield take(ch)).to.equal(1729);
+        go(async () => {
+          expect(await take(ch)).to.equal(1729);
           done();
         });
       });
@@ -98,18 +98,18 @@ describe('CSP channel', () => {
         const ch = chan(3);
         expect(ch.buffered).to.be.true;
 
-        go(function*() {
-          yield put(ch, 1);
-          yield put(ch, 2);
-          yield put(ch, 3);
-          yield put(ch, 4);
+        go(async () => {
+          await put(ch, 1);
+          await put(ch, 2);
+          await put(ch, 3);
+          await put(ch, 4);
         });
 
-        go(function*() {
-          expect(yield take(ch)).to.equal(1);
-          expect(yield take(ch)).to.equal(2);
-          expect(yield take(ch)).to.equal(3);
-          expect(yield take(ch)).to.equal(4);
+        go(async () => {
+          expect(await take(ch)).to.equal(1);
+          expect(await take(ch)).to.equal(2);
+          expect(await take(ch)).to.equal(3);
+          expect(await take(ch)).to.equal(4);
           done();
         });
       });
@@ -118,12 +118,12 @@ describe('CSP channel', () => {
         const ch = chan(0);
         expect(ch.buffered).to.be.false;
 
-        go(function*() {
-          yield put(ch, 1729);
+        go(async () => {
+          await put(ch, 1729);
         });
 
-        go(function*() {
-          expect(yield take(ch)).to.equal(1729);
+        go(async () => {
+          expect(await take(ch)).to.equal(1729);
           done();
         });
       });
@@ -132,18 +132,18 @@ describe('CSP channel', () => {
         const ch = chan(fixed(3));
         expect(ch.buffered).to.be.true;
 
-        go(function*() {
-          yield put(ch, 1);
-          yield put(ch, 2);
-          yield put(ch, 3);
-          yield put(ch, 4);
+        go(async () => {
+          await put(ch, 1);
+          await put(ch, 2);
+          await put(ch, 3);
+          await put(ch, 4);
         });
 
-        go(function*() {
-          expect(yield take(ch)).to.equal(1);
-          expect(yield take(ch)).to.equal(2);
-          expect(yield take(ch)).to.equal(3);
-          expect(yield take(ch)).to.equal(4);
+        go(async () => {
+          expect(await take(ch)).to.equal(1);
+          expect(await take(ch)).to.equal(2);
+          expect(await take(ch)).to.equal(3);
+          expect(await take(ch)).to.equal(4);
           done();
         });
       });
@@ -151,25 +151,25 @@ describe('CSP channel', () => {
       it('accepts dropping buffers', done => {
         const ch = chan(dropping(3));
 
-        go(function*() {
-          yield put(ch, 1);
-          yield put(ch, 2);
-          yield put(ch, 3);
+        go(async () => {
+          await put(ch, 1);
+          await put(ch, 2);
+          await put(ch, 3);
           // This one is just dropped
-          yield put(ch, 4);
+          await put(ch, 4);
           close(ch);
         });
 
-        go(function*() {
+        go(async () => {
           // This makes the four puts happen before the first take does, letting the channel fill before something
           // is taken off of it
           for (let i = 0; i < 4; ++i) {
-            yield sleep();
+            await sleep();
           }
-          expect(yield take(ch)).to.equal(1);
-          expect(yield take(ch)).to.equal(2);
-          expect(yield take(ch)).to.equal(3);
-          expect(yield take(ch)).to.equal(CLOSED);
+          expect(await take(ch)).to.equal(1);
+          expect(await take(ch)).to.equal(2);
+          expect(await take(ch)).to.equal(3);
+          expect(await take(ch)).to.equal(CLOSED);
           done();
         });
       });
@@ -178,24 +178,24 @@ describe('CSP channel', () => {
         const ch = chan(sliding(3));
         expect(ch.buffered).to.be.true;
 
-        go(function*() {
-          yield put(ch, 1);
-          yield put(ch, 2);
-          yield put(ch, 3);
+        go(async () => {
+          await put(ch, 1);
+          await put(ch, 2);
+          await put(ch, 3);
           // This one causes the first value to be dropped
-          yield put(ch, 4);
+          await put(ch, 4);
           close(ch);
         });
 
-        go(function*() {
+        go(async () => {
           // Run all 4 puts before the first take
           for (let i = 0; i < 4; ++i) {
-            yield sleep();
+            await sleep();
           }
-          expect(yield take(ch)).to.equal(2);
-          expect(yield take(ch)).to.equal(3);
-          expect(yield take(ch)).to.equal(4);
-          expect(yield take(ch)).to.equal(CLOSED);
+          expect(await take(ch)).to.equal(2);
+          expect(await take(ch)).to.equal(3);
+          expect(await take(ch)).to.equal(4);
+          expect(await take(ch)).to.equal(CLOSED);
           done();
         });
       });
@@ -207,12 +207,12 @@ describe('CSP channel', () => {
       it("can modify values on the channel before they're taken", done => {
         const ch = chan(1, t.map(x => x + 1));
 
-        go(function*() {
-          yield put(ch, 1);
+        go(async () => {
+          await put(ch, 1);
         });
 
-        go(function*() {
-          expect(yield take(ch)).to.equal(2);
+        go(async () => {
+          expect(await take(ch)).to.equal(2);
           done();
         });
       });
@@ -220,15 +220,15 @@ describe('CSP channel', () => {
       it('can accept transducers that return fewer values than were passed', done => {
         const ch = chan(1, t.filter(even));
 
-        go(function*() {
-          yield put(ch, 1);
-          yield put(ch, 2);
+        go(async () => {
+          await put(ch, 1);
+          await put(ch, 2);
           close(ch);
         });
 
-        go(function*() {
-          expect(yield take(ch)).to.equal(2);
-          expect(yield take(ch)).to.equal(CLOSED);
+        go(async () => {
+          expect(await take(ch)).to.equal(2);
+          expect(await take(ch)).to.equal(CLOSED);
           done();
         });
       });
@@ -236,16 +236,16 @@ describe('CSP channel', () => {
       it('closes the channel if hte transducer reduces the value early', done => {
         const ch = chan(3, t.take(2));
 
-        go(function*() {
-          yield put(ch, 1);
-          yield put(ch, 2);
-          yield put(ch, 3);
+        go(async () => {
+          await put(ch, 1);
+          await put(ch, 2);
+          await put(ch, 3);
         });
 
-        go(function*() {
-          expect(yield take(ch)).to.equal(1);
-          expect(yield take(ch)).to.equal(2);
-          expect(yield take(ch)).to.equal(CLOSED);
+        go(async () => {
+          expect(await take(ch)).to.equal(1);
+          expect(await take(ch)).to.equal(2);
+          expect(await take(ch)).to.equal(CLOSED);
           done();
         });
       });
@@ -254,17 +254,17 @@ describe('CSP channel', () => {
         const xform = compose(t.map(x => x * 3), t.filter(even), t.take(3));
         const ch = chan(10, xform);
 
-        go(function*() {
+        go(async () => {
           for (const i of [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]) {
-            yield put(ch, i);
+            await put(ch, i);
           }
         });
 
-        go(function*() {
-          expect(yield take(ch)).to.equal(0);
-          expect(yield take(ch)).to.equal(6);
-          expect(yield take(ch)).to.equal(24);
-          expect(yield take(ch)).to.equal(CLOSED);
+        go(async () => {
+          expect(await take(ch)).to.equal(0);
+          expect(await take(ch)).to.equal(6);
+          expect(await take(ch)).to.equal(24);
+          expect(await take(ch)).to.equal(CLOSED);
           done();
         });
       });
@@ -274,31 +274,31 @@ describe('CSP channel', () => {
         const out = chan();
         const ctrl = chan();
 
-        go(function*() {
+        go(async () => {
           for (const i of [0, 1, 2, 3, 4]) {
-            yield put(ch, [i, i]);
+            await put(ch, [i, i]);
           }
-          yield put(ctrl);
-          yield put(ctrl);
+          await put(ctrl);
+          await put(ctrl);
         });
 
-        go(function*() {
-          yield take(ctrl);
-          yield take(ch);
-          const value = yield take(ch);
-          yield put(out, value === CLOSED ? 'closed' : value);
+        go(async () => {
+          await take(ctrl);
+          await take(ch);
+          const value = await take(ch);
+          await put(out, value === CLOSED ? 'closed' : value);
         });
 
-        go(function*() {
-          yield take(ctrl);
-          yield take(ch);
-          const value = yield take(ch);
-          yield put(out, value === CLOSED ? 'closed' : value);
+        go(async () => {
+          await take(ctrl);
+          await take(ch);
+          const value = await take(ch);
+          await put(out, value === CLOSED ? 'closed' : value);
         });
 
-        go(function*() {
-          const value1 = yield take(out);
-          const value2 = yield take(out);
+        go(async () => {
+          const value1 = await take(out);
+          const value2 = await take(out);
           expect(value1 === 'closed' || value2 === 'closed').to.be.true;
           expect(value1 === 'closed' && value2 === 'closed').to.be.false;
           done();
@@ -357,13 +357,13 @@ describe('CSP channel', () => {
         };
 
         const ch = chan(1, stepErrorTransducer, exh);
-        go(function*() {
-          yield put(ch, 1);
+        go(async() => {
+          await put(ch, 1);
         });
 
-        go(function*() {
+        go(async() => {
           // The step function runs when a channel is taken from, so
-          yield take(ch);
+          await take(ch);
         });
       });
 
@@ -375,12 +375,12 @@ describe('CSP channel', () => {
 
         const ch = chan(1, resultErrorTransducer, exh);
 
-        go(function*() {
-          yield put(ch, 1);
+        go(async () => {
+          await put(ch, 1);
         });
 
-        go(function*() {
-          yield take(ch);
+        go(async () => {
+          await take(ch);
           // The result function doesn't run until the channel is closed, so we have to call close to make this work
           close(ch);
         });
@@ -389,15 +389,15 @@ describe('CSP channel', () => {
       it('provides a default handler that simply makes nothing available', done => {
         const ch = chan(1, oneTimeStepErrorTransducer);
 
-        go(function*() {
-          yield put(ch, 1);
-          yield put(ch, 1729);
+        go(async () => {
+          await put(ch, 1);
+          await put(ch, 1729);
         });
 
-        go(function*() {
+        go(async () => {
           // The one-time error transducer throws an error the first time, for the 1, which is ignored
           // The second put, with 1729, completes successfully
-          expect(yield take(ch)).to.equal(1729);
+          expect(await take(ch)).to.equal(1729);
           done();
         });
       });
@@ -406,19 +406,19 @@ describe('CSP channel', () => {
         const exh = () => 2317;
         const ch = chan(1, mustBe1729Transducer, exh);
 
-        go(function*() {
-          yield put(ch);
-          yield put(ch, 1729);
-          yield put(ch, 42);
-          yield put(ch, 27);
+        go(async () => {
+          await put(ch);
+          await put(ch, 1729);
+          await put(ch, 42);
+          await put(ch, 27);
         });
 
-        go(function*() {
+        go(async () => {
           // only the put that actually put 1729 doens't error, the error handler returns 2317 for the others
-          expect(yield take(ch)).to.equal(2317);
-          expect(yield take(ch)).to.equal(1729);
-          expect(yield take(ch)).to.equal(2317);
-          expect(yield take(ch)).to.equal(2317);
+          expect(await take(ch)).to.equal(2317);
+          expect(await take(ch)).to.equal(1729);
+          expect(await take(ch)).to.equal(2317);
+          expect(await take(ch)).to.equal(2317);
           done();
         });
       });
@@ -437,8 +437,8 @@ describe('CSP channel', () => {
       const spy = sinon.spy();
       const ch = timeout(500);
 
-      go(function*() {
-        yield take(ch);
+      go(async () => {
+        await take(ch);
         spy();
       });
 
@@ -461,8 +461,8 @@ describe('CSP channel', () => {
       const spy = sinon.spy();
       const chs = [chan(), chan(), timeout(500)];
 
-      go(function*() {
-        yield alts(chs);
+      go(async () => {
+        await alts(chs);
         spy();
       });
 
@@ -490,16 +490,16 @@ describe('CSP channel', () => {
     it('causes any pending and future puts to return false', done => {
       const ch = chan();
 
-      go(function*() {
+      go(async () => {
         // pending
-        expect(yield put(ch, 1)).to.be.false;
+        expect(await put(ch, 1)).to.be.false;
         // future
-        expect(yield put(ch, 1)).to.be.false;
+        expect(await put(ch, 1)).to.be.false;
         done();
       });
 
-      go(function*() {
-        yield sleep();
+      go(async () => {
+        await sleep();
         close(ch);
       });
     });
@@ -507,18 +507,18 @@ describe('CSP channel', () => {
     it('still lets buffered puts return true until the buffer is full', done => {
       const ch = chan(1);
 
-      go(function*() {
+      go(async () => {
         // buffered
-        expect(yield put(ch, 1)).to.be.true;
+        expect(await put(ch, 1)).to.be.true;
         // pending
-        expect(yield put(ch, 1)).to.be.false;
+        expect(await put(ch, 1)).to.be.false;
         // future
-        expect(yield put(ch, 1)).to.be.false;
+        expect(await put(ch, 1)).to.be.false;
         done();
       });
 
-      go(function*() {
-        yield sleep();
+      go(async () => {
+        await sleep();
         close(ch);
       });
     });
@@ -526,16 +526,16 @@ describe('CSP channel', () => {
     it('causes any pending and future takes to return CLOSED', done => {
       const ch = chan();
 
-      go(function*() {
+      go(async () => {
         // pending
-        expect(yield take(ch)).to.equal(CLOSED);
+        expect(await take(ch)).to.equal(CLOSED);
         // future
-        expect(yield take(ch)).to.equal(CLOSED);
+        expect(await take(ch)).to.equal(CLOSED);
         done();
       });
 
-      go(function*() {
-        yield sleep();
+      go(async () => {
+        await sleep();
         close(ch);
       });
     });
@@ -544,21 +544,21 @@ describe('CSP channel', () => {
       const ch = chan(1);
       const ctrl = chan();
 
-      go(function*() {
+      go(async () => {
         // channel has a value put onto it and is closed before the ctrl
         // channel says go
-        yield take(ctrl);
+        await take(ctrl);
         // buffered
-        expect(yield take(ch)).to.equal(1729);
+        expect(await take(ch)).to.equal(1729);
         // future
-        expect(yield take(ch)).to.equal(CLOSED);
+        expect(await take(ch)).to.equal(CLOSED);
         done();
       });
 
-      go(function*() {
-        yield put(ch, 1729);
+      go(async () => {
+        await put(ch, 1729);
         close(ch);
-        yield put(ctrl);
+        await put(ctrl);
       });
     });
   });

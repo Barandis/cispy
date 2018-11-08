@@ -12,12 +12,12 @@
 // deterministic.
 // ********************************************************************************************************************
 
-const { expect } = require('../../../helper');
+const { expect } = require('../../helper');
 const sinon = require('sinon');
 
-const { chan, fixedBuffer, put, take, sleep, close, CLOSED, util } = require('../../../../src/promise');
+const { chan, fixedBuffer, put, take, sleep, close, CLOSED, utils } = require('../../../src/api');
 
-const { debounce, throttle } = util;
+const { debounce, throttle } = utils;
 
 // Sinon timers do not work well with async functions, apparently. I can't get these to pass using sinon, but I can
 // get them to pass just fine using actual timing. It slows down the tests by a lot, but that appears to be a price
@@ -28,7 +28,7 @@ const { debounce, throttle } = util;
 // tests, where conditions on the computer running it can change enough to turn that 50ms into 150ms. I'm retaining the
 // tests because I can still use them to test correctness in a more inconvenient way, but until I figure out how to do
 // this deterministically with native promises, I'm skipping them so they don't cause problems on CI.
-describe.skip('Promise-based channel timing functions', () => {
+describe.skip('Channel timing functions', () => {
   describe('debounce', () => {
     it('can accept a buffer value for the output channel', done => {
       const input = chan();

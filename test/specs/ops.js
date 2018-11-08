@@ -12,16 +12,12 @@
 // deterministic.
 // ********************************************************************************************************************
 
-const { expect } = require('../../helper');
+const { expect } = require('../helper');
 const sinon = require('sinon');
 
-const { chan, close, CLOSED, DEFAULT } = require('../../../src/core/channel');
-const { putAsync, takeAsync } = require('../../../src/core/operations');
-const { config, SET_TIMEOUT } = require('../../../src/core/dispatcher');
-const { put, take, takeOrThrow, alts, sleep } = require('../../../src/promise/operations');
-
-// As of the writing of this comment (the initial production of this test file), this is basically a copy of all of the
-// tests in core.js that are relevant for promise-based channel operations.
+const { chan, close, CLOSED, DEFAULT } = require('../../src/modules/channel');
+const { put, take, takeOrThrow, alts, sleep, putAsync, takeAsync } = require('../../src/modules/ops');
+const { config, SET_TIMEOUT } = require('../../src/modules/dispatcher');
 
 describe.skip('Promise functions', () => {
   // Sleep continues to vex, as the promise-based version fails while using Sinon's fake timers. I've opted to

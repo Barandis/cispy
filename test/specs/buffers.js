@@ -1,6 +1,6 @@
-const { expect } = require('../../helper');
+const { expect } = require('../helper');
 
-const { EMPTY, queue, fixed, dropping, sliding } = require('../../../src/core/buffers');
+const { EMPTY, queue, fixed, dropping, sliding } = require('../../src/modules/buffers');
 
 describe('Buffers', () => {
   context('queue', () => {

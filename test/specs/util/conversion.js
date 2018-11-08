@@ -10,11 +10,11 @@
 // deterministic.
 // ********************************************************************************************************************
 
-const { expect } = require('../../../helper');
+const { expect } = require('../../helper');
 
-const { chan, close, put, take, takeAsync, util } = require('../../../../src/promise');
+const { chan, close, put, take, takeAsync, utils } = require('../../../src/api');
 
-const { reduce, onto, into } = util;
+const { reduce, onto, into } = utils;
 
 async function fillChannel(channel, count, cl) {
   for (let i = 1; i <= count; ++i) {
@@ -46,7 +46,7 @@ async function expectChannel(channel, expected, end, start) {
   }
 }
 
-describe.skip('Promise-based channel conversion functions', () => {
+describe.skip('Channel conversion functions', () => {
   describe('reduce', () => {
     it('creates a one-value channel with the reduction value of the input channel', done => {
       const input = chan();
