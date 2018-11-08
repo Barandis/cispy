@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Thomas Otterson
+ * Copyright (c) 2017-2018 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,7 @@
  * Provides several types of buffers usable in buffered channels. These are all built on a small, efficient queue (also
  * provided) which is in turn backed by a JavaScript array.
  *
- * @module cispy/core/buffers
+ * @module cispy/buffers
  */
 
 /**
@@ -58,7 +58,7 @@ const EMPTY = Symbol('EMPTY');
 /**
  * Creates a new queue. This queue is created empty, with a backing array of length 0.
  *
- * @returns {module:cispy/core/buffers~Queue} a new, empty queue
+ * @returns {module:cispy/buffers~Queue} a new, empty queue
  * @private
  */
 function queue() {
@@ -70,7 +70,7 @@ function queue() {
      * Returns the number of elements stored in the queue. This may or may not equal the length of the backing store.
      *
      * @name count
-     * @memberOf module:cispy/core/buffers~Queue
+     * @memberOf module:cispy/buffers~Queue
      * @instance
      * @type {number}
      * @readonly
@@ -83,7 +83,7 @@ function queue() {
      * Returns `true` if the queue is empty.
      *
      * @name empty
-     * @memberOf module:cispy/core/buffers~Queue
+     * @memberOf module:cispy/buffers~Queue
      * @instance
      * @type {boolean}
      * @readonly
@@ -96,7 +96,7 @@ function queue() {
      * Adds an item to the queue.
      *
      * @function enqueue
-     * @memberOf module:cispy/core/buffers~Queue
+     * @memberOf module:cispy/buffers~Queue
      * @instance
      * @param {*} item The value being added to the queue.
      */
@@ -109,7 +109,7 @@ function queue() {
      * head of the backing store to exceed a threshold, that empty space is removed.
      *
      * @function dequeue
-     * @memberOf module:cispy/core/buffers~Queue
+     * @memberOf module:cispy/buffers~Queue
      * @instance
      * @return {*} The oldest stored item in the queue.
      */
@@ -132,7 +132,7 @@ function queue() {
      * Returns the next item in the queue without removing it.
      *
      * @function peek
-     * @memberOf module:cispy/core/buffers~Queue
+     * @memberOf module:cispy/buffers~Queue
      * @instance
      * @return {*} The oldest item stored in the queue.
      */
@@ -146,7 +146,7 @@ function queue() {
      * occasionally want to get rid of inactive handlers.
      *
      * @function filter
-     * @memberOf module:cispy/core/buffers~Queue
+     * @memberOf module:cispy/buffers~Queue
      * @instance
      * @param {Function} fn The predicate function that determines whether an element remains in the queue.
      */
@@ -190,7 +190,7 @@ function queue() {
  * Creates a base buffer of the given size.
  *
  * @param  {number} size the maximum number of items that the new buffer can hold.
- * @return {module:cispy.buffers~Buffer} the new buffer.
+ * @return {module:cispy/buffers~Buffer} the new buffer.
  * @private
  */
 function base(size) {
@@ -201,9 +201,9 @@ function base(size) {
      * The queue that backs this buffer.
      *
      * @name queue
-     * @memberOf module:cispy/core/buffers~Buffer
+     * @memberOf module:cispy/buffers~Buffer
      * @instance
-     * @type {module:cispy/core/buffers~Queue}
+     * @type {module:cispy/buffers~Queue}
      * @readonly
      */
     get queue() {
@@ -217,7 +217,7 @@ function base(size) {
      * buffer overflowing. It is static and is set at creation time.
      *
      * @name size
-     * @memberOf module:cispy/core/buffers~Buffer
+     * @memberOf module:cispy/buffers~Buffer
      * @instance
      * @type {number}
      * @readonly
@@ -230,7 +230,7 @@ function base(size) {
      * The number of items currently being stored by the buffer.
      *
      * @name count
-     * @memberOf module:cispy/core/buffers~Buffer
+     * @memberOf module:cispy/buffers~Buffer
      * @instance
      * @type {number}
      * @readonly
@@ -243,7 +243,7 @@ function base(size) {
      * Removes and returns the oldest item in the buffer.
      *
      * @function remove
-     * @memberOf module:cispy/core/buffers~Buffer
+     * @memberOf module:cispy/buffers~Buffer
      * @instance
      * @return {*} The oldest item in the buffer.
      */
@@ -265,19 +265,19 @@ function base(size) {
  * @function fixedBuffer
  * @memberOf module:cispy~Cispy
  * @param {number} size The number of items that the new buffer can hold before it's full.
- * @return {module:cispy/core/buffers~FixedBuffer} A new fixed buffer of the specified capacity.
+ * @return {module:cispy/buffers~FixedBuffer} A new fixed buffer of the specified capacity.
  */
 function fixed(size) {
   /**
    * A buffer implementation that never discards buffered items when a new item is added.
    *
    * This buffer has a concept of *full*, but it's a soft limit. If the size of the buffer is exceeded, added items are
-   * still stored. {@link module:cispy/core/buffers~FixedBuffer#full|full} returns `true` any time that the size is
-   * reached or exceeded, so it's entirely possible to call {@link module:cispy/core/buffers~Buffer#remove|remove} on a
+   * still stored. {@link module:cispy/buffers~FixedBuffer#full|full} returns `true` any time that the size is
+   * reached or exceeded, so it's entirely possible to call {@link module:cispy/buffers~Buffer#remove|remove} on a
    * full buffer and have it still be full.
    *
    * @namespace FixedBuffer
-   * @augments {module:cispy/core/buffers~Buffer}
+   * @augments {module:cispy/buffers~Buffer}
    */
   return Object.assign(
     Object.create(base(size), {
@@ -286,10 +286,10 @@ function fixed(size) {
       full: {
         /**
          * Whether or not the buffer has as many or more items stored as its
-         * {@link module:cispy/core/buffers~Buffer#size|size}.
+         * {@link module:cispy/buffers~Buffer#size|size}.
          *
          * @name full
-         * @memberOf module:cispy/core/buffers~FixedBuffer
+         * @memberOf module:cispy/buffers~FixedBuffer
          * @instance
          * @type {number}
          * @readonly
@@ -304,7 +304,7 @@ function fixed(size) {
        * Adds one or more items to the buffer. These items will be added even if the buffer is full.
        *
        * @function add
-       * @memberOf module:cispy/core/buffers~FixedBuffer
+       * @memberOf module:cispy/buffers~FixedBuffer
        * @instance
        * @param {...*} items The items to be added to the buffer.
        */
@@ -329,7 +329,7 @@ function fixed(size) {
  * @function droppingBuffer
  * @memberOf module:cispy~Cispy
  * @param {number} size The number of items that the new buffer can hold before newest items are dropped on add.
- * @return {module:cispy/core/buffers~DroppingBuffer} A new dropping buffer of the specified capacity.
+ * @return {module:cispy/buffers~DroppingBuffer} A new dropping buffer of the specified capacity.
  */
 function dropping(size) {
   /**
@@ -340,17 +340,17 @@ function dropping(size) {
    * item actually appearing in the buffer.
    *
    * @namespace DroppingBuffer
-   * @extends {module:cispy/core/buffers~Buffer}
+   * @extends {module:cispy/buffers~Buffer}
    */
   return Object.assign(
     Object.create(base(size), {
       full: {
         /**
-         * Whether or not the buffer is full. As a {@link module:cispy/core/buffers~DroppingBuffer|DroppingBuffer} is
+         * Whether or not the buffer is full. As a {@link module:cispy/buffers~DroppingBuffer|DroppingBuffer} is
          * never considered full, this will always return `false`.
          *
          * @name full
-         * @memberOf module:cispy/core/buffers~DroppingBuffer
+         * @memberOf module:cispy/buffers~DroppingBuffer
          * @instance
          * @type {number}
          * @readonly
@@ -366,7 +366,7 @@ function dropping(size) {
        * dropped instead.
        *
        * @function add
-       * @memberOf module:cispy/core/buffers~DroppingBuffer
+       * @memberOf module:cispy/buffers~DroppingBuffer
        * @instance
        * @param {...*} items the items added to the buffer.
        */
@@ -393,27 +393,27 @@ function dropping(size) {
  * @function slidingBuffer
  * @memberOf module:cispy~Cispy
  * @param {number} size The number of items that the new buffer can hold before oldest items are dropped on add.
- * @return {module:cispy/core/buffers~SlidingBuffer} A new sliding buffer of the specified capacity.
+ * @return {module:cispy/buffers~SlidingBuffer} A new sliding buffer of the specified capacity.
  */
 function sliding(size) {
   /**
    * A buffer implementation that drops the oldest item when an item is added to a full buffer.
    *
-   * This is very similar to {@link module:cispy/core/buffers~DroppingBuffer|DroppingBuffer}; the only difference is in
+   * This is very similar to {@link module:cispy/buffers~DroppingBuffer|DroppingBuffer}; the only difference is in
    * what happens when an item is added. In this buffer, the new item is indeed added to the buffer, but in order to
    * keep the count of the buffer at or below its size, the oldest item in the buffer is silently dropped.
    *
    * @namespace SlidingBuffer
-   * @extends {module:cispy/core/buffers~Buffer}
+   * @extends {module:cispy/buffers~Buffer}
    */
   return Object.assign(
     Object.create(base(size), {
       /**
-       * Whether or not the buffer is full. As a {@link module:cispy/core/buffers~SlidingBuffer|SlidingBuffer} is
+       * Whether or not the buffer is full. As a {@link module:cispy/buffers~SlidingBuffer|SlidingBuffer} is
        * never considered full, this will always return `false`.
        *
        * @name full
-       * @memberOf module:cispy/core/buffers~SlidingBuffer
+       * @memberOf module:cispy/buffers~SlidingBuffer
        * @instance
        * @type {number}
        * @readonly
@@ -430,7 +430,7 @@ function sliding(size) {
        * the buffer are dropped to make way for the new items.
        *
        * @function add
-       * @memberOf module:cispy/core/buffers~SlidingBuffer
+       * @memberOf module:cispy/buffers~SlidingBuffer
        * @instance
        * @param {...*} items The items to be added to the buffer.
        */

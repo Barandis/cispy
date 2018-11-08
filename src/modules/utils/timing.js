@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Thomas Otterson
+ * Copyright (c) 2017-2018 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,12 +22,12 @@
 /**
  * A set of channel utilities for changing the timing of inputs being put onto the input channel.
  *
- * @module cispy/promise/util/timing
+ * @module cispy/utils/timing
  * @private
  */
 
-const { chan, timeout, close, CLOSED } = require('../../core/channel');
-const { put, alts } = require('../operations');
+const { chan, timeout, close, CLOSED } = require('../channel');
+const { put, alts } = require('../ops');
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === '[object Number]' && isFinite(x);
@@ -57,10 +57,10 @@ function isNumber(x) {
  * will only be made available on the destination channel at the end of the delay (per `trailing`) if *another* input
  * value was put onto the source channel before the delay expired.
  *
- * @memberOf module:cispy/promise/util~CispyPromiseUtil
- * @param {module:cispy/core/channel~Channel} src The source channel.
- * @param {(number|module:cispy/core/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
- *     this is a number, a {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/channel~Channel} src The source channel.
+ * @param {(number|module:cispy/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
+ *     this is a number, a {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or
  *     not present, the channel will be unbuffered.
  * @param {number} delay The debouncing delay, in milliseconds.
  * @param {Object} [options={}] A set of options to further configure the debouncing.
@@ -76,10 +76,10 @@ function isNumber(x) {
  *     end through the max delay operates exactly as if it had ended because of lack of input; the last input is made
  *     available on the destination channel (if `trailing` is `true`), and the next input will trigger another debounce
  *     operation.
- * @param {module:cispy/core/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
+ * @param {module:cispy/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
  *     debouncing. Any value put onto this channel will cancel the current debouncing operation, closing the output
  *     channel and discarding any values that were waiting for the debounce threshold timer to be sent to the output.
- * @return {module:cispy/core/channel~Channel}} The newly-created destination channel, where all of the values will be
+ * @return {module:cispy/channel~Channel}} The newly-created destination channel, where all of the values will be
  *     debounced from the source channel.
  */
 function debounce(src, buffer, delay, options) {
@@ -167,10 +167,10 @@ function debounce(src, buffer, delay, options) {
  * will only be made available on the destination channel at the end of the delay (per `trailing`) if *another* input
  * value was put onto the source channel before the delay expired.
  *
- * @memberOf module:cispy/promise/util~CispyPromiseUtil
- * @param {module:cispy/core/channel~Channel} src The source channel.
- * @param {(number|module:cispy/core/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
- *     this is a number, a {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/channel~Channel} src The source channel.
+ * @param {(number|module:cispy/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
+ *     this is a number, a {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or
  *     not present, the channel will be unbuffered.
  * @param {number} delay The throttling delay, in milliseconds.
  * @param {Object} [options={}] A set of options to further configure the throttling.
@@ -181,10 +181,10 @@ function debounce(src, buffer, delay, options) {
  *     destination channel when the delay expires. If this is `false`, any inputs that come in during the delay are
  *     ignored, and the next value is not put onto the destination channel until the first input *after* the delay
  *     expires.
- * @param {module:cispy/core/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
+ * @param {module:cispy/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
  *     throttling. Any value put onto this channel will cancel the current throttling operation, closing the output
  *     channel and discarding any values that were waiting for the throttle threshold timer to be sent to the output.
- * @return {module:cispy/core/channel~Channel}} The newly-created destination channel, where all of the values will be
+ * @return {module:cispy/channel~Channel}} The newly-created destination channel, where all of the values will be
  *     throttled from the source channel.
  */
 function throttle(src, buffer, delay, options) {

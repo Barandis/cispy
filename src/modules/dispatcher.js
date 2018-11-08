@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Thomas Otterson
+ * Copyright (c) 2017-2018 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -44,7 +44,7 @@
  * The dispatcher is **global**. There is a single instance that runs for all channels and processes. This is the only
  * element of the system that works like this.
  *
- * @module cispy/core/dispatcher
+ * @module cispy/dispatcher
  * @private
  */
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Thomas Otterson
+ * Copyright (c) 2017-2018 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,12 +22,12 @@
 /**
  * A set of channel utilities for converting channels into other kinds of data, and vice versa.
  *
- * @module cispy/util/conversion
+ * @module cispy/utils/conversion
  * @private
  */
 
-const { chan, close, CLOSED } = require('../../core/channel');
-const { go, put, take } = require('../operations');
+const { chan, close, CLOSED } = require('../channel');
+const { put, take, putAsync } = require('../ops');
 
 /**
  * **Creates a single value from a channel by running its values through a reducing function.**
@@ -40,21 +40,21 @@ const { go, put, take } = require('../operations');
  * value is taken from it, the channel is closed.
  *
  * ```
- * const {chan, go, put, take, close, util} = cispy;
- * const {reduce} = util;
+ * const { go, chan, put, take, close, utils } = cispy;
+ * const { reduce } = utils;
  *
  * const input = chan();
  * const output = reduce((acc, value) => acc + value, input, 0);
  *
- * go(function*() {
- *   yield put(input, 1);
- *   yield put(input, 2);
- *   yield put(input, 3);
+ * go(async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
+ *   await put(input, 3);
  *   close(input);
  * });
  *
- * go(function*() {
- *   const result = yield take(output);
+ * go(async () => {
+ *   const result = await take(output);
  *   console.log(output);                  // -> 6
  * });
  *
@@ -63,25 +63,31 @@ const { go, put, take } = require('../operations');
  * Note that the input channel *must* be closed at some point, or no value will ever appear on the output channel. The
  * closing of the channel is what signifies that the reduction should be completed.
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/util~reducer} fn The reducer function responsible for turning the series of channel values into
- *     a single output value.
- * @param {module:cispy/core/channel~Channel} ch The channel whose values are being reduced into a single output value.
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/utils~reducer} fn The reducer function responsible for turning the series of channel
+ *     values into a single output value.
+ * @param {module:cispy/channel~Channel} ch The channel whose values are being reduced into a single output value.
  * @param {*} init The initial value to feed into the reducer function for the first reduction step.
- * @return {module:cispy/core/channel~Channel} A channel that will, when the input channel closes, have the reduced
+ * @return {module:cispy/channel~Channel} A channel that will, when the input channel closes, have the reduced
  *     value put into it. When this value is taken, the channel will automatically close.
  */
 function reduce(fn, ch, init) {
-  return go(function*() {
-    let result = init;
+  const output = chan();
+
+  async function loop() {
+    let acc = init;
     for (;;) {
-      const value = yield take(ch);
+      const value = await take(ch);
       if (value === CLOSED) {
-        return result;
+        putAsync(output, acc, () => close(output));
+        return;
       }
-      result = fn(result, value);
+      acc = fn(acc, value);
     }
-  });
+  }
+
+  loop();
+  return output;
 }
 
 /**
@@ -93,37 +99,39 @@ function reduce(fn, ch, init) {
  * The channel is closed after the final array value is put onto it.
  *
  * ```
- * const {chan, go, take, util} = cispy;
- * const {onto} = util;
+ * const { go, chan, take, utils } = cispy;
+ * const { onto } = utils;
  *
  * const input = [1, 2, 3];
  * const output = onto(input);
  *
- * go(function*() {
- *   console.log(yield take(output));     // -> 1
- *   console.log(yield take(output));     // -> 2
- *   console.log(yield take(output));     // -> 3
+ * go(async () => {
+ *   console.log(await take(output));     // -> 1
+ *   console.log(await take(output));     // -> 2
+ *   console.log(await take(output));     // -> 3
  *   console.log(output.closed);          // -> true
  * });
  * ```
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/core/channel~Channel} [ch] The channel onto which to put all of the array elements. If this is
+ * @memberOf module:cispy/util~CispyUtils
+ * @param {module:cispy/channel~Channel} [ch] The channel onto which to put all of the array elements. If this is
  *     not present, a new channel will be created.
  * @param {Array} array The array of values to be put onto the channel.
- * @return {module:cispy/core/channel~Channel} the channel onto which the array elements are put. This is the same as
+ * @return {module:cispy/channel~Channel} the channel onto which the array elements are put. This is the same as
  *     the input channel, but if no input channel is specified, this will be a new channel. It will close when the final
  *     value is taken from it.
  */
 function onto(ch, array) {
   const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
 
-  go(function*() {
+  async function loop() {
     for (const item of arr) {
-      yield put(chnl, item);
+      await put(chnl, item);
     }
     close(chnl);
-  });
+  }
+
+  loop();
   return chnl;
 }
 
@@ -137,21 +145,21 @@ function onto(ch, array) {
  * is taken from it, the channel is closed.
  *
  * ```
- * const {chan, go, put, take, close, util} = cispy;
- * const {into} = util;
+ * const { go, chan, put, take, close, utils } = cispy;
+ * const { into } = utils;
  *
  * const input = chan();
  * const output = into(input);
  *
- * go(function*() {
- *   yield put(input, 1);
- *   yield put(input, 2);
- *   yield put(input, 3);
+ * go(async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
+ *   await put(input, 3);
  *   close(input);
  * });
  *
- * go(function*() {
- *   const result = yield take(output);
+ * go(async () => {
+ *   const result = await take(output);
  *   console.log(result);                 // -> [1, 2, 3]
  * });
  * ```
@@ -159,11 +167,11 @@ function onto(ch, array) {
  * Note that the input channel *must* be closed at some point, or no value will ever appear on the output channel. The
  * closing of the channel is what signifies that all of the values needed to make the array are now available.
  *
- * @memberOf module:cispy/util~CispyUtil
+ * @memberOf module:cispy/util~CispyUtils
  * @param {Array} [array] The array to put the channel values into. If this is not present, a new, empty array will be
  *     created.
- * @param {module:cispy/core/channel~Channel} ch The channel from which values are taken to put into the array.
- * @return {module:cispy/core/channel~Channel} A channel that will, when the input channel closes, have the array of
+ * @param {module:cispy/channel~Channel} ch The channel from which values are taken to put into the array.
+ * @return {module:cispy/channel~Channel} A channel that will, when the input channel closes, have the array of
  *     channel values put onto it. When this array is taken, the channel will automatically close.
  */
 function into(array, ch) {

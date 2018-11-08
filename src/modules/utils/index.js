@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Thomas Otterson
+ * Copyright (c) 2017-2018 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,20 +26,20 @@
  * themselves. Thus, you will not find filter or chunk or take here, as those functions can be done with transducers.
  * (You will find a map here, but this one maps multiple channels into one, which cannot be done with transducers.)
  *
- * @module cispy/util
+ * @module cispy/utils
  */
 
 /**
  * A set of utility functions using generators (processes) to work with channels.
  *
- * These are all accessed through the `cispy.util` namespace; e.g.,
- * `{@link module:cispy/util~CispyUtil.reduce|reduce}` can be called like this:
+ * These are all accessed through the `cispy.utils` namespace; e.g.,
+ * `{@link module:cispy/utils~CispyUtils.reduce|reduce}` can be called like this:
  *
  * ```
- * const output = cispy.util.reduce((acc, value) => acc + value, ch, 0);
+ * const output = cispy.utils.reduce((acc, value) => acc + value, ch, 0);
  * ```
  *
- * @namespace CispyUtil
+ * @namespace CispyUtils
  */
 
 /**

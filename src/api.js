@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Thomas Otterson
+ * Copyright (c) 2017-2018 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,21 +19,19 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * All of the external, process-based CSP functions are gathered here and exported as a whole. This includes core CSP
+ /**
+ * All of the externalCSP functions are gathered here and exported as a whole. This includes core CSP
  * functions for channels and processes, but it also includes buffers, special values, and utility functions.
  *
  * @module cispy
  */
 
-const { fixed, sliding, dropping, EMPTY } = require('./core/buffers');
-const { chan, timeout, close, CLOSED, DEFAULT } = require('./core/channel');
-const { putAsync, takeAsync, altsAsync } = require('./core/operations');
-const { config, SET_IMMEDIATE, MESSAGE_CHANNEL, SET_TIMEOUT } = require('./core/dispatcher');
+const { fixed, sliding, dropping, EMPTY } = require('./modules/buffers');
+const { chan, timeout, close, CLOSED, DEFAULT } = require('./modules/channel');
+const { putAsync, takeAsync, altsAsync, put, take, takeOrThrow, alts, sleep, go } = require('./modules/ops');
+const { config, SET_IMMEDIATE, MESSAGE_CHANNEL, SET_TIMEOUT } = require('./modules/dispatcher');
 
-const { go, goSafe, spawn, put, take, takeOrThrow, alts, sleep } = require('./generator/operations');
-
-const util = require('./generator/util');
+const utils = require('./modules/utils');
 
 /**
  * The core namespace under which all of the main functions reside in the API. Everything in this namespace is
@@ -74,7 +72,7 @@ const util = require('./generator/util');
  *     taken from the channel (or `{@link module:cispy~CLOSED|CLOSED}` if the channel was closed without a value being
  *     taken). If the operation was a put, this is `true` if the put value was taken and `false` if the channel was
  *     closed before that value could be taken.
- * @param {module:cispy/core/channel~Channel} data.channel The channel on which the operation that was completed acted.
+ * @param {module:cispy/channel~Channel} data.channel The channel on which the operation that was completed acted.
  */
 
 /**
@@ -94,8 +92,6 @@ const util = require('./generator/util');
 
 module.exports = {
   go,
-  goSafe,
-  spawn,
   put,
   take,
   takeOrThrow,
@@ -121,10 +117,10 @@ module.exports = {
   /**
    * **A set of utility functions for working with channels.**
    *
-   * This is a small 'standard library' of operations that are useful when working with channels.
+   * This is a small 'standard library' of promise-based operations that are useful when working with channels.
    *
-   * @type {module:cispy/util~CispyUtil}
+   * @type {module:cispy/util~CispyUtils}
    * @memberOf module:cispy~Cispy
    */
-  util
+  utils
 };

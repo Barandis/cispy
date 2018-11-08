@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Thomas Otterson
+ * Copyright (c) 2017-2018 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -46,12 +46,12 @@
  * The upshot is that channels are independent of processes, even to the degree that these channels will work fine with
  * async functions in place of processes.
  *
- * @module cispy/core/channel
+ * @module cispy/channel
  */
 
 const { queue, fixed, EMPTY } = require('./buffers');
 const { dispatch } = require('./dispatcher');
-const p = require('xduce').protocols;
+const p = require('./protocol').protocols;
 
 /**
  * The maximum number of dirty operations that can be queued on a channel before a cleanup is triggered.
@@ -92,11 +92,11 @@ const BOX = Symbol();
 const CLOSED = Symbol('CLOSED');
 
 /**
- * **The name of the channel returned from `yield {@link module:cispy~Cispy.alts|alts}` (generator),
- * yield {@link module:cispy/promise~CispyPromise.alts|alts}` (promise), and
+ * **The name of the channel returned from `await {@link module:cispy~Cispy.alts|alts}` (generator),
+ * await {@link module:cispy~Cispy.alts|alts}` (promise), and
  * `{@link module:cispy~Cispy.altsAsync|altsAsync}` when the default is returned as its value.**
  *
- * This only happens when aa alts call is performed, all operations are initially blocking, and a `default` option is
+ * This only happens when an alts call is performed, all operations are initially blocking, and a `default` option is
  * sent. The immediate response in that situation is `{ value: options.default, channel: DEFAULT }`.
  *
  * @type {Symbol}
@@ -132,7 +132,7 @@ function isReduced(value) {
  * `null`) means that the operation must block.
  *
  * @param {*} value The value to box.
- * @return {module:cispy/core/channel~Box} The boxed value.
+ * @return {module:cispy/channel~Box} The boxed value.
  * @private
  */
 function box(value) {
@@ -143,7 +143,7 @@ function box(value) {
 }
 
 /**
- * A wrapper around a value. This is much like {@link module:cispy/core/channel~Box|Box} except that it also carries a
+ * A wrapper around a value. This is much like {@link module:cispy/channel~Box|Box} except that it also carries a
  * handler to be used when a put value is taken. It is specifically for queueing puts.
  *
  * @typedef PutBox
@@ -181,7 +181,7 @@ function isBox(value) {
 /**
  * Creates a new channel.
  *
- * @param {module:cispy/core/buffers~Buffer} [buffer] The buffer that backs this channel. If this is not present or is
+ * @param {module:cispy/buffers~Buffer} [buffer] The buffer that backs this channel. If this is not present or is
  *     `null` then the newly created channel will be unbuffered.
  * @param {Object} [xform] The transducer used to transform values put onto this channel. If this is not present or is
  *     `null` then there will be no transformation applied to values put onto the newly created channel.
@@ -193,7 +193,7 @@ function isBox(value) {
  *     for a very minor performance tweak and is best left alone.
  * @param {number} [options.maxQueued=MAX_QUEUED] The maximum number of operations that can be queued up at the same
  *     time. This prevents infinite loops from accidentally eating up all of the available memory.
- * @return {module:cispy/core/channel~Channel} A new channel object.
+ * @return {module:cispy/channel~Channel} A new channel object.
  * @private
  */
 function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueued = MAX_QUEUED } = {}) {
@@ -204,8 +204,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
   let closed = false;
 
   /**
-   * A channel, used by processes to communicate with one another. This is one of the two core objects of the library,
-   * along with {@link module:cispy/generator/process~Process|Process}.
+   * A channel, used by processes to communicate with one another.
    *
    * For each operation, the channel first tests to see if there's a corresponding operation already queued (i.e., if
    * we're doing a `put` that there's a queued `take` and vice versa). If there is, that corresponding operation is
@@ -237,7 +236,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
      * Determines whether this channel has been closed.
      *
      * @name closed
-     * @memberOf module:cispy/core/channel~Channel
+     * @memberOf module:cispy/channel~Channel
      * @instance
      * @type {boolean}
      * @readonly
@@ -250,7 +249,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
      * Determines whether this channel has a buffer.
      *
      * @name buffered
-     * @memberOf module:cispy/core/channel~Channel
+     * @memberOf module:cispy/channel~Channel
      * @instance
      * @type {boolean}
      * @readonly
@@ -265,7 +264,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
      * is closed.
      *
      * @name timeout
-     * @memberOf module:cispy/core/channel~Channel
+     * @memberOf module:cispy/channel~Channel
      * @instance
      * @type {boolean}
      * @readonly
@@ -289,7 +288,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
      * @param {boolean} handler.active Determines whether the put is still active and should still be serviced.
      * @param {function} handler.commit Deactivates the put (so it can't be serviced a second time) and returns the
      *     callback to be fired when the put completes.
-     * @return {?module:cispy/core/channel~Box} One of three values. A boxed `true` is returned if the put was
+     * @return {?module:cispy/channel~Box} One of three values. A boxed `true` is returned if the put was
      *     immediately consumed by a pending take. A boxed `false` is returned if the put was performed on a channel
      *     that was already closed by the time the put took place. `null` is returned if the put was queued pending a
      *     corresponding take.
@@ -361,7 +360,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
 
       // If there are no pending takes on an unbuffered channel, or on a buffered channel with a full buffer, we queue
       // the put to let it wait for a take to become available. Puts whose handlers have gone inactive (because they
-      // were part of an ALTS instruction) are periodically purged.
+      // were part of an alts list) are periodically purged.
       if (dirtyPuts > maxDirty) {
         puts.filter(putter => putter.handler.active);
         dirtyPuts = 0;
@@ -391,7 +390,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
      * @param {boolean} handler.active Determines whether the take is still active and should still be serviced.
      * @param {function} handler.commit Deactivates the take (so it can't be serviced a second time) and returns the
      *     callback to be fired when the take completes.
-     * @return {?module:cispy/core/channel~Box} Either the boxed value taken from the channel, or `null` if the take
+     * @return {?module:cispy/channel~Box} Either the boxed value taken from the channel, or `null` if the take
      *     must be queued to await a corresponding put.
      * @private
      */
@@ -551,7 +550,7 @@ function channel(buffer, xform, timeout = false, { maxDirty = MAX_DIRTY, maxQueu
 /**
  * The default exception handler, used when no exception handler is supplied to {@link handleException},
  * {@link wrapTransformer}, or {@link module:cispy~chan|chan}. This default handler merely returns
- * {@link module:cispy~CLOSED}, which will result in no new value being written to the channel.
+ * {@link module:cispy~CLOSED|CLOSED}, which will result in no new value being written to the channel.
  *
  * @type {function}
  * @private
@@ -573,11 +572,11 @@ const DEFAULT_HANDLER = () => CLOSED;
  * the result of that handler function is added to the channel's buffer. If that value is {@link module:cispy~CLOSED},
  * then it is *not* added to the buffer.
  *
- * @param  {module:cispy/core/buffers~Buffer} buffer The buffer that backs the channel whose transducer's exceptions
+ * @param  {module:cispy/buffers~Buffer} buffer The buffer that backs the channel whose transducer's exceptions
  *     are being handled.
  * @param  {ExceptionHandler} handler The exception handling function that is run when an error occurs in a transducer.
  * @param  {Object} ex The error object thrown by the transducer.
- * @return {module:cispy/core/buffers~Buffer} The buffer itself. This is done to make it easier to integrate this
+ * @return {module:cispy/buffers~Buffer} The buffer itself. This is done to make it easier to integrate this
  *     function into a transducer's step function.
  * @private
  */
@@ -658,8 +657,8 @@ const bufferReducer = {
  *
  * If a buffer value is provided, it defines what buffer should back the channel. If this is `null`, `0`, or
  * completely missing, the channel will be unbuffered. If it's a positive number, the channel will be buffered by a
- * {@link module:cispy/core/buffers~FixedBuffer|FixedBuffer} of that size. If it's a
- * {@link module:cispy/core/buffers~Buffer|Buffer} object, that object will be used as the channel's buffer.
+ * {@link module:cispy/buffers~FixedBuffer|FixedBuffer} of that size. If it's a
+ * {@link module:cispy/buffers~Buffer|Buffer} object, that object will be used as the channel's buffer.
  *
  * `chan` supports transducers by allowing a transducer function to be associated with it. This is passed as the
  * second parameter and can only be used if the channel is buffered (otherwise an error is thrown). This transducer
@@ -672,7 +671,7 @@ const bufferReducer = {
  * `{@link module:cispy~Cispy.CLOSED|CLOSED}`, then no value will be put onto the channel upon handler completion.
  *
  * @memberOf module:cispy~Cispy
- * @param {(number|module:cispy/core/buffers~Buffer)} [buffer] The buffer object that should back this channel. If
+ * @param {(number|module:cispy/buffers~Buffer)} [buffer] The buffer object that should back this channel. If
  *     this is a positive number, a fixed buffer of that size will be created to back the channel. If it is `0` or
  *     `null` (or is just missing), the new channel will be unbuffered.
  * @param {module:cispy~transducer} [xform] A transducer to run each value through before putting it onto the channel.
@@ -691,7 +690,7 @@ const bufferReducer = {
  *     for a very minor performance tweak and is best left alone.
  * @param {number} [options.maxQueued=1024] The maximum number of operations that can be queued up at the same
  *     time. This prevents infinite loops from accidentally eating up all of the available memory.
- * @return {module:cispy/core/channel~Channel} A new channel.
+ * @return {module:cispy/channel~Channel} A new channel.
  */
 function chan(buffer = 0, xform, handler, options = {}) {
   const buf = buffer === 0 ? null : buffer;
@@ -716,7 +715,7 @@ function chan(buffer = 0, xform, handler, options = {}) {
  * @memberOf module:cispy~Cispy
  * @param {number} delay The number of milliseconds to keep the new channel open. After that much time passes, the
  *     channel will close automatically.
- * @return {module:cispy/core/channel~Channel} A new channel that automatically closes after the delay completes.
+ * @return {module:cispy/channel~Channel} A new channel that automatically closes after the delay completes.
  */
 function timeout(delay) {
   const ch = channel(null, wrapTransformer(bufferReducer), true);
@@ -736,7 +735,7 @@ function timeout(delay) {
  * `{@link module:cispy~Cispy.CLOSED|CLOSED}`.
  *
  * @memberOf module:cispy~Cispy
- * @param {module:cispy/core/channel~Channel} channel The channel to be closed.
+ * @param {module:cispy/channel~Channel} channel The channel to be closed.
  */
 function close(channel) {
   channel.close();

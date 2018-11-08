@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Thomas Otterson
+ * Copyright (c) 2017-2018 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,17 +27,15 @@
  * the regular function of the source channel will be restored if all taps are removed. Even so, while at least one tap
  * is in place, the source channel cannot be taken from.
  *
- * @module cispy/util/flow
+ * @module cispy/utils/flow
  * @private
  */
 
-const { chan, close, CLOSED } = require('../../core/channel');
-const { putAsync, takeAsync } = require('../../core/operations');
-const { go, put, take, alts } = require('../operations');
+const { chan, close, CLOSED } = require('../channel');
+const { put, take, alts, putAsync, takeAsync } = require('../ops');
 
-// This is only a string for testability, changing it to a symbol would be good
 const protocols = {
-  taps: '@@multitap/taps'
+  taps: Symbol('multitap/taps')
 };
 
 function isNumber(x) {
@@ -58,51 +56,54 @@ function isNumber(x) {
  *
  * Because of the ability to leave the destination channel open, a possible use case for this function is to wrap the
  * destination channel(s) of one of the other flow control functions below to have a channel that survives the source
- * channel closing. The rest of those functions (aside from the special-case `{@link module:cispy/util~CispyUtil.tap}`)
- * automatically close their destination channels when the source channels close.
+ * channel closing. The rest of those functions (aside from the special-case
+ * `{@link module:cispy/promise/util~CispyPromiseUtil.tap}`) automatically close their destination channels when the
+ * source channels close.
  *
  * ```
- * const {go, chan, put, take, close, util} = cispy;
- * const {pipe} = util;
+ * const { go, chan, put, take, close, utils } = cispy;
+ * const { pipe } = utils;
  *
  * const input = chan();
  * const output = pipe(input, chan());
  *
- * go(function*() {
- *   yield put(input, 1);
- *   yield put(input, 2);
+ * go(async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
  *   close(input);
  * });
  *
- * go(function*() {
- *   console.log(yield take(output));      // -> 1
- *   console.log(yield take(output));      // -> 2
+ * go(async () => {
+ *   console.log(await take(output));      // -> 1
+ *   console.log(await take(output));      // -> 2
  *   console.log(output.closed);           // -> true
  * });
  * ```
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/core/channel~Channel} src The source channel.
- * @param {module:cispy/core/channel~Channel} dest The destination channel.
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/channel~Channel} src The source channel.
+ * @param {module:cispy/channel~Channel} dest The destination channel.
  * @param {boolean} [keepOpen=false] A flag to indicate that the destination channel should be kept open after the
  *     source channel closes. By default the destination channel will close when the source channel closes.
- * @return {module:cispy/core/channel~Channel} The destination channel.
+ * @return {module:cispy/channel~Channel} The destination channel.
  */
 function pipe(src, dest, keepOpen) {
-  go(function*() {
+  async function loop() {
     for (;;) {
-      const value = yield take(src);
+      const value = await take(src);
       if (value === CLOSED) {
         if (!keepOpen) {
-          dest.close();
+          close(dest);
         }
         break;
       }
-      if (!(yield put(dest, value))) {
+      if (!await put(dest, value)) {
         break;
       }
     }
-  });
+  }
+
+  loop();
   return dest;
 }
 
@@ -121,42 +122,42 @@ function pipe(src, dest, keepOpen) {
  *
  *
  * ```
- * const {go, chan, put, take, util} = cispy;
- * const {partition} = util;
+ * const { go, chan, put, take, utils } = cispy;
+ * const { partition } = utils;
  *
  * const input = chan();
  * const [even, odd] = partition(x => x % 2 === 0, input);
  *
- * go(function*() {
- *   yield put(input, 1);
- *   yield put(input, 2);
- *   yield put(input, 3);
- *   yield put(input, 4);
+ * go(async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
+ *   await put(input, 3);
+ *   await put(input, 4);
  * });
  *
- * go(function*() {
- *   console.log(yield take(even));     // -> 2
- *   console.log(yield take(even));     // -> 4
+ * go(async () => {
+ *   console.log(await take(even));     // -> 2
+ *   console.log(await take(even));     // -> 4
  * });
  *
- * go(function*() {
- *   console.log(yield take(odd));      // -> 1
- *   console.log(yield take(odd));      // -> 3
+ * go(async () => {
+ *   console.log(await take(odd));      // -> 1
+ *   console.log(await take(odd));      // -> 3
  * });
  * ```
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/util~predicate} fn A predicate function used to test each value on the input channel.
- * @param {module:cispy/core/channel~Channel} src The source channel.
- * @param {(number|module:cispy/core/buffers~Buffer)} [tBuffer=0] A buffer used to create the destination channel which
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/utils~predicate} fn A predicate function used to test each value on the input channel.
+ * @param {module:cispy/channel~Channel} src The source channel.
+ * @param {(number|module:cispy/buffers~Buffer)} [tBuffer=0] A buffer used to create the destination channel which
  *     receives all values that passed the predicate. If this is a number, a
- *     {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or not present, the
+ *     {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or not present, the
  *     channel will be unbuffered.
- * @param {(number|module:cispy/core/buffers~Buffer)} [fBuffer=0] A buffer used to create the destination channel which
+ * @param {(number|module:cispy/buffers~Buffer)} [fBuffer=0] A buffer used to create the destination channel which
  *     receives all values that did not pass the predicate. If this is a number, a
- *     {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or not present, the
+ *     {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or not present, the
  *     channel will be unbuffered.
- * @return {module:cispy/core/channel~Channel[]} An array of two channels. The first is the destination channel with all
+ * @return {module:cispy/core~Channel[]} An array of two channels. The first is the destination channel with all
  *     of the values that passed the predicate, the second is the destination channel with all of the values that did
  *     not pass the predicate.
  */
@@ -164,17 +165,19 @@ function partition(fn, src, tBuffer = 0, fBuffer = 0) {
   const tDest = chan(tBuffer);
   const fDest = chan(fBuffer);
 
-  go(function*() {
+  async function loop() {
     for (;;) {
-      const value = yield take(src);
+      const value = await take(src);
       if (value === CLOSED) {
         close(tDest);
         close(fDest);
         break;
       }
-      yield put(fn(value) ? tDest : fDest, value);
+      await put(fn(value) ? tDest : fDest, value);
     }
-  });
+  }
+
+  loop();
   return [tDest, fDest];
 }
 
@@ -193,57 +196,59 @@ function partition(fn, src, tBuffer = 0, fBuffer = 0) {
  * merging. When *all* of the source channels close, then the destination channel is closed.
  *
  * ```
- * const {go, chan, put, take, util} = cispy;
- * const {merge} = util;
+ * const { go, chan, put, take, utils } = cispy;
+ * const { merge } = utils;
  *
  * const input1 = chan();
  * const input2 = chan();
  * const input3 = chan();
  * const output = merge([input1, input2, input3]);
  *
- * go(function*() {
+ * go(async () => {
  *   // Because we're putting to all three channels in the same
  *   // process, we know the order in which the values will be
  *   // put on the output channel; in general, we won't know this
- *   yield put(input1, 1);
- *   yield put(input2, 2);
- *   yield put(input3, 3);
+ *   await put(input1, 1);
+ *   await put(input2, 2);
+ *   await put(input3, 3);
  * });
  *
- * go(function*() {
- *   console.log(yield take(output));      // -> 1
- *   console.log(yield take(output));      // -> 2
- *   console.log(yield take(output));      // -> 3
+ * go(async () => {
+ *   console.log(await take(output));      // -> 1
+ *   console.log(await take(output));      // -> 2
+ *   console.log(await take(output));      // -> 3
  * });
  * ```
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/core/channel~Channel[]} srcs An array of source channels.
- * @param {(number|module:cispy/core/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
- *     this is a number, a {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or
+ * @memberOf module:cispy/utils~CispyPUtils
+ * @param {module:cispy/channel~Channel[]} srcs An array of source channels.
+ * @param {(number|module:cispy/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
+ *     this is a number, a {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or
  *     not present, the channel will be unbuffered.
- * @return {module:cispy/core/channel~Channel} The destination channel, which will receive all values put onto every
+ * @return {module:cispy/channel~Channel} The destination channel, which will receive all values put onto every
  *     source channel.
  */
 function merge(srcs, buffer = 0) {
   const dest = chan(buffer);
   const inputs = srcs.slice();
 
-  go(function*() {
+  async function loop() {
     for (;;) {
       if (inputs.length === 0) {
         break;
       }
-      const { value, channel } = yield alts(inputs);
+      const { value, channel } = await alts(inputs);
       if (value === CLOSED) {
         const index = inputs.indexOf(channel);
         inputs.splice(index, 1);
         continue;
       }
-      yield put(dest, value);
+      await put(dest, value);
     }
     close(dest);
-  });
+  }
+
+  loop();
   return dest;
 }
 
@@ -260,23 +265,23 @@ function merge(srcs, buffer = 0) {
  * closed, they do nothing to the source channel.
  *
  * ```
- * const {go, chan, put, take, util} = cispy;
- * const {split} = util;
+ * const { go, chan, put, take, utils } = cispy;
+ * const { split } = util;
  *
  * const input = chan();
  * const outputs = split(input, 3);
  *
- * go(function*() {
- *   yield put(input, 1);
- *   yield put(input, 2);
- *   yield put(input, 3);
+ * go(async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
+ *   await put(input, 3);
  * });
  *
- * go(function*() {
+ * go(async () => {
  *   for (const output of outputs) {       // Each output will happen 3 times
- *     console.log(yield take(output));    // -> 1
- *     console.log(yield take(output));    // -> 2
- *     console.log(yield take(output));    // -> 3
+ *     console.log(await take(output));    // -> 1
+ *     console.log(await take(output));    // -> 2
+ *     console.log(await take(output));    // -> 3
  *   }
  * });
  * ```
@@ -285,22 +290,22 @@ function merge(srcs, buffer = 0) {
  * channels, it is not necessary for all output channels to be taken from before the next put to the input channel can
  * complete.
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param  {module:cispy/core/channel~Channel} src The source channel.
- * @param  {...(number|module:cispy/core/buffers~Buffer)} [buffers=2] The buffers used to create the destination
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param  {module:cispy/channel~Channel} src The source channel.
+ * @param  {...(number|module:cispy/buffers~Buffer)} [buffers=2] The buffers used to create the destination
  *     channels. Each entry is treated separately. If one is a number, then a
- *     {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If one is a `0`, then the corresponding
+ *     {@link module:cispy/buffers~FixedBuffer} of that size will be used. If one is a `0`, then the corresponding
  *     channel will be unbuffered. **Exception:** if a single number is passed, then that number of unbuferred channels
  *     will be created. This means that the default is to create two unbuffered channels. To create a single channel
  *     with a fixed buffer, use `{@link cispy~Cispy.fixedBuffer}` explicitly.
- * @return {module:cispy/core/channel~Channel[]} An array of destination channels.
+ * @return {module:cispy/channel~Channel[]} An array of destination channels.
  */
 function split(src, ...buffers) {
   const dests = [];
 
   let bs = buffers.length === 0 ? [2] : buffers;
   if (bs.length === 1 && isNumber(bs[0])) {
-    const [count] = bs;
+    const count = bs[0];
     bs = [];
     for (let i = 0; i < count; ++i) {
       bs.push(0);
@@ -311,17 +316,18 @@ function split(src, ...buffers) {
     dests.push(chan(b));
   }
 
-  const doneCh = chan();
-  let doneCount = 0;
-  function done() {
-    if (--doneCount === 0) {
-      putAsync(doneCh);
+  const done = chan();
+  let count = 0;
+
+  function cb() {
+    if (--count === 0) {
+      putAsync(done);
     }
   }
 
-  go(function*() {
+  async function loop() {
     for (;;) {
-      const value = yield take(src);
+      const value = await take(src);
       if (value === CLOSED) {
         for (const dest of dests) {
           close(dest);
@@ -329,13 +335,15 @@ function split(src, ...buffers) {
         break;
       }
 
-      doneCount = dests.length;
+      count = dests.length;
       for (const dest of dests) {
-        putAsync(dest, value, done);
+        putAsync(dest, value, cb);
       }
-      yield take(doneCh);
+      await take(done);
     }
-  });
+  }
+
+  loop();
   return dests;
 }
 
@@ -345,7 +353,7 @@ function split(src, ...buffers) {
  * functionality itself is provided outside the channel object. This new property is an array of the channels tapping
  * this channel, and it will be removed if all taps are removed.
  *
- * @param {module:cispy/core/channel~Channel} src The source channel to be tapped.
+ * @param {module:cispy/channel~Channel} src The source channel to be tapped.
  * @private
  */
 function tapped(src) {
@@ -356,29 +364,32 @@ function tapped(src) {
     value: []
   });
 
-  const doneCh = chan();
-  let doneCount = 0;
-  function done() {
-    if (--doneCount === 0) {
-      putAsync(doneCh);
+  const done = chan();
+  let count = 0;
+
+  function cb() {
+    if (--count === 0) {
+      putAsync(done);
     }
   }
 
-  go(function*() {
+  async function loop() {
     for (;;) {
-      const value = yield take(src);
+      const value = await take(src);
       if (value === CLOSED || src[protocols.taps].length === 0) {
         delete src[protocols.taps];
         break;
       }
 
-      doneCount = src[protocols.taps].length;
+      count = src[protocols.taps].length;
       for (const tap of src[protocols.taps]) {
-        putAsync(tap, value, done);
+        putAsync(tap, value, cb);
       }
-      yield take(doneCh);
+      await take(done);
     }
-  });
+  }
+
+  loop();
 }
 
 /**
@@ -387,40 +398,40 @@ function tapped(src) {
  * A source channel can be tapped multiple times, and all of the tapping (destination) channels receive each value put
  * onto the tapped (source) channel.
  *
- * This is different from `{@link module:cispy/util~CispyUtil.split}` in that it's temporary. Channels can tap a channel
- * and then untap it, multiple times, as needed. If a source channel has all of its taps removed, then it reverts to a
- * normal channel, just as it was before it was tapped.
+ * This is different from `{@link module:cispy/utils~CispyUtils.split}` in that it's temporary. Channels
+ * can tap a channel and then untap it, multiple times, as needed. If a source channel has all of its taps removed, then
+ * it reverts to a normal channel, just as it was before it was tapped.
  *
- * Also unlike `{@link module:cispy/util~CispyUtil.split}`, each call can only tap once. For multiple channels to tap a
- * source channel, `tap` has to be called multiple times.
+ * Also unlike `{@link module:cispy/utils~CispyUtils.split}`, each call can only tap once. For multiple
+ * channels to tap a source channel, `tap` has to be called multiple times.
  *
  * Closing either the source or any of the destination channels has no effect on any of the other channels.
  *
  * ```
- * const {go, chan, put, take, util} = cispy;
- * const {tap} = util;
+ * const { go, chan, put, take, utils } = cispy;
+ * const { tap } = utils;
  *
  * const input = chan();
  * const tapper = chan();
  * tap(input, tapper);
  *
- * go(function*() {
- *   yield put(input, 1);
- *   yield put(input, 2);
+ * go(async () => {
+ *   await put(input, 1);
+ *   await put(input, 2);
  * });
  *
- * go(function*() {
- *   console.log(yield take(tapper));   // -> 1
- *   console.log(yield take(tapper));   // -> 2
+ * go(async () => {
+ *   console.log(await take(tapper));   // -> 1
+ *   console.log(await take(tapper));   // -> 2
  * });
  *
  * ```
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/core/channel~Channel} src The channel to be tapped.
- * @param {module:cispy/core/channel~Channel} [dest] The channel tapping the source channel. If this is not present,
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/channel~Channel} src The channel to be tapped.
+ * @param {module:cispy/channel~Channel} [dest] The channel tapping the source channel. If this is not present,
  *     a new unbuffered channel will be created.
- * @return {module:cispy/core/channel~Channel} The destination channel. This is the same as the second argument, if
+ * @return {module:cispy/channel~Channel} The destination channel. This is the same as the second argument, if
  *     present; otherwise it is the newly-created channel tapping the source channel.
  */
 function tap(src, dest = chan()) {
@@ -443,19 +454,18 @@ function tap(src, dest = chan()) {
  * are removed, the source channel reverts to normal (i.e., it no longer has the tapping code applied to it and can be
  * taken from as normal).
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/core/channel~Channel} src The tapped channel.
- * @param {module:cispy/core/channel~Channel} dest The channel that is tapping the source channel that should no longer
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/channel~Channel} src The tapped channel.
+ * @param {module:cispy/channel~Channel} dest The channel that is tapping the source channel that should no longer
  *     be tapping the source channel.
  */
 function untap(src, dest) {
-  if (src[protocols.taps]) {
-    const index = src[protocols.taps].indexOf(dest);
+  const taps = src[protocols.taps];
+  if (taps) {
+    const index = taps.indexOf(dest);
     if (index !== -1) {
-      src[protocols.taps].splice(index, 1);
-      if (src[protocols.taps].length === 0) {
-        // We have to do this because a tapped channel sits waiting in a while loop for a take to happen, and once all
-        // of the taps are removed, it will STILL be waiting. This reverts it back to a normal put/take response.
+      taps.splice(index, 1);
+      if (taps.length === 0) {
         putAsync(src);
       }
     }
@@ -468,8 +478,8 @@ function untap(src, dest) {
  * The previously-tapped channel reverts to a normal channel, while any channels that might have been tapping it no
  * longer receive values from the source channel. If the source channel had no taps, this function does nothing.
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/core/channel~Channel} src The tapped channel. All taps will be removed from this channel.
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/channel~Channel} src The tapped channel. All taps will be removed from this channel.
  */
 function untapAll(src) {
   if (src[protocols.taps]) {
@@ -495,48 +505,48 @@ function untapAll(src) {
  * channels. This is something that a transducer on a single channel is unable to do.
  *
  * ```
- * const {go, chan, put, take, close, util} = cispy;
- * const {map} = util;
+ * const { go, chan, put, take, close, utils } = cispy;
+ * const { map } = utils;
  *
  * const input1 = chan();
  * const input2 = chan();
  * const input3 = chan();
  * const output = map((x, y, z) => x + y + z, [input1, input2, input3]);
  *
- * go(function*() {
- *   yield put(input1, 1);
- *   yield put(input1, 2);
- *   yield put(input1, 3);
+ * go(async () => {
+ *   await put(input1, 1);
+ *   await put(input1, 2);
+ *   await put(input1, 3);
  * });
  *
- * go(function*() {
- *   yield put(input2, 10);
- *   yield put(input2, 20);
+ * go(async () => {
+ *   await put(input2, 10);
+ *   await put(input2, 20);
  *   close(input2);
  * });
  *
- * go(function*() {
- *   yield put(input3, 100);
- *   yield put(input3, 200);
- *   yield put(input3, 300);
+ * go(async () => {
+ *   await put(input3, 100);
+ *   await put(input3, 200);
+ *   await put(input3, 300);
  * });
  *
- * go(function*() {
- *   console.log(yield take(output));     // -> 111
- *   console.log(yield take(output));     // -> 222
+ * go(async () => {
+ *   console.log(await take(output));     // -> 111
+ *   console.log(await take(output));     // -> 222
  *   // Output closes now because input2 closes after 2 values
  *   console.log(output.closed);          // -> true
  * });
  * ```
  *
- * @memberOf module:cispy/util~CispyUtil
- * @param {module:cispy/util~mapper} fn The mapping function. This should have one parameter for each source channel
- *     and return a single value.
- * @param {module:cispy/core/channel~Channel[]} srcs The source channels.
- * @param {(number|module:cispy/core/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
- *     this is a number, a {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/utils~mapper} fn The mapping function. This should have one parameter for each source
+ *     channel and return a single value.
+ * @param {module:cispy/channel~Channel[]} srcs The source channels.
+ * @param {(number|module:cispy/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
+ *     this is a number, a {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or
  *     not present, the channel will be unbuffered.
- * @return {module:cispy/core/channel~Channel} The destination channel.
+ * @return {module:cispy/channel~Channel} The destination channel.
  */
 function map(fn, srcs, buffer = 0) {
   const dest = chan(buffer);
@@ -557,22 +567,24 @@ function map(fn, srcs, buffer = 0) {
     })(i);
   }
 
-  go(function*() {
+  async function loop() {
     for (;;) {
       count = srcLen;
       for (let i = 0; i < srcLen; ++i) {
         takeAsync(srcs[i], callbacks[i]);
       }
-      const values = yield take(temp);
+      const values = await take(temp);
       for (const value of values) {
         if (value === CLOSED) {
           close(dest);
           return;
         }
       }
-      yield put(dest, fn(...values));
+      await put(dest, fn(...values));
     }
-  });
+  }
+
+  loop();
   return dest;
 }
 
