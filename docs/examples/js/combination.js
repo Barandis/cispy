@@ -2,7 +2,7 @@
 /* eslint no-constant-condition: ["error", { "checkLoops": false }] */
 
 const { go, chan, timeout, alts, putAsync } = cispy;
-const { map } = xduce;
+const { map } = xduce.transducers;
 
 // Shorter alias for getElementById
 function byId(id) {
@@ -48,12 +48,12 @@ const chA = listen(byId('button-a'), 'click', chan(1, map(constantly(A))));
 const chB = listen(byId('button-b'), 'click', chan(1, map(constantly(B))));
 const chC = listen(byId('button-c'), 'click', chan(1, map(constantly(C))));
 
-go(function*() {
+go(async () => {
   let clicks = [];
   let chZ = chan();
 
   while (true) {
-    const alt = yield alts([chA, chB, chC, chZ]);
+    const alt = await alts([chA, chB, chC, chZ]);
     clicks.push(alt.value);
 
     if (alt.channel === chZ) {

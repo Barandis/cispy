@@ -1,9 +1,9 @@
 /* global cispy, xduce */
 /* eslint no-constant-condition: ["error", { "checkLoops": false }] */
 
-const { chan, go, put, take, alts, sleep, putAsync, util } = cispy;
-const { debounce, throttle } = util;
-const { map } = xduce;
+const { chan, go, put, take, alts, sleep, putAsync, utils } = cispy;
+const { debounce, throttle } = utils;
+const { map } = xduce.transducers;
 
 /*
  * Multiple processes running simultaneously, sharing a single channel. Three of the processes sleep for varying
@@ -12,31 +12,31 @@ const { map } = xduce;
  */
 const ch = chan();
 
-go(function*() {
+go(async () => {
   while (true) {
-    yield sleep(250);
-    yield put(ch, 1);
+    await sleep(250);
+    await put(ch, 1);
   }
 });
-go(function*() {
+go(async () => {
   while (true) {
-    yield sleep(1000);
-    yield put(ch, 2);
+    await sleep(1000);
+    await put(ch, 2);
   }
 });
-go(function*() {
+go(async () => {
   while (true) {
-    yield sleep(1500);
-    yield put(ch, 3);
+    await sleep(1500);
+    await put(ch, 3);
   }
 });
 
-go(function*() {
+go(async () => {
   const processDiv = document.querySelector('#processes');
   const lines = [];
 
   while (true) {
-    const index = yield take(ch);
+    const index = await take(ch);
     lines.unshift(`<div class="proc-${index}">Process ${index}</div>`);
     if (lines.length > 10) {
       lines.pop();
@@ -56,7 +56,7 @@ function listen(el, type, ch = chan()) {
   return ch;
 }
 
-go(function*() {
+go(async () => {
   const el = document.querySelector('#events');
   const mouseCh = listen(el, 'mousemove');
   const clickCh = listen(el, 'click');
@@ -64,7 +64,7 @@ go(function*() {
   let clickPos = [0, 0];
 
   while (true) {
-    const v = yield alts([mouseCh, clickCh]);
+    const v = await alts([mouseCh, clickCh]);
     const event = v.value;
     if (v.channel === mouseCh) {
       mousePos = [event.layerX || event.clientX, event.layerY || event.clientY];
@@ -96,7 +96,7 @@ function coordinates(el) {
   };
 }
 
-go(function*() {
+go(async () => {
   const el = document.querySelector('#transducers');
   const mouseCh = listen(el, 'mousemove', chan(1, map(coordinates(el))));
   const clickCh = listen(el, 'click', chan(1, map(coordinates(el))));
@@ -104,7 +104,7 @@ go(function*() {
   let clickPos = { x: 0, y: 0 };
 
   while (true) {
-    const v = yield alts([mouseCh, clickCh]);
+    const v = await alts([mouseCh, clickCh]);
     if (v.channel === mouseCh) {
       mousePos = v.value;
     } else {
@@ -118,7 +118,7 @@ go(function*() {
  * Same as above, except that the mousemove channel is debounced or throttled with a 500ms delay interval.
  */
 
-go(function*() {
+go(async () => {
   const el = document.querySelector('#debounce');
   const mouseCh = debounce(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
   const clickCh = listen(el, 'click', chan(1, map(coordinates(el))));
@@ -126,7 +126,7 @@ go(function*() {
   let clickPos = { x: 0, y: 0 };
 
   while (true) {
-    const v = yield alts([mouseCh, clickCh]);
+    const v = await alts([mouseCh, clickCh]);
     if (v.channel === mouseCh) {
       mousePos = v.value;
     } else {
@@ -136,7 +136,7 @@ go(function*() {
   }
 });
 
-go(function*() {
+go(async () => {
   const el = document.querySelector('#throttle');
   const mouseCh = throttle(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
   const clickCh = listen(el, 'click', chan(1, map(coordinates(el))));
@@ -144,7 +144,7 @@ go(function*() {
   let clickPos = { x: 0, y: 0 };
 
   while (true) {
-    const v = yield alts([mouseCh, clickCh]);
+    const v = await alts([mouseCh, clickCh]);
     if (v.channel === mouseCh) {
       mousePos = v.value;
     } else {
