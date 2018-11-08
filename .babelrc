@@ -1,4 +1,16 @@
 {
-  "plugins": ["transform-runtime"],
-  "presets": ["es2015", "stage-3"]
+  "sourceType": "script",
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": "> 0.25%, not dead"
+      }
+    ]
+  ],
+  "plugins": [
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-syntax-dynamic-import"
+  ]
 }
