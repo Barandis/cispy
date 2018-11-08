@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>cispy/channel - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -31,25 +31,159 @@
 
 <div id="main">
     
+    <h1 class="page-title">cispy/channel</h1>
+    
 
     
 
 
 
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+                <div class="description"><p>An implementation of channels, which is one of the two big parts of CSP (the other being processes). These channels
+are essentially queues that hold process instructions waiting for the next available process to process them. They
+can be buffered, which is accomplished using the buffers implemented in buffer.js.</p>
+<p>Channels do not interact with JS tasks or the dispatcher in any meaningful way. They're just here to hold tasks
+(represented by handlers from process.js) which may themselves then cause new JS tasks to be created via the
+dispatcher.</p>
+<p>Channels may have transducers associated with them. The transducers are expected to follow the same conventions as
+any of the popular transducer libraries. Explicit support is required because channels wouldn't play well with the
+normal way of making an object support transduction, for two different reasons.</p>
+<ul>
+<li>Transducers require the ability to create a new, empty collection of the same type as the input collection. In
+this case, that would mean creating a new channel, meaning that the output channel (where the transformed values
+are taken from) would be different than the input channel (where values are put).</li>
+<li>If we somehow get over that requirement and keep all action on the same channel, we can't take values from the
+channel, transform them, and put them back. This would potentially change the order of values in the channel since
+we are dealing with asynchronous processes.</li>
+</ul>
+<p>The explicit support means a transformer is directly associated with a channel. When a value is put onto the
+channel, it's first run through the transformer and the transformed value is the one actually put into the channel's
+buffer. This avoids both of the problems noted above.</p>
+<p>The upshot is that channels are independent of processes, even to the degree that these channels will work fine with
+async functions in place of processes.</p></div>
+            
+
+            
+                
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line22">line 22</a>
+    </li></ul></dd>
     
 
-
-
-
-
-
-
-
+    
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+
+     
+
+    
+        <h3 class="subsection-title">Namespaces</h3>
+
+        <dl>
+            <dt><a href="module-cispy_channel-Channel.html">Channel</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

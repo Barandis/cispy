@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="utf-8">
-    <title>promise/util/timing.js - Documentation</title>
-
+    <title>modules/utils/timing.js - Documentation</title>
+    
+    
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <!--[if lt IE 9]>
@@ -11,6 +13,7 @@
     <![endif]-->
     <link type="text/css" rel="stylesheet" href="styles/prettify.css">
     <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -22,12 +25,13 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cispy.html">cispy</a></li><li><a href="module-cispy_core_buffers.html">cispy/core/buffers</a></li><li><a href="module-cispy_core_channel.html">cispy/core/channel</a></li><li><a href="module-cispy_promise.html">cispy/promise</a></li><li><a href="module-cispy_promise_util.html">cispy/promise/util</a></li><li><a href="module-cispy_util.html">cispy/util</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-cispy_core_buffers-Buffer.html">Buffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Buffer.html#remove">remove</a></li></ul></li><li><a href="module-cispy_core_buffers-DroppingBuffer.html">DroppingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-DroppingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-FixedBuffer.html">FixedBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-FixedBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_buffers-Queue.html">Queue</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#dequeue">dequeue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#enqueue">enqueue</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#filter">filter</a></li><li data-type='method'><a href="module-cispy_core_buffers-Queue.html#peek">peek</a></li></ul></li><li><a href="module-cispy_core_buffers-SlidingBuffer.html">SlidingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_core_buffers-SlidingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_core_channel-Channel.html">Channel</a></li><li><a href="module-cispy_promise_util-CispyPromiseUtil.html">CispyPromiseUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_promise_util-CispyPromiseUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy_promise-CispyPromise.html">CispyPromise</a><ul class='methods'><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.go">go</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.put">put</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.take">take</a></li><li data-type='method'><a href="module-cispy_promise-CispyPromise.html#.takeOrThrow">takeOrThrow</a></li></ul></li><li><a href="module-cispy_util-CispyUtil.html">CispyUtil</a><ul class='methods'><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.into">into</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.map">map</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.merge">merge</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.onto">onto</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.split">split</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_util-CispyUtil.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy-Cispy.html">Cispy</a><ul class='methods'><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.chan">chan</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.close">close</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.config">config</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.droppingBuffer">droppingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.fixedBuffer">fixedBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.go">go</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.goSafe">goSafe</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.put">put</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.slidingBuffer">slidingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.spawn">spawn</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.take">take</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.takeOrThrow">takeOrThrow</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.timeout">timeout</a></li></ul></li></ul>
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cispy.html">cispy</a></li><li><a href="module-cispy_buffers.html">cispy/buffers</a></li><li><a href="module-cispy_channel.html">cispy/channel</a></li><li><a href="module-cispy_utils.html">cispy/utils</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-cispy_buffers-Buffer.html">Buffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_buffers-Buffer.html#remove">remove</a></li></ul></li><li><a href="module-cispy_buffers-DroppingBuffer.html">DroppingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_buffers-DroppingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_buffers-FixedBuffer.html">FixedBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_buffers-FixedBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_buffers-Queue.html">Queue</a><ul class='methods'><li data-type='method'><a href="module-cispy_buffers-Queue.html#dequeue">dequeue</a></li><li data-type='method'><a href="module-cispy_buffers-Queue.html#enqueue">enqueue</a></li><li data-type='method'><a href="module-cispy_buffers-Queue.html#filter">filter</a></li><li data-type='method'><a href="module-cispy_buffers-Queue.html#peek">peek</a></li></ul></li><li><a href="module-cispy_buffers-SlidingBuffer.html">SlidingBuffer</a><ul class='methods'><li data-type='method'><a href="module-cispy_buffers-SlidingBuffer.html#add">add</a></li></ul></li><li><a href="module-cispy_channel-Channel.html">Channel</a></li><li><a href="module-cispy_utils-CispyUtils.html">CispyUtils</a><ul class='methods'><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.debounce">debounce</a></li><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.map">map</a></li><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.partition">partition</a></li><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.pipe">pipe</a></li><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.reduce">reduce</a></li><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.split">split</a></li><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.tap">tap</a></li><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.throttle">throttle</a></li><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.untap">untap</a></li><li data-type='method'><a href="module-cispy_utils-CispyUtils.html#.untapAll">untapAll</a></li></ul></li><li><a href="module-cispy-Cispy.html">Cispy</a><ul class='methods'><li data-type='method'><a href="module-cispy-Cispy.html#.alts">alts</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.chan">chan</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.close">close</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.config">config</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.droppingBuffer">droppingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.fixedBuffer">fixedBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.go">go</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.put">put</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.sleep">sleep</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.slidingBuffer">slidingBuffer</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.take">take</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.takeOrThrow">takeOrThrow</a></li><li data-type='method'><a href="module-cispy-Cispy.html#.timeout">timeout</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
     
-    <h1 class="page-title">promise/util/timing.js</h1>
+    <h1 class="page-title">modules/utils/timing.js</h1>
     
 
     
@@ -38,7 +42,7 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/*
- * Copyright (c) 2017 Thomas Otterson
+ * Copyright (c) 2017-2018 Thomas Otterson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -61,12 +65,12 @@
 /**
  * A set of channel utilities for changing the timing of inputs being put onto the input channel.
  *
- * @module cispy/promise/util/timing
+ * @module cispy/utils/timing
  * @private
  */
 
-const { chan, timeout, close, CLOSED } = require('../../core/channel');
-const { put, alts } = require('../operations');
+const { chan, timeout, close, CLOSED } = require('../channel');
+const { put, alts } = require('../ops');
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === '[object Number]' &amp;&amp; isFinite(x);
@@ -96,10 +100,10 @@ function isNumber(x) {
  * will only be made available on the destination channel at the end of the delay (per `trailing`) if *another* input
  * value was put onto the source channel before the delay expired.
  *
- * @memberOf module:cispy/promise/util~CispyPromiseUtil
- * @param {module:cispy/core/channel~Channel} src The source channel.
- * @param {(number|module:cispy/core/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
- *     this is a number, a {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/channel~Channel} src The source channel.
+ * @param {(number|module:cispy/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
+ *     this is a number, a {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or
  *     not present, the channel will be unbuffered.
  * @param {number} delay The debouncing delay, in milliseconds.
  * @param {Object} [options={}] A set of options to further configure the debouncing.
@@ -115,10 +119,10 @@ function isNumber(x) {
  *     end through the max delay operates exactly as if it had ended because of lack of input; the last input is made
  *     available on the destination channel (if `trailing` is `true`), and the next input will trigger another debounce
  *     operation.
- * @param {module:cispy/core/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
+ * @param {module:cispy/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
  *     debouncing. Any value put onto this channel will cancel the current debouncing operation, closing the output
  *     channel and discarding any values that were waiting for the debounce threshold timer to be sent to the output.
- * @return {module:cispy/core/channel~Channel}} The newly-created destination channel, where all of the values will be
+ * @return {module:cispy/channel~Channel}} The newly-created destination channel, where all of the values will be
  *     debounced from the source channel.
  */
 function debounce(src, buffer, delay, options) {
@@ -206,10 +210,10 @@ function debounce(src, buffer, delay, options) {
  * will only be made available on the destination channel at the end of the delay (per `trailing`) if *another* input
  * value was put onto the source channel before the delay expired.
  *
- * @memberOf module:cispy/promise/util~CispyPromiseUtil
- * @param {module:cispy/core/channel~Channel} src The source channel.
- * @param {(number|module:cispy/core/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
- *     this is a number, a {@link module:cispy/core/buffers~FixedBuffer} of that size will be used. If this is `0` or
+ * @memberOf module:cispy/utils~CispyUtils
+ * @param {module:cispy/channel~Channel} src The source channel.
+ * @param {(number|module:cispy/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
+ *     this is a number, a {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or
  *     not present, the channel will be unbuffered.
  * @param {number} delay The throttling delay, in milliseconds.
  * @param {Object} [options={}] A set of options to further configure the throttling.
@@ -220,10 +224,10 @@ function debounce(src, buffer, delay, options) {
  *     destination channel when the delay expires. If this is `false`, any inputs that come in during the delay are
  *     ignored, and the next value is not put onto the destination channel until the first input *after* the delay
  *     expires.
- * @param {module:cispy/core/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
+ * @param {module:cispy/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
  *     throttling. Any value put onto this channel will cancel the current throttling operation, closing the output
  *     channel and discarding any values that were waiting for the throttle threshold timer to be sent to the output.
- * @return {module:cispy/core/channel~Channel}} The newly-created destination channel, where all of the values will be
+ * @return {module:cispy/channel~Channel}} The newly-created destination channel, where all of the values will be
  *     throttled from the source channel.
  */
 function throttle(src, buffer, delay, options) {
@@ -290,15 +294,19 @@ module.exports = {
 
 
 
+    
+    
 </div>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
 <script src="scripts/linenumber.js"></script>
+
+
 </body>
 </html>
