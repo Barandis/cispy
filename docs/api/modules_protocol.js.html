@@ -88,6 +88,12 @@
  *     final result of the step process and return the final form to be output. This is optional; if the transducer does
  *     not want to transform the final result, it should just return the result of its chained transducer's `result`
  *     function.
+ * @property {(string|Symbol)} reduced The `transducer/reduced` protocol. The presence of this key on an object
+ *     indicates that its transformation has been completed. It is used internally to mark collections whose
+ *     transformations conclude before every object is iterated over (as in `{@link xduce.take}` transducers.) It is of
+ *     little use beyond transducer authoring.
+ * @property {(string|Symbol)} value The `transducer/value` protocol. This is used internally to mark properties that
+ *     contain the value of a reduced transformation. It is of little use beyond transducer authoring.
  */
 
 /**
@@ -140,6 +146,8 @@ const protocols = {
   init: generateKey('transducer/init'),
   step: generateKey('transducer/step'),
   result: generateKey('transducer/result'),
+  reduced: generateKey('transducer/reduced'),
+  value: generateKey('transducer/value')
 };
 
 module.exports = { protocols };

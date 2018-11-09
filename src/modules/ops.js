@@ -133,7 +133,7 @@ function randomArray(n) {
 /**
  * **Completes the first operation among the provided operations that comes available, without blocking.**
  *
- * This means that a call to `altsAsync` does not go into a `yield` expression, and it is not necessary to use it
+ * This means that a call to `altsAsync` does not go into an `await` expression, and it is not necessary to use it
  * inside a process. Rather than blocking until an operation completes, this one returns immediately and then invokes
  * the callback (if provided) as soon as one of the supplied operations completes. It can be regarded as a
  * non-blocking version of generator-based `{@link module:cispy~Cispy.alts|alts}` or promise-based
@@ -222,7 +222,7 @@ function altsAsync(ops, callback, options = {}) {
 /**
  * **Puts a value onto a channel without blocking.**
  *
- * This means that a call to `putAsync` does not go into a `yield` expression, and it is not necessary to use it
+ * This means that a call to `putAsync` does not go into an `await` expression, and it is not necessary to use it
  * inside a process. Rather than blocking until the put value is taken by another process, this one returns
  * immediately and then invokes the callback (if provided) when the put value is taken. It can be seen as a
  * non-blocking version of generator-based `{@link module:cispy~Cispy.put|put}` or promise-based
@@ -233,7 +233,7 @@ function altsAsync(ops, callback, options = {}) {
  * it's important to make sure that the process doesn't block from the put.
  *
  * The callback is a function of one parameter. The parameter that's supplied to the callback is the same as what is
- * supplied to `yield put`: `true` if the value was taken, or `false` if the channel was closed. If the callback isn't
+ * supplied to `await put`: `true` if the value was taken, or `false` if the channel was closed. If the callback isn't
  * present, nothing will happen after the value is taken.
  *
  * @memberOf module:cispy~Cispy
@@ -253,7 +253,7 @@ function putAsync(channel, value, callback) {
 /**
  * **Takes a value from a channel without blocking.**
  *
- * This means that a call to `takeAsync` does not go into a `yield` expression, and it is not necessary to use it
+ * This means that a call to `takeAsync` does not go into an `await` expression, and it is not necessary to use it
  * inside a process. Rather than blocking until a value becomes available on the channel to be taken, this one returns
  * immediately and then invokes the callback (if provided) when a value becomes available. It can be regarded as a
  * non-blocking version of {@link module:cispy~Cispy.take|take}`.
@@ -392,7 +392,7 @@ function takeOrThrow(channel) {
  *
  * If all of the operations must block (i.e., there are no pending puts for take operations, or takes for put
  * operations), a default value may be returned. This is only done if there is a `default` property in the options
- * object, and the value of that property becomes the value returned by `yield alts`. The channel is set to the
+ * object, and the value of that property becomes the value returned by `await alts`. The channel is set to the
  * special value `{@link module:cispy~Cispy.DEFAULT|DEFAULT}`.
  *
  * @memberOf module:cispy~Cispy

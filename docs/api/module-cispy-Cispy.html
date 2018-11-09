@@ -756,7 +756,7 @@ randomly). However, if the options object has a <code>priority</code> value set 
 order of the operations in the supplied array.</p>
 <p>If all of the operations must block (i.e., there are no pending puts for take operations, or takes for put
 operations), a default value may be returned. This is only done if there is a <code>default</code> property in the options
-object, and the value of that property becomes the value returned by <code>yield alts</code>. The channel is set to the
+object, and the value of that property becomes the value returned by <code>await alts</code>. The channel is set to the
 special value <code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a></code>.</p>
 </div>
 
@@ -1085,7 +1085,7 @@ special value <code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a></code
 
 <div class="description">
     <p><strong>Completes the first operation among the provided operations that comes available, without blocking.</strong></p>
-<p>This means that a call to <code>altsAsync</code> does not go into a <code>yield</code> expression, and it is not necessary to use it
+<p>This means that a call to <code>altsAsync</code> does not go into an <code>await</code> expression, and it is not necessary to use it
 inside a process. Rather than blocking until an operation completes, this one returns immediately and then invokes
 the callback (if provided) as soon as one of the supplied operations completes. It can be regarded as a
 non-blocking version of generator-based <code><a href="module-cispy-Cispy.html#.alts">alts</a></code> or promise-based
@@ -2516,7 +2516,7 @@ block until at least one item is removed from the buffer.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line465">line 465</a>
+        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line461">line 461</a>
     </li></ul></dd>
     
 
@@ -2965,7 +2965,7 @@ another process, or <code>false</code> if the unblocking happened because the ta
 
 <div class="description">
     <p><strong>Puts a value onto a channel without blocking.</strong></p>
-<p>This means that a call to <code>putAsync</code> does not go into a <code>yield</code> expression, and it is not necessary to use it
+<p>This means that a call to <code>putAsync</code> does not go into an <code>await</code> expression, and it is not necessary to use it
 inside a process. Rather than blocking until the put value is taken by another process, this one returns
 immediately and then invokes the callback (if provided) when the put value is taken. It can be seen as a
 non-blocking version of generator-based <code><a href="module-cispy-Cispy.html#.put">put</a></code> or promise-based
@@ -2974,7 +2974,7 @@ non-blocking version of generator-based <code><a href="module-cispy-Cispy.html#.
 impossible (for example, in a DOM element's event handler), it can still be used inside processes at times when
 it's important to make sure that the process doesn't block from the put.</p>
 <p>The callback is a function of one parameter. The parameter that's supplied to the callback is the same as what is
-supplied to <code>yield put</code>: <code>true</code> if the value was taken, or <code>false</code> if the channel was closed. If the callback isn't
+supplied to <code>await put</code>: <code>true</code> if the value was taken, or <code>false</code> if the channel was closed. If the callback isn't
 present, nothing will happen after the value is taken.</p>
 </div>
 
