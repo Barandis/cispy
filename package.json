@@ -2,7 +2,7 @@
   "name": "cispy",
   "version": "0.0.0-development",
   "description": "Communicating sequential processes library for JavaScript",
-  "main": "src/async.js",
+  "main": "src/api.js",
   "scripts": {
     "clean": "rimraf dist",
     "clean:docs": "rimraf docs/api",
@@ -31,8 +31,7 @@
   "license": "MIT",
   "files": [
     "dist",
-    "src",
-    "promise.js"
+    "src"
   ],
   "devDependencies": {
     "@babel/core": "^7.1.2",
