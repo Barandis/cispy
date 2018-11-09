@@ -20,10 +20,13 @@ describe('CSP channel', () => {
       expect(chan(fixed(3)).timeout).to.be.false;
       expect(chan(dropping(3)).timeout).to.be.false;
       expect(chan(sliding(3)).timeout).to.be.false;
-      expect(chan(1, t.map(x => x)).timeout).to.be.false;
+      expect(chan(1, { transducer: t.map(x => x) }).timeout).to.be.false;
       expect(
-        chan(1, t.map(x => x), e => {
-          throw e;
+        chan(1, {
+          transducer: t.map(x => x),
+          handler: e => {
+            throw e;
+          }
         }).timeout
       ).to.be.false;
     });
@@ -69,7 +72,7 @@ describe('CSP channel', () => {
     });
 
     it('can configure how many pending puts/takes to allow', done => {
-      const ch = chan(0, null, null, { maxQueued: 2 });
+      const ch = chan(0, { maxQueued: 2 });
 
       for (let i = 0; i < 2; ++i) {
         go(async () => {
@@ -210,11 +213,11 @@ describe('CSP channel', () => {
       });
     });
 
-    describe('transducers argument', () => {
+    describe('transducers option', () => {
       const even = x => x % 2 === 0;
 
       it("can modify values on the channel before they're taken", done => {
-        const ch = chan(1, t.map(x => x + 1));
+        const ch = chan(1, { transducer: t.map(x => x + 1) });
 
         go(async () => {
           await put(ch, 1);
@@ -227,7 +230,7 @@ describe('CSP channel', () => {
       });
 
       it('can accept transducers that return fewer values than were passed', done => {
-        const ch = chan(1, t.filter(even));
+        const ch = chan(1, { transducer: t.filter(even) });
 
         go(async () => {
           await put(ch, 1);
@@ -243,7 +246,7 @@ describe('CSP channel', () => {
       });
 
       it('closes the channel if the transducer reduces the value early', done => {
-        const ch = chan(3, t.take(2));
+        const ch = chan(3, { transducer: t.take(2) });
 
         go(async () => {
           await put(ch, 1);
@@ -265,7 +268,7 @@ describe('CSP channel', () => {
           t.filter(even),
           t.take(3)
         );
-        const ch = chan(10, xform);
+        const ch = chan(10, { transducer: xform });
 
         go(async () => {
           for (const i of [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]) {
@@ -283,13 +286,12 @@ describe('CSP channel', () => {
       });
 
       it('correctly closes the channel even if another taker is active', done => {
-        const ch = chan(
-          10,
-          compose(
+        const ch = chan(10, {
+          transducer: compose(
             t.flatten(),
             t.take(3)
           )
-        );
+        });
         const out = chan();
         const ctrl = chan();
 
@@ -325,7 +327,7 @@ describe('CSP channel', () => {
       });
     });
 
-    describe('handler argument', () => {
+    describe('handler option', () => {
       const stepErrorTransducer = xform => ({
         [p.step]() {
           throw Error('step error');
@@ -375,7 +377,7 @@ describe('CSP channel', () => {
           done();
         };
 
-        const ch = chan(1, stepErrorTransducer, exh);
+        const ch = chan(1, { transducer: stepErrorTransducer, handler: exh });
         go(async () => {
           await put(ch, 1);
         });
@@ -392,7 +394,7 @@ describe('CSP channel', () => {
           done();
         };
 
-        const ch = chan(1, resultErrorTransducer, exh);
+        const ch = chan(1, { transducer: resultErrorTransducer, handler: exh });
 
         go(async () => {
           await put(ch, 1);
@@ -406,7 +408,7 @@ describe('CSP channel', () => {
       });
 
       it('provides a default handler that simply makes nothing available', done => {
-        const ch = chan(1, oneTimeStepErrorTransducer);
+        const ch = chan(1, { transducer: oneTimeStepErrorTransducer });
 
         go(async () => {
           await put(ch, 1);
@@ -423,7 +425,7 @@ describe('CSP channel', () => {
 
       it('puts its return value onto the channel in place of whatever caused the error', done => {
         const exh = () => 2317;
-        const ch = chan(1, mustBe1729Transducer, exh);
+        const ch = chan(1, { transducer: mustBe1729Transducer, handler: exh });
 
         go(async () => {
           await put(ch);
