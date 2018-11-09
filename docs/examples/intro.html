@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Intro to Cispy Channels and Processes</title>
+  <title>Intro to Cispy Channels for Async Functions</title>
   <link rel="stylesheet" href="../css/site.css">
   <link rel="stylesheet" href="css/examples.css">
   <link rel="stylesheet" href="../css/tomorrow-night-eighties.css">
@@ -18,108 +18,84 @@
     </a>
   </header>
   <section id="content">
-    <h1>Intro to Cispy Channels and Processes</h1>
-
+    <h1>Intro to Cispy Channels for Async Functions</h1>
     <p>
-    Here are a few basic examples to show how to use CSP and what it can do. All of these are basically ports of
-    examples at <a href="http://swannodette.github.io/2013/07/12/communicating-sequential-processes">
-    http://swannodette.github.io/2013/07/12/communicating-sequential-processes</a>, which is written using Clojure's
-    core.async but which translates nicely.
+      Here are a few basic examples to show how to use channels with async functions. This page is in large part a port of the examples at <a href="http://swannodette.github.io/2013/07/12/communicating-sequential-processes"> http://swannodette.github.io/2013/07/12/communicating-sequential-processes</a>, which is written using Clojure's core.async but which translates nicely.
     </p>
 
-    <h2>Basic processes and channels</h2>
-
+    <h2>A note on terminology</h2>
     <p>
-    To get things started, here's a basic example to illustrate channel and process creation, as well as how to
-    communicate between processes.
+      <em>Processes</em> in the CSP world are the lightweight processes created by the <code>go</code> function. (This shouldn't be confused with operating system processes &mdash; like the ones you might see in your Task Manager in Windows &mdash; which have carry a tremendous amount of overhead to both create and switch between.) With Cispy, async functions serve as those lightweight processes. Cispy is primarily about channels to easily communicate between those processes, along with some utility to make it a bit easier to run the processes; most of the legwork is done by the JavaScript engine.
     </p>
     <p>
-    This example actually does something astonishing: it coordinates three different processes, all of them running at
-    different speeds, by using a fourth process which also displays the results of the coordination. Here's the end
-    result:
+      Despite async functions being a thing with another name, when discussing them in terms of channels and CSP I will refer to them as processes as well.
+    </p>
+
+    <h2>Basic async functions and channels</h2>
+    <p>
+      To get things started, here's a basic example to illustrate how to communicate between processes. Of course, you can communicate between async functions by simply updating the values of shared variables, but this is a less than ideal way to do it because a lot of thought and care needs to be put into making sure that those shared variables aren't updated in a way that breaks things for another process. Channels are a <em>safe</em> way to communicate between processes.
+    </p>
+    <p>
+      This example coordinates three different processes, all of them running at different speeds, by using a fourth process which also displays the results of the coordination. Here's the end result:
     <p>
 
     <div id="processes"></div>
 
     <p>
-    Process 1 is running 4 times a second, Process 2 once per second, and Process 3 once every 1.5 seconds. This isn't
-    anything that we couldn't do with regular JavaScript, using a function that updates the output <code>div</code> and
-    then calls <code>setTimeout</code> with the right delay whose callback just re-calls the same function again. Let's
-    see what this looks like with CSP.
+      Process 1 is running 4 times a second, Process 2 once per second, and Process 3 once every 1.5 seconds. This isn't anything that we couldn't do with regular JavaScript, using a function that updates the output <code>div</code> and then calls <code>setTimeout</code> with the right delay whose callback just re-calls the same function again. Let's see what this looks like with CSP.
     </p>
 
     <pre><code class="javascript">
     const ch = chan();
 
-    go(function*() {
+    go(async () => {
       while (true) {
-        yield sleep(250);
-        yield put(ch, 1);
+        await sleep(250);
+        await put(ch, 1);
       }
     });
 
-    go(function*() {
+    go(async () => {
       while (true) {
-        yield sleep(1000);
-        yield put(ch, 2);
+        await sleep(1000);
+        await put(ch, 2);
       }
     });
 
-    go(function*() {
+    go(async () => {
       while (true) {
-        yield sleep(1500);
-        yield put(ch, 3);
+        await sleep(1500);
+        await put(ch, 3);
       }
     });
     </code></pre>
 
     <p>
-    If you've never worked with generators in JavaScript, some of this will look pretty foreign to you. What's the
-    <code>*</code> after those <code>function</code> keywords mean? What is <code>yield</code>? The answer is that they're
-    part of <em>generator functions</em>, a new feature in ES6 that gives us the power to create blockable processes.
+      Functions with the <code>async</code> keyword are a new feature to ES2017, though every modern browser already implements them (if the example isn't working for you, your browser may be out of date). They use the generators to do something that is otherwise not available in JavaScript: to create code that can be suspended and restarted.
     </p>
     <p>
-    A generator function looks just like a regular function, except that it has that <code>*</code> and allows the use of
-    <code>yield</code>. Aside from that it's just a regular function (as far as we're concerned), but it's precisely the
-    <code>yield</code> that we need to make processes work. <code>yield</code> causes a generator function to pause and
-    let other functions that are ready to run have their turn. A generator function that has <code>yield</code>ed cannot
-    restart itself, but external code can make it restart right where it left off. This is what cispy does: it manages
-    yielding generator functions, giving them special instructions (like <code>sleep</code> and <code>put</code> in this
-    snippet) to control coordination with channels, and restarting the generator function when the proper conditions have
-    been met (mostly, when a value that has been put onto a channel is taken off by another process, and vice versa).
+      The <code>async</code> functions act as separate processes, and they allow the use of the <code>await</code> keyword inside of them. <code>await</code> causes the function to pause, waiting for the result of the function that comes right after it (in these cases, either <code>sleep</code> or <code>put</code>). In the meantime, it releases control of the engine to allow other functions to run while it waits. When the awaited function returns a value, the <code>async</code> function is resumed from where it left off.
     </p>
     <p>
-    In our code, a channel is first created with <code>chan</code>. Then three processes are created with <code>go</code>,
-    which takes one of those generator functions and executes the code in it as a separate process. Each of these
-    processes calls <code>yield sleep</code>, which blocks the process and does not allow it to unblock until some number
-    of milliseconds have elapsed. After that time passes, the process will unblock and call <code>yield put</code> to put
-    a value onto the already-created channel. (<code>yield put</code> also blocks until the value that was put onto a
-    channel is taken off by some other process, but in this example that will be happening instantly.)
+      In our code, a channel is first created with <code>chan</code>. Then three processes are created with <code>go</code>, which takes one of those async functions and executes the code in it as a separate process. Each of these processes calls <code>await sleep</code>, which blocks the process and does not allow it to unblock until some number of milliseconds have elapsed. After that time passes, the process will unblock and call <code>await put</code> to put a value onto the already-created channel. (<code>await put</code> also blocks until the value that was put onto a channel is taken off by some other process, but in this example that will be happening instantly.)
     </p>
     <p>
-    There are two ways this is very different from <code>setTimeout</code>-based code. The first is that there isn't
-    anything that looks like a callback at all. In their place, there are local event loops (<code>while (true)</code>)
-    which run continually, blocking for some amount of time before putting a value onto a channel and starting over
-    again.
+      There are two ways this is very different from <code>setTimeout</code>-based code. The first is that there isn't anything that looks like a callback at all. In their place, there are local event loops (<code>while (true)</code>) which run continually, blocking for some amount of time before putting a value onto a channel and starting over again.
     </p>
     <p>
-    Secondly, there is no rendering code here whatsoever. The only interaction that any of these processes have with the
-    outside world is through putting a value onto the channel. What happens then? The processes don't care. They have no
-    knowledge of what's done with the value that they put onto that channel. This is as close to complete decoupling
-    between event code and rendering code that you can get - decoupling that isn't often seen in JavaScript code because
-    it's nearly impossible to do.
+      Secondly, there is no rendering code here whatsoever. The only interaction that any of these processes have with the outside world is through putting a value onto the channel. What happens then? The processes don't care. They have no knowledge of what's done with the value that they put onto that channel. This is as close to complete decoupling between event code and rendering code that you can get &mdash; decoupling that isn't often seen in JavaScript code because it's very difficult to do.
     </p>
     <p>
-    So what <em>does</em> happen to those values placed on the channel?
+      So what <em>does</em> happen to those values placed on the channel?
     </p>
 
     <pre><code class="javascript">
-    go(function*() {
+    go(async () => {
       const processDiv = document.querySelector('#processes');
       const lines = [];
 
       while (true) {
-        const index = yield take(ch);
+        const index = await take(ch);
         lines.unshift(`&lt;div class="proc-${index}"&gt;Process ${index}&lt;/div&gt;`);
         if (lines.length > 10) {
           lines.pop();
@@ -130,27 +106,18 @@
     </code></pre>
 
     <p>
-    Here we create a fourth process, also with the local event loop running continuously. It blocks with <code>yield
-    take</code> as it waits for the other three processes to put a value on the channel. When one of those values appears,
-    the process unblocks and the value of the <code>yield take</code> expression becomes that value (assigned here to
-    <code>index</code>). It processes that value into a line of HTML. It also keeps track of the prior HTML lines to make
-    sure that there isn't ever more than ten of them, and then it pushes all of those lines to the output
-    <code>div</code>.
+      Here we create a fourth process, also with the local event loop running continuously. It blocks with <code>await take</code> as it waits for the other three processes to put a value on the channel. When one of those values appears, the process unblocks and the value of the <code>await take</code> expression becomes that value (assigned here to <code>index</code>). It processes that value into a line of HTML. It also keeps track of the prior HTML lines to make sure that there isn't ever more than ten of them, and then it pushes all of those lines to the output <code>div</code>.
     </p>
     <p>
-    Again, there isn't a whiff of a callback anywhere, and the rendering process has no knowledge or interest in what
-    created the values on the channel or how they got there.
+      Again, there isn't a whiff of a callback anywhere, and the rendering process has no knowledge or interest in what created the values on the channel or how they got there.
     </p>
 
     <h2>Taking from multiple channels</h2>
-
     <p>
-    Our first example saw a channel being shared among four different processes. Sometimes it's useful to do the
-    opposite, having a single channel that deals with multiple processes.
+      Our first example saw a channel being shared among four different processes. Sometimes it's useful to do the opposite, having a single channel that deals with multiple processes.
     </p>
     <p>
-    In this example, we're going to put DOM events onto channels. To facilitate that, here's a function that listens for
-    those events and puts them onto a channel.
+      In this example, we're going to put DOM events onto channels. To facilitate that, here's a function that listens for those events and puts them onto a channel.
     </p>
 
     <pre><code class="javascript">
@@ -161,33 +128,22 @@
     </code></pre>
 
     <p>
-    This is an interesting function that can be used almost as-is in any event-related code you could ever write, so it's
-    worth going through in some detail.
+      This is an interesting function that can be used almost as-is in any event-related code you could ever write, so it's worth going through in some detail.
     </p>
     <p>
-    It takes three parameters: a DOM element, an event type, and a channel. The channel is optional; if it is not passed,
-    then the default value for the parameter creates a new channel and assigns it to the same <code>ch</code> variable.
+      It takes three parameters: a DOM element, an event type, and a channel. The channel is optional; if it is not passed, then the default value for the parameter creates a new channel and assigns it to the same <code>ch</code> variable.
     </p>
     <p>
-    The element's <code>addEventListener</code> function property is invoked, sending the event type, to add a handler
-    for any event of that type on that element. When such an element fires, the callback function (which takes the event
-    object generated by the event) is fired. This uses a new cispy function, <code>putAsync</code>, to put the event
-    object onto the same channel that was passed in/created. <code>putAsync</code> is just like <code>put</code> except
-    that it can be called outside a process. In place of blocking (which can't be done outside of a process), it accepts
-    a callback as a third parameter that is invoked when some process takes the value from the channel. (In our case,
-    our only purpose is to put the event on the channel; since we don't care to have anything else happen, we don't even
-    pass a callback to <code>putAsync</code>.)
+      The element's <code>addEventListener</code> function property is invoked, sending the event type, to add a handler for any event of that type on that element. When such an element fires, the callback function (which takes the event object generated by the event) is fired. This uses a new cispy function, <code>putAsync</code>, to put the event object onto the same channel that was passed in/created. <code>putAsync</code> is just like <code>put</code> except that it can be called outside an async function. In place of blocking (which can't be done outside of an async function), it accepts a callback as a third parameter that is invoked when some process takes the value from the channel. (In our case, our only purpose is to put the event on the channel; since we don't care to have anything else happen, we don't even pass a callback to <code>putAsync</code>.)
     </p>
     <p>
-    At the end, the channel, whether passed in or created, will be returned. The event handler attached to the listened-to
-    DOM element will ensure that this channel will continue to receive event objects for any events that might be
-    triggered, up until the channel is closed (or the program ends).
+      At the end, the channel, whether passed in or created, will be returned. The event handler attached to the listened-to DOM element will ensure that this channel will continue to receive event objects for any events that might be triggered, up until the channel is closed (or the program ends).
     <p>
-    This time we have a single process that creates two of these event channels and takes from them both.
+      This time we have a single process that creates two of these event channels and takes from them both.
     </p>
 
     <pre><code class="javascript">
-    go(function*() {
+    go(async () => {
       const el = document.querySelector('#events');
       const mouseCh = listen(el, 'mousemove');
       const clickCh = listen(el, 'click');
@@ -195,7 +151,7 @@
       let clickPos = [0, 0];
 
       while (true) {
-        const v = yield alts([mouseCh, clickCh]);
+        const v = await alts([mouseCh, clickCh]);
         const event = v.value;
         if (v.channel === mouseCh) {
           mousePos = [event.layerX || event.clientX, event.layerY || event.clientY];
@@ -208,48 +164,26 @@
     </code></pre>
 
     <p>
-    Before the familiar continuous loop begins, some setup is done. Two event channels are created, both on the target
-    <code>div</code>, one for the <code>mousemove</code> event and one for the <code>click</code> event. A pair of
-    variables to track the coordinates of the mouse when these events happen is also initialized.
+      Before the familiar continuous loop begins, some setup is done. Two event channels are created, both on the target <code>div</code>, one for the <code>mousemove</code> event and one for the <code>click</code> event. A pair of variables to track the coordinates of the mouse when these events happen is also initialized.
     </p>
     <p>
-    That leaves us with <em>two</em> channels to pay attention to, and we do that with <code>yield alts</code>. This
-    function takes an array of channels to take from, and it blocks until the first of these channels produces a value
-    (<code>alts</code> can also perform puts, but that's beyond this simple demo). When it unblocks, it returns an
-    object instead of a value, with the properties <code>value</code> (containing the value taken from a channel) and
-    <code>channel</code> (containing the channel that the value was ultimately taken from). We can then use the
-    <code>channel</code> property to figure out which coordinates we want to update, based on which event channel
-    produced a value. The coordinates are then displayed in the target <code>div</code>.
+      That leaves us with <em>two</em> channels to pay attention to, and we do that with <code>await alts</code>. This function takes an array of channels to take from, and it blocks until the first of these channels produces a value (<code>alts</code> can also perform puts, but that's beyond this simple demo). When it unblocks, it returns an object instead of a value, with the properties <code>value</code> (containing the value taken from a channel) and <code>channel</code> (containing the channel that the value was ultimately taken from). We can then use the <code>channel</code> property to figure out which coordinates we want to update, based on which event channel produced a value. The coordinates are then displayed in the target <code>div</code>.
     </p>
     <p>
-    The result is below. Mouse over the gray box and see how the mouse coordinates (the numbers before the colon) update.
-    Click on the box and see the numbers on the right of the colon update with the coordinates of the last click.
+      The result is below. Mouse over the gray box and see how the mouse coordinates (the numbers before the colon) update. Click on the box and see the numbers on the right of the colon update with the coordinates of the last click.
     </p>
 
     <div id="events"></div>
 
     <h2>Channels and transducers</h2>
-
     <p>
-    In the last example, the coordinates displayed were relative to the example's <code>div</code> itself. What if we
-    wanted to make the coordinates relative to the top left of the page itself? We could write code into our event loop
-    to calculate the offset, but there's a better way.
+      In the last example, the coordinates displayed were relative to the example's <code>div</code> itself. What if we wanted to make the coordinates relative to the top left of the page itself? We could write code into our event loop to calculate the offset, but there's a better way.
     </p>
     <p>
-    <em>Transducers</em> are generic transformation functions that work on a wide variety of collection types - the same
-    function is able to handle arrays, strings, and any other object that supports (or can be made to support)
-    transducers. Cispy channels support transducers, which can be passed to the <code>chan</code> function to create a
-    channel that performs transformations on the values put onto the channel before they're made available to be taken
-    off. We can use these transformations to automatically calculate the offset, so that the value is already calculated
-    relative to the top left of the page before it even gets taken off the channel.
+      <em>Transducers</em> are generic transformation functions that work on a wide variety of collection types &mdash; the same function is able to handle arrays, strings, and any other object that supports (or can be made to support) transducers. Cispy channels support transducers, which can be passed to the <code>chan</code> function to create a channel that performs transformations on the values put onto the channel before they're made available to be taken off. We can use these transformations to automatically calculate the offset, so that the value is already calculated relative to the top left of the page before it even gets taken off the channel.
     </p>
     <p>
-    We're going to use a <code>map</code> transducer to change what's coming into the channel to what we actually
-    <em>want</em> on the channel. The particular transducer that we'll use is in my
-    <a href="https://github.com/Barandis/xduce">xduce</a> library, though the <code>map</code> transducer from any
-    transducer library should work just fine. This transducer, like the regular functional <code>map</code>, requires a
-    function that takes an input and maps it to the output we want. Since our input is going to be the object put onto
-    the channel - an event - we can create a function like this.
+      We're going to use a <code>map</code> transducer to change what's coming into the channel to what we actually <em>want</em> on the channel. The particular transducer that we'll use is in my <a href="https://barandis.github.io/xduce">xduce</a> library, though the <code>map</code> transducer from any transducer library should work just fine. This transducer, like the regular functional <code>map</code>, requires a function that takes an input and maps it to the output we want. Since our input is going to be the object put onto the channel - an event - we can create a function like this.
     </p>
 
     <pre><code class="javascript">
@@ -265,34 +199,25 @@
     </code></pre>
 
     <p>
-    <code>coordinates</code> takes a DOM element, calculates its offset from the top and left of the page, and returns a
-    function that takes an event and calculates the offset coordinates as an object. This means that when our event loop
-    takes a value from the channel, rather than getting an event object, it's going to get this coordinates object. This
-    isn't necessary - our event loop can still just calculate the coordinates like we did in our last example - but it is
-    a little nicer and makes for a good demonstration.
+      <code>coordinates</code> takes a DOM element, calculates its offset from the top and left of the page, and returns a function that takes an event and calculates the offset coordinates as an object. This means that when our event loop takes a value from the channel, rather than getting an event object, it's going to get this coordinates object. This isn't necessary - our event loop can still just calculate the coordinates like we did in our last example - but it is a little nicer and makes for a good demonstration.
     </p>
     <p>
-    This pattern uses a nifty trick. We don't pass <code>coordinates</code> itself to <code>map</code>, but instead pass a
-    function that <code>coordinates</code> <em>creates</em>. This is a good way to be able to specify some values at runtime.
-    In this case, we're passing the element that's being used to calculate the offset. If we were to write a function to
-    pass directly to <code>map</code>, we'd have to write a different function for each element we wanted to use, each
-    with their own values of <code>el</code>. This way we can write one function and use it to <em>generate</em> any
-    function we might want.
+      This pattern uses a nifty trick. We don't pass <code>coordinates</code> itself to <code>map</code>, but instead pass a function that <code>coordinates</code> <em>creates</em>. This is a good way to be able to specify some values at runtime. In this case, we're passing the element that's being used to calculate the offset. If we were to write a function to pass directly to <code>map</code>, we'd have to write a different function for each element we wanted to use, each with their own values of <code>el</code>. This way we can write one function and use it to <em>generate</em> any function we might want.
     </p>
     <p>
-    Here is our new event loop process, modified to take advantage of the <code>map</code> transducer.
+      Here is our new event loop process, modified to take advantage of the <code>map</code> transducer.
     </p>
 
     <pre><code class="javascript">
-    go(function*() {
+    go(async () => {
       const el = document.querySelector('#transducers');
-      const mouseCh = listen(el, 'mousemove', chan(1, map(coordinates(el))));
-      const clickCh = listen(el, 'click', chan(1, map(coordinates(el))));
+      const mouseCh = listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) }));
+      const clickCh = listen(el, 'click', chan(1, { transducer: map(coordinates(el)) }));
       let mousePos = { x: 0, y: 0 };
       let clickPos = { x: 0, y: 0 };
 
       while (true) {
-        const v = yield alts([mouseCh, clickCh])
+        const v = await alts([mouseCh, clickCh])
         if (v.channel === mouseCh) {
           mousePos = v.value;
         } else {
@@ -304,143 +229,86 @@
     </code></pre>
 
     <p>
-    There are three basic differences between this loop and the one we used in our last example: we're storing our
-    coordinates as objects instead of arrays, <code>yield alts</code> is returning a plain object instead of an event
-    object, and we're passing a third parameter to <code>listen</code>.
+      There are three basic differences between this loop and the one we used in our last example: we're storing our coordinates as objects instead of arrays, <code>await alts</code> is returning a plain object instead of an event object, and we're passing a third parameter to <code>listen</code>.
     <p>
     <p>
-    The first two are just nice-to-haves. Our transducer, using the function generated by <code>coordinates</code>, will be
-    causing the values taken from the event channels to be simple objects instead of event objects. Since we can make
-    these objects look however we want by adjusting <code>coordinates</code>, we've chosen to make them coordinates objects,
-    with <code>x</code> and <code>y</code> as their properties. This lends itself very well to an application that is
-    designed to display coordinates, and it means we can write the slightly less cryptic <code>mousePos.x</code> instead
-    of <code>mousePos[0]</code>.
+      The first two are just nice-to-haves. Our transducer, using the function generated by <code>coordinates</code>, will be causing the values taken from the event channels to be simple objects instead of event objects. Since we can make these objects look however we want by adjusting <code>coordinates</code>, we've chosen to make them coordinates objects, with <code>x</code> and <code>y</code> as their properties. This lends itself very well to an application that is designed to display coordinates, and it means we can write the slightly less cryptic <code>mousePos.x</code> instead of <code>mousePos[0]</code>.
     </p>
     <p>
-    This is possible because of the third parameter to <code>listen</code>, which we didn't use in the last example.
-    Passing a channel as this parameter means that <code>listen</code> doesn't create a new channel, it just uses the one
-    we send. And that means we can customize that channel any way we want.
+      This is possible because of the third parameter to <code>listen</code>, which we didn't use in the last example. Passing a channel as this parameter means that <code>listen</code> doesn't create a new channel, it just uses the one we send. And that means we can customize that channel any way we want.
     </p>
     <p>
-    In this case, we customize it by passing a couple of parameters to <code>chan</code>, something we have not done
-    before. The <code>map</code> transducer, fueled by a function coming from <code>coordinates</code>, is the second
-    parameter. So what is the first parameter, the <code>1</code>? That's the specification for a <em>buffer</em> which
-    stores values in the channel. By default, channels are unbuffered. Passing the <code>1</code> means that the channel
-    will be backed by a buffer that can store one value. Buffers are useful and can have some desirable effects, but the
-    real reason we're using one here is because you cannot put a transducer on an unbuffered channel.
+      In this case, we customize it by passing a couple of parameters to <code>chan</code>, something we have not done before. The <code>map</code> transducer, fueled by a function coming from <code>coordinates</code>, is the second parameter. So what is the first parameter, the <code>1</code>? That's the specification for a <em>buffer</em> which stores values in the channel. By default, channels are unbuffered. Passing the <code>1</code> means that the channel will be backed by a buffer that can store one value. Buffers are useful and can have some desirable effects, but the real reason we're using one here is because you cannot put a transducer on an unbuffered channel.
     </p>
     <p>
-    The result is in the gray box below. It works exactly the same as the last example, except that the coordinates are
-    much larger because they're in relation to the top and left of the page instead of the top and left of the
-    <code>div</code>.
+      The result is in the gray box below. It works exactly the same as the last example, except that the coordinates are much larger because they're in relation to the top and left of the page instead of the top and left of the <code>div</code>.
     </p>
 
     <div id="transducers"></div>
 
     <h2>Channel operations</h2>
-
     <p>
-    One very noticeable issue with both of the last two examples is the sheer number of <code>mousemove</code> events that
-    get fired. As long as the mouse is moving, the events are constantly streaming forth. We might find that there are
-    situations where this can be an issue, particularly if that event (or, say, a window scrolling event) is driving some
-    expensive UI update process. Maybe we only want to see an update to mouse position every 100 milliseconds, for
-    example, or we don't want to know about the window scrolling until it's finished.
+      One very noticeable issue with both of the last two examples is the sheer number of <code>mousemove</code> events that get fired. As long as the mouse is moving, the events are constantly streaming forth. We might find that there are situations where this can be an issue, particularly if that event (or, say, a window scrolling event) is driving some expensive UI update process. Maybe we only want to see an update to mouse position every 100 milliseconds, for example, or we don't want to know about the window scrolling until it's finished.
     </p>
     <p>
-    Cispy has a number of operation functions that operate on channels, and <code>debounce</code> and <code>throttle</code>
-    are two that work well for these situations.
+      Cispy has a number of operation functions that operate on channels, and <code>debounce</code> and <code>throttle</code> are two that work well for these situations.
     </p>
     <p>
-    Debouncing combines several closely-spaced inputs into one input. This would be the perfect operation to use if we
-    didn't want to know about window scroll events until they were all over - all of the scroll events would be ignored
-    except for the last one, which is what we probably want.
+      Debouncing combines several closely-spaced inputs into one input. This would be the perfect operation to use if we didn't want to know about window scroll events until they were all over - all of the scroll events would be ignored except for the last one, which is what we probably want.
     </p>
     <p>
-    In this example, we apply debouncing to the same <code>mousemove</code> channel that we've used in the last couple of
-    examples. This is really easy to accomplish: just wrap that channel with the <code>debounce</code> function, adding
-    the desired debounce delay to the call.
+      In this example, we apply debouncing to the same <code>mousemove</code> channel that we've used in the last couple of examples. This is really easy to accomplish: just wrap that channel with the <code>debounce</code> function, adding the desired debounce delay to the call.
     </p>
 
     <pre><code class="javascript">
     const el = document.querySelector('#debounce');
-    const mouseCh = debounce(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
+    const mouseCh = debounce(listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) })), 500);
     </code></pre>
 
     <p>
     All other code remains the same as the transducers example.
     </p>
     <p>
-    The end effect of this is to make it so that our mouse channel doesn't produce a value until <code>mousemove</code>
-    events have stopped for 500 milliseconds (half a second). This is an unnaturally long delay in practice, but for this
-    demonstration it makes the debounce delay visible and clear.
+      The end effect of this is to make it so that our mouse channel doesn't produce a value until <code>mousemove</code> events have stopped for 500 milliseconds (half a second). This is an unnaturally long delay in practice, but for this demonstration it makes the debounce delay visible and clear.
     </p>
 
     <div id="debounce"></div>
 
     <p>
-    Move your mouse around the gray box above, and notice that nothing happens until the mouse has been stopped (or has
-    moved out of the gray box, which also causes events on that box to stop) for a half second. Since the
-    <code>debounce</code> function is only applied to the <code>mousemove</code> channel, mouse clicks still happen
-    exactly as they had before.
+      Move your mouse around the gray box above, and notice that nothing happens until the mouse has been stopped (or has moved out of the gray box, which also causes events on that box to stop) for a half second. Since the <code>debounce</code> function is only applied to the <code>mousemove</code> channel, mouse clicks still happen exactly as they had before.
     </p>
     <p>
-    Throttling is another option. While debouncing combines inputs together into a single input, throttling leaves the
-    multiple inputs but makes sure that they can only come every so often. This is useful for events that you want to know
-    about while they're happening, but when you don't need to know about <em>all</em> of them. Mouse move events are
-    actually a good example, because there are a large number of them generated, but perhaps you only need to know about
-    them every so often.
+      Throttling is another option. While debouncing combines inputs together into a single input, throttling leaves the multiple inputs but makes sure that they can only come every so often. This is useful for events that you want to know about while they're happening, but when you don't need to know about <em>all</em> of them. Mouse move events are actually a good example, because there are a large number of them generated, but perhaps you only need to know about them every so often.
     </p>
     <p>
-    This is accomplished in code in a very similar manner to debouncing.
+      This is accomplished in code in a very similar manner to debouncing.
     </p>
 
     <pre><code class="javascript">
     const el = document.querySelector('#throttle');
-    const mouseCh = throttle(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
+    const mouseCh = throttle(listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) })), 500);
     </code></pre>
 
     <p>
-    The rest of the code remains the same as the last example.
+      The rest of the code remains the same as the last example.
     </p>
     <p>
-    In this example, we're replacing the debounce behavior of the last example with throttling behavior. This makes the
-    difference between the two operations very clear. While moving the mouse continually prevents anything new from being
-    displayed in the debouncing example, the same action in the throttling example below continues to produce events, but
-    at a slower rate.
+      In this example, we're replacing the debounce behavior of the last example with throttling behavior. This makes the difference between the two operations very clear. While moving the mouse continually prevents anything new from being displayed in the debouncing example, the same action in the throttling example below continues to produce events, but at a slower rate.
     </p>
 
     <div id="throttle"></div>
 
-    <h2>Callbacks? Promises? FRP?</h2>
-
+    <h2>What happened to the old processes?</h2>
     <p>
-    Maybe the best way to appreciate these examples is to consider what would be required to do them using other methods
-    of concurrency.  Out of all of this code dealing with events, pauses, and passing asynchronous data back and forth,
-    there is one single callback, which is the second parameter to <code>addEventListener</code>, a function on a
-    built-in JavaScript object. (<code>putAsync</code> can take a callback as its third parameter, but we don't need it
-    here.) Even that callback is hidden away in the <code>listen</code> function, never to be seen again. For anyone
-    who's spent a lot of time working with asynchronous JavaScript code, the release from Callback Hell is a huge relief.
+      Cispy was started before async functions were even really known about, much less as common as they are now. It used generator functions as processes, and it controlled every aspect of them, even down to not being able to pass anything with <code>yield</code> (the generator process analogue to <code>await</code>) except for process functions like <code>put</code> and <code>take</code>. Eventually, async functions made an appearance, and as time went on, it became clear that they were just better.
     </p>
     <p>
-    Promises are an improvement over pure callbacks, in that they're a veneer over some of the ugliness. But in the end
-    the callback is simply moved into the <code>then()</code> function, and while it's nicer to use a promise-returning
-    function than it is a callback-accepting function, neither of them are returning actual data the way a <code>yield
-    take</code> does.
+      The mechanism for running async functions is already a part of the JavaScript engine. Generators required their own engine and all of the attendent code that went with it. It was fun, but these days it's far less practical, has a worse syntax, and makes for a larger library.
     </p>
     <p>
-    All of the examples other than the first - and particularly the last three, with their <code>map</code> transducers
-    - look an awful lot like Functional Reactive Programming (FRP). The channels act like streams and the
-    <code>yield alts</code> play the role of observers. But again, there aren't any callbacks to deal with, and CSP
-    channels and processes afford a <em>lot</em> more control over asynchronous coordination than FRP can.
+      I had for a time planned to continue forward with both mechanisms available, but then it occurred to me that probably I was the only one who cared much. End users shouldn't care so much what is going on behind the scenes. The extra effort in maintaining a second parallel code base is simply not worth it. Async functions it is.
     </p>
-    <p>
-    The advent of ES2017 has brought us a new concurrency tool: <em>async functions</em>. The new <em>async</em> and
-    <em>await</em> keywords use a combination of promises and generators to create an interface that is vastly better
-    than promises alone. What async functions do <em>not</em> offer is a standard way to communicate between running
-    async functions - so Cispy has recently added a channel implementation that uses async functions in place of
-    processes. See <a href="intro-promise.html">the promise intro example page</a> for an introduction.
-    </p>
-  </p>
+  </section>
 
   <script src="../js/cispy.js"></script>
   <script src="../js/xduce.js"></script>

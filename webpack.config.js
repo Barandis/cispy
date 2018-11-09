@@ -1,24 +1,24 @@
 const path = require('path');
 
 module.exports = {
-  entry: {
-    cispy: './src/cispy.js',
-    'cispy.promise': './src/promise.js'
-  },
+  mode: 'development',
+  devtool: 'none',
+  entry: './src/api.js',
   output: {
-    filename: '[name].js',
+    path: path.join(__dirname, 'dist'),
+    filename: 'cispy.js',
     library: 'cispy',
     libraryTarget: 'umd',
-    path: path.resolve(__dirname, 'dist')
   },
-  plugins: [],
   module: {
-    loaders: [{
-      loader: 'babel-loader',
-      include: [
-        path.resolve(__dirname, 'src')
-      ],
-      test: /\.js$/
-    }]
-  }
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+        },
+      },
+    ],
+  },
 };

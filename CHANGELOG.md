@@ -2,6 +2,18 @@
 
 All notable changes to the library will be documented in this file.
 
+## [2.0.0] 2018-11-08
+### Added
+- automated release. I've had some issues on another project with this, so I'm not sure how well it's gonna work. Doesn't affect the end user one way or the other though. If it doesn't work I'll publish the old-fashioned way.
+
+### Changed
+- the entire build system. Webpack and Babel have been updated, Yarn has been replaced by NPM, new scripts have been added. Again, doesn't affect the end user, but it sure makes my life nicer.
+- the signature of `chan`. What used to be the parameters for transducers and handlers are now options called `transducer` and `handler` that are a part of the same object used to set `maxQueued` and `maxDirty`. `chan` now has two parameters, the buffer and the options, both of which are optional.
+
+### Removed
+- packaged ES2015 dist files. The files in `dist` now are ES5 transpilations, intended to be used directly in browsers. To use this in a Node project, with Webpack/Browserify, etc., the imports come directly from the ES2015 source code.
+- generator-based processes. Async is here to stay, and the cost of maintaining two code bases more than offset the negligible gain from keeping them both.
+
 ## [1.0.1] 2017-09-02
 ### Added
 - a new set of dist files: untranspiled, packed ES2017 code. This is suitable for browsers, but obviously only for ones that understand generators (and async functions, if you use those). There is not yet a good solution for minifying these. (UPDATE: There *is* a good solution for minifying these, but I'm not going to do that until I re-arrange the project. See below.)

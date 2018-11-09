@@ -21,32 +21,23 @@
     <h1>CSP Combination Lock</h1>
 
     <p>
-    This example implements the simplest (and most insecure) of combination locks. It demonstrates the use of event
-    channels and governing them all by a timer.
+      This example implements the simplest (and most insecure) of combination locks. It demonstrates the use of event channels and governing them all by a timer.
     </p>
     <p>
-    It would probably be a good idea to have a look at the <a href="intro.html">introductory demo</a> before
-    looking at this one. Some of the concepts are pretty close to the same and I won't go as much into them here.
+      It would probably be a good idea to have a look at the <a href="intro.html">introductory demo</a> before looking at this one. Some of the concepts are pretty close to the same and I won't go as much into them here.
     </p>
 
     <h2>The problem</h2>
-
     <p>
-    Quite simply, we have three buttons (marked A, B, and C). There is a single combination of these buttons that will
-    solve the combination (<strong>spoiler alert:</strong> it's a Genesis song). From the time we push the first button,
-    we have only five seconds to complete the combination.
+      Quite simply, we have three buttons (marked A, B, and C). There is a single combination of these buttons that will solve the combination (<strong>spoiler alert:</strong> it's a Genesis song). From the time we push the first button, we have only five seconds to complete the combination.
     </p>
     <p>
-    If we get a button wrong, we can continue until the timer runs out, but we have to start over with our button clicks.
-    If we get the right combination, we want to know right away, rather than having to wait for our five seconds to
-    expire.
+      If we get a button wrong, we can continue until the timer runs out, but we have to start over with our button clicks. If we get the right combination, we want to know right away, rather than having to wait for our five seconds to expire.
     </p>
 
     <h2>The solution</h2>
-
     <p>
-    We can do this with channels and a process, which probably makes sense given that this is an example in a CSP library.
-    Here's the working example; after that, we'll go over how it works.
+      We can do this with channels and a process, which probably makes sense given that this is an example in a CSP library. Here's the working example; after that, we'll go over how it works.
     </p>
     <p><em>(In case you don't know any Genesis songs, the combination is A B A C A B.)</em></p>
 
@@ -60,11 +51,8 @@
     </div>
 
     <h2>The channels</h2>
-
     <p>
-    Channels are used to communicate the events from the buttons being clicked to any process that's interested in
-    knowing about such a thing. We make this happen by using a function that we used in the intro, which causes an event
-    firing on a particular DOM element to put the event objects on a channel.
+      Channels are used to communicate the events from the buttons being clicked to any process that's interested in knowing about such a thing. We make this happen by using a function that we used in the intro, which causes an event firing on a particular DOM element to put the event objects on a channel.
     </p>
 
     <pre><code class="javascript">
@@ -75,26 +63,13 @@
     </code></pre>
 
     <p>
-    This function takes a DOM element and a type of event (in our case, since we're looking for click events, that type
-    is <code>'click'</code>). It then either uses the channel we pass in as the third parameter or, if there is no third
-    parameter, creates a new channel. Every time the specified event occurs on the specified DOM element, the event
-    object will be put onto this channel.
+      This function takes a DOM element and a type of event (in our case, since we're looking for click events, that type is <code>'click'</code>). It then either uses the channel we pass in as the third parameter or, if there is no third parameter, creates a new channel. Every time the specified event occurs on the specified DOM element, the event object will be put onto this channel.
     </p>
     <p>
-    Thing is, we're not really interested in anything about this event object. We're only interested in knowing which
-    button was clicked. There are a few ways to do this. We could check the <code>target</code>property of the event
-    object. We could use the <code>channel</code> property of the object returned by <code>alts</code> to figure out
-    which channel unblocked the process, knowing that each channel is assigned to one button. Or we could actually
-    manipulate the channel to return a value that tells us which channel it is. We'll use the latter because it's a pretty
-    elegant solution.
+      Thing is, we're not really interested in anything about this event object. We're only interested in knowing which button was clicked. There are a few ways to do this. We could check the <code>target</code> property of the event object. We could use the <code>channel</code> property of the object returned by <code>alts</code> to figure out which channel unblocked the process, knowing that each channel is assigned to one button. Or we could actually manipulate the channel to return a value that tells us which channel it is. We'll use the latter because it's a pretty elegant solution.
     </p>
     <p>
-    We don't want to change our code in <code>listen</code>, because it's a generic and highly useful function that we can
-    use over and over again (it was used twice in the three intro examples, for instance). Instead, we'll use the ability
-    of cispy channels to use the transformer functions that come out of a transducer library (there are a few good ones,
-    but you may want to go with <a href="https://github.com/Barandis/xduce">xduce</a>). We'll use the <code>map</code>
-    transformer to turn that event object into something we can use better. This is exactly what we did in the third
-    intro example, except this time we don't want coordinates. We want an identifier for the button.
+      We don't want to change our code in <code>listen</code>, because it's a generic and highly useful function that we can use over and over again (it was used twice in the three intro examples, for instance). Instead, we'll use the ability of cispy channels to use the transformer functions that come out of a transducer library (there are a few good ones, but you may want to go with <a href="https://barandis.github.io/xduce">xduce</a>). We'll use the <code>map</code> transformer to turn that event object into something we can use better. This is exactly what we did in the third intro example, except this time we don't want coordinates. We want an identifier for the button.
     </p>
 
     <pre><code class="javascript">
@@ -106,62 +81,45 @@
         return () => x;
       }
 
-      const chA = listen(byId('button-a'), 'click', chan(1, map(constantly(A))));
-      const chB = listen(byId('button-b'), 'click', chan(1, map(constantly(B))));
-      const chC = listen(byId('button-c'), 'click', chan(1, map(constantly(C))));
+      const chA = listen(byId('button-a'), 'click', chan(1, { transducer: map(constantly(A)) }));
+      const chB = listen(byId('button-b'), 'click', chan(1, { transducer: map(constantly(B)) }));
+      const chC = listen(byId('button-c'), 'click', chan(1, { transducer: map(constantly(C)) }));
     </code></pre>
 
     <p>
-    There are three things to look at here, conveniently separated by blank lines.
+      There are three things to look at here, conveniently separated by blank lines.
     </p>
     <p>
-    The first section creates the identifiers that we want to use for the buttons, given the same name as the buttons
-    themselves. We use symbols here because they are unique. There can never be another symbol created that is the same
-    (from a <code>===</code> perspective) as <code>A</code>, for instance. So we can check to see if something is equal
-    to <code>A</code>, and if it is, we know that it <em>is</em> <code>A</code>.
+      The first section creates the identifiers that we want to use for the buttons, given the same name as the buttons themselves. We use symbols here because they are unique. There can never be another symbol created that is the same (from a <code>===</code> perspective) as <code>A</code>, for instance. So we can check to see if something is equal to <code>A</code>, and if it is, we know that it <em>is</em> <code>A</code>.
     </p>
     <p>
-    Symbols are a feature of ES2015 and should be universally supported in modern browsers. Their use doesn't seem to be
-    widespread yet, however. You could just as easily assign <code>{}</code> to each of these three variables and it would
-    work fine.
+      Symbols are a feature of ES2015 and should be universally supported in modern browsers. Their use doesn't seem to be widespread yet, however. You could just as easily assign <code>{}</code> to each of these three variables and it would work fine.
     </p>
     <p>
-    The second section is the <code>constantly</code> function. This function creates another function that always
-    returns the same value, using the same trick as with <code>location</code> in the third intro example (generating
-    functions based on a parameter rather than having to write different functions for each value of that parameter we
-    need). The upshot is that if we use one of these functions in <code>map</code>, every value taken from the channel
-    will be whatever is passed to <code>constantly</code>, no matter <em>what</em> value was actually put onto the
-    channel.
+      The second section is the <code>constantly</code> function. This function creates another function that always returns the same value, using the same trick as with <code>location</code> in the third intro example (generating functions based on a parameter rather than having to write different functions for each value of that parameter we need). The upshot is that if we use one of these functions in <code>map</code>, every value taken from the channel will be whatever is passed to <code>constantly</code>, no matter <em>what</em> value was actually put onto the channel.
     </p>
     <p>
-    The last section takes advantage of this. A <code>map</code> transformer that uses a <code>constantly</code> function
-    that always returns the appropriate button's identifier is attached to each event channel that's created by
-    <code>listen</code>. That means that when the A button is clicked, <code>A</code> will appear on <code>chA</code>,
-    and so on.
+      The last section takes advantage of this. A <code>map</code> transformer that uses a <code>constantly</code> function that always returns the appropriate button's identifier is attached to each event channel that's created by <code>listen</code>. That means that when the A button is clicked, <code>A</code> will appear on <code>chA</code>, and so on.
     </p>
     <p><em>
-    (A quick note: <code>button-a</code>, etc. are the ID's of the three buttons in the combination example, and
-    <code>byId</code> is just a utility function that gets the DOM element with that ID. So <code>byId('button-a')</code>
-    just returns the DOM element for the first button. See <a href="js/combination.js">the source code</a> if you're
-    interested.)
+      (A quick note: <code>button-a</code>, etc. are the ID's of the three buttons in the combination example, and <code>byId</code> is just a utility function that gets the DOM element with that ID. So <code>byId('button-a')</code> just returns the DOM element for the first button. See <a href="js/combination.js">the source code</a> if you're interested.)
     </em></p>
 
     <h2>The process</h2>
-
     <p>
-    Now that we have our channels set up, we can create the process that will be listening to them.
+      Now that we have our channels set up, we can create the process that will be listening to them.
     </p>
 
     <pre><code class="javascript">
       const MAX_TIME = 5000;
       const COMBINATION = [A, B, A, C, A, B];
 
-      go(function*() {
+      go(async () => {
         let clicks = [];
         let chZ = chan();
 
         while (true) {
-          const alt = yield alts([chA, chB, chC, chZ]);
+          const alt = await alts([chA, chB, chC, chZ]);
           clicks.push(alt.value);
           ...
         }
@@ -169,21 +127,13 @@
     </code></pre>
 
     <p>
-    Aside from the constants set up at the beginning (for the amount of time the user has to get the combination right
-    and for the combination itself), the rest of this should look very familiar. It's the setting of some state variables
-    to initial values and then a <code>while</code> loop with an <code>alts</code> invocation right at the beginning.
-    That's exactly the way the last two intro examples were set up, and it's a recurring pattern when using CSP to manage
-    events.
+      Aside from the constants set up at the beginning (for the amount of time the user has to get the combination right and for the combination itself), the rest of this should look very familiar. It's the setting of some state variables to initial values and then a <code>while</code> loop with an <code>alts</code> invocation right at the beginning. That's exactly the way the last two intro examples were set up, and it's a recurring pattern when using CSP to manage events.
     </p>
     <p>
-    Perhaps the most interesting thing in this snippet is that a local channel (<code>chZ</code>) is being checked by
-    <code>alts</code> as well. Since the channel is local, no other process can access and therefore put onto it. Why
-    have it at all? We'll discover that a little later.
+      Perhaps the most interesting thing in this snippet is that a local channel (<code>chZ</code>) is being checked by <code>alts</code> as well. Since the channel is local, no other process can access and therefore put onto it. Why have it at all? We'll discover that a little later.
     </p>
     <p>
-    In the intro examples with event handling, the bulk of the <code>while</code> loop was an <code>if/else</code>
-    statement that performed some action based on what came back from the <code>yield alts</code>. Our <code>while</code>
-    loop body here is no different.
+      In the intro examples with event handling, the bulk of the <code>while</code> loop was an <code>if/else</code> statement that performed some action based on what came back from the <code>await alts</code>. Our <code>while</code> loop body here is no different.
     </p>
 
     <pre><code class="javascript">
@@ -195,11 +145,7 @@
     </code></pre>
 
     <p>
-    The first branch executes if the channel that caused <code>yield alts</code> to unblock was the mysterious channel Z.
-    We still don't know what might be on that channel, but we get some sort of clue from the fact that the displayed
-    message tells the user that he's run out of time (<code>setStatus</code> is another utility function, one that sets
-    the text in the example's div). All of the state variables are set back to their initial states as well, indicating
-    that the user is able to start again.
+      The first branch executes if the channel that caused <code>await alts</code> to unblock was the mysterious channel Z. We still don't know what might be on that channel, but we get some sort of clue from the fact that the displayed message tells the user that he's run out of time (<code>setStatus</code> is another utility function, one that sets the text in the example's div). All of the state variables are set back to their initial states as well, indicating that the user is able to start again.
     </p>
 
     <pre><code class="javascript">
@@ -218,42 +164,26 @@
     </code></pre>
 
     <p>
-    The next branch executes if the value returned from <code>yield alts</code> matches the value at the same index of
-    the combination. In other words, it's called if the user selects the correct next button. What happens then depends on
-    whether this was the last button (the length of our <code>clicks</code> array, which tracks the buttons that have been
-    clicked so far, is the same as the length of the combination).
+      The next branch executes if the value returned from <code>await alts</code> matches the value at the same index of the combination. In other words, it's called if the user selects the correct next button. What happens then depends on whether this was the last button (the length of our <code>clicks</code> array, which tracks the buttons that have been clicked so far, is the same as the length of the combination).
     </p>
     <p>
-    If it was, it means the user must have entered the correct combination. If so, a message is displayed to say so, and
-    the state variables are set back to their initial values. Just like in the first branch. Again this means that the
-    user may start again.
+      If it was, it means the user must have entered the correct combination. If so, a message is displayed to say so, and the state variables are set back to their initial values. Just like in the first branch. Again this means that the user may start again.
     </p>
     <p>
-    Far more interesting is what happens if this was <em>not</em> the last button (fewer buttons have been clicked than
-    the length of the combination). Most of the time, we just update the div with all of the buttons that have been
-    clicked so far, and let the <code>while</code> loop continue. But if the <code>timeout</code> property of
-    <code>chZ</code> is false, we reassign <code>chZ</code> to something we have not seen before - a timeout channel.
+      Far more interesting is what happens if this was <em>not</em> the last button (fewer buttons have been clicked than the length of the combination). Most of the time, we just update the div with all of the buttons that have been clicked so far, and let the <code>while</code> loop continue. But if the <code>timeout</code> property of <code>chZ</code> is false, we reassign <code>chZ</code> to something we have not seen before - a timeout channel.
     </p>
     <p>
-    The <code>timeout</code> function is offered by Cispy, and it creates a new unbuffered channel, just like
-    <code>chan()</code>. The difference is that this channel will automatically close after a delay, specified in
-    milliseconds in the <code>timeout</code> call itself. So now our private, local channel Z turns
-    out to have something to do after all - it can sit around and then close after 5 seconds (5000 milliseconds, the
-    value of <code>MAX_TIME</code>).
+      The <code>timeout</code> function is offered by Cispy, and it creates a new unbuffered channel, just like <code>chan()</code>. The difference is that this channel will automatically close after a delay, specified in milliseconds in the <code>timeout</code> call itself. So now our private, local channel Z turns out to have something to do after all - it can sit around and then close after 5 seconds (5000 milliseconds, the value of <code>MAX_TIME</code>).
     </p>
     <p>
-    How does this help? Well, it turns out that <code>yield alts</code> doesn't only unblock if a value is put onto one
-    if its channels. It also unblocks if one of its channels <em>closes</em>. So now we can see that 5 seconds after the
-    first button is pushed, <code>chZ</code> will close, which causes <code>yield alts</code> to unblock and set
-    <code>alt.channel</code> to <code>chZ</code>. Which executes the first branch, telling the user that he's failed. The
-    only way this is averted is by getting the right combination, which resets <code>chZ</code> back to a normal,
-    non-timeout channel, meaning that it again sits there and does nothing in the next <code>yield alts</code> call.
+      How does this help? Well, it turns out that <code>await alts</code> doesn't only unblock if a value is put onto one if its channels. It also unblocks if one of its channels <em>closes</em>. So now we can see that 5 seconds after the first button is pushed, <code>chZ</code> will close, which causes <code>await alts</code> to unblock and set <code>alt.channel</code> to <code>chZ</code>. Which executes the first branch, telling the user that he's failed. The only way this is averted is by getting the right combination, which resets <code>chZ</code> back to a normal, non-timeout channel, meaning that it again sits there and does nothing in the next <code>await alts</code> call.
     </p>
     <p>
-    By the way, both <code>yield put</code> and <code>yield take</code> share this behavior, unblocking if the channel
-    passed to them closes.
+      By the way, both <code>await put</code> and <code>await take</code> share this behavior, unblocking if the channel passed to them closes.
+    </p>
     <p>
-    For the sake of completeness, let's look at the last branch of the <code>if/else</code>.
+      For the sake of completeness, let's look at the last branch of the <code>if/else</code>.
+    </p>
 
     <pre><code class="javascript">
       else {
@@ -266,24 +196,14 @@
     </code></pre>
 
     <p>
-    This branch executes if a button was pushed (<code>alt.channel</code> is not <code>chZ</code>) and if that button
-    does not match the next button in the combination. In this case the user is shown a message that the wrong button was
-    clicked, and the list of clicked buttons is cleared (the user has to start over). Channel Z is not reset though; it
-    continues to tick away towards that 5 seconds. Of course, like in the last branch, if this is the first button that's
-    clicked the <code>timeout</code> channel is created to start the countdown.
+      This branch executes if a button was pushed (<code>alt.channel</code> is not <code>chZ</code>) and if that button does not match the next button in the combination. In this case the user is shown a message that the wrong button was clicked, and the list of clicked buttons is cleared (the user has to start over). Channel Z is not reset though; it continues to tick away towards that 5 seconds. Of course, like in the last branch, if this is the first button that's clicked the <code>timeout</code> channel is created to start the countdown.
     </p>
     <p>
-    In the end, if a channel is a timeout channel, it has its <code>timeout</code> property set to <code>true</code>,
-    while a regular channel will have a <code>timeout</code> property value of <code>false</code>. Because of that, we're
-    able to use the channel itself as a state variable in our local event loop. If <code>chZ.timeout === false</code>
-    then the timer must not be running, so when the first button is clicked we will reassign <code>chZ</code> to be a
-    timeout channel. If we do something to finish the combination, either by entering it successfully or taking too long
-    to do so, <code>chZ</code> gets reassigned back to a regular channel. Thus we can always tell whether the proverbial
-    clock is ticking by checking the value of <code>chZ.timeout</code>.
+      In the end, if a channel is a timeout channel, it has its <code>timeout</code> property set to <code>true</code>, while a regular channel will have a <code>timeout</code> property value of <code>false</code>. Because of that, we're able to use the channel itself as a state variable in our local event loop. If <code>chZ.timeout === false</code> then the timer must not be running, so when the first button is clicked we will reassign <code>chZ</code> to be a timeout channel. If we do something to finish the combination, either by entering it successfully or taking too long to do so, <code>chZ</code> gets reassigned back to a regular channel. Thus we can always tell whether the proverbial clock is ticking by checking the value of <code>chZ.timeout</code>.
     </p>
   </section>
 
-  <script src="../js/cispy.js"></script>
   <script src="../js/xduce.js"></script>
+  <script src="../js/cispy.js"></script>
   <script src="js/combination.js"></script>
 </body>
