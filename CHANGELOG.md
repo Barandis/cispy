@@ -2,9 +2,13 @@
 
 All notable changes to the library will be documented in this file.
 
+## [2.0.1] 2018-11-09
+### Changed
+- Changed CI config to not test on Node 6, which will fail anyway. This release is just to get that ugly "build failing" badge off.
+
 ## [2.0.0] 2018-11-08
 ### Added
-- automated release. I've had some issues on another project with this, so I'm not sure how well it's gonna work. Doesn't affect the end user one way or the other though. If it doesn't work I'll publish the old-fashioned way.
+- automated release. I've had some issues on another project with this, so I'm not sure how well it's gonna work. Doesn't affect the end user one way or the other though. If it doesn't work I'll publish the old-fashioned way. (EDIT: still having problems with semantic-release insisting that Travis doens't have a Github key, just like I have on every single other project. Will do manual for now.)
 
 ### Changed
 - the entire build system. Webpack and Babel have been updated, Yarn has been replaced by NPM, new scripts have been added. Again, doesn't affect the end user, but it sure makes my life nicer.
