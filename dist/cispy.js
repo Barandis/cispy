@@ -2480,11 +2480,11 @@
            *     `null` then there will be no transformation applied to values put onto the newly created channel.
            * @param {boolean} [timeout=false] Whether this is a timeout channel. A timeout channel, when created, is set to close
            *     after a certain amount of time. The channel itself is not aware of how much time it has until it closes.
-           * @param {number} [options.maxDirty=MAX_DIRTY] The maximum number of dirty operations that can be in the queue
+           * @param {number} [maxDirty=MAX_DIRTY] The maximum number of dirty operations that can be in the queue
            *     before those operations are subject to being purged. Dirty operations are those that may not be valid anymore
            *     because they were in the list of operations passed to `alts` but were not chosen to run. This provides a chance
            *     for a very minor performance tweak and is best left alone.
-           * @param {number} [options.maxQueued=MAX_QUEUED] The maximum number of operations that can be queued up at the same
+           * @param {number} [maxQueued=MAX_QUEUED] The maximum number of operations that can be queued up at the same
            *     time. This prevents infinite loops from accidentally eating up all of the available memory.
            * @return {module:cispy/channel~Channel} A new channel object.
            * @private
@@ -2492,13 +2492,8 @@
 
           function channel(buffer, xform) {
             var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-            var _ref = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
-              _ref$maxDirty = _ref.maxDirty,
-              maxDirty = _ref$maxDirty === void 0 ? MAX_DIRTY : _ref$maxDirty,
-              _ref$maxQueued = _ref.maxQueued,
-              maxQueued = _ref$maxQueued === void 0 ? MAX_QUEUED : _ref$maxQueued;
-
+            var maxDirty = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : MAX_DIRTY;
+            var maxQueued = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : MAX_QUEUED;
             var takes = queue();
             var puts = queue();
             var dirtyTakes = 0;
@@ -2949,26 +2944,26 @@
            */
 
           function wrapTransformer(xform) {
-            var _ref2;
+            var _ref;
 
             var handler = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_HANDLER;
             return (
-              (_ref2 = {}),
-              _defineProperty(_ref2, p.step, function(buffer, input) {
+              (_ref = {}),
+              _defineProperty(_ref, p.step, function(buffer, input) {
                 try {
                   return xform[p.step](buffer, input);
                 } catch (ex) {
                   return handleException(buffer, handler, ex);
                 }
               }),
-              _defineProperty(_ref2, p.result, function(buffer) {
+              _defineProperty(_ref, p.result, function(buffer) {
                 try {
                   return xform[p.result](buffer);
                 } catch (ex) {
                   return handleException(buffer, handler, ex);
                 }
               }),
-              _ref2
+              _ref
             );
           }
           /**
@@ -3024,16 +3019,16 @@
            * @param {(number|module:cispy/buffers~Buffer)} [buffer] The buffer object that should back this channel. If
            *     this is a positive number, a fixed buffer of that size will be created to back the channel. If it is `0` or
            *     `null` (or is just missing), the new channel will be unbuffered.
-           * @param {module:cispy~transducer} [xform] A transducer to run each value through before putting it onto the channel.
-           *     This function should expect one parameter (another transducer that it's chained to) and return an object that
-           *     conforms to the transducer protocol. This is a reasonably well-supported protocol that means that transducers
-           *     from a few libraries should work fine out of the box. If a transducer is provided on an unbuffered channel, an
-           *     error will be thrown.
-           * @param {module:cispy~exceptionHandler} [handler] An error handler that is run whenever an error occurs inside a
-           *     transducer function. If that happens, this function is called with one parameter, which is the error object.
+           * @param {Object} [options] A set of options for configuring the channel's queue.
+           * @param {module:cispy~transducer} [options.transducer] A transducer to run each value through before putting it onto
+           *     the channel. This function should expect one parameter (another transducer that it's chained to) and return an
+           *     object that conforms to the transducer protocol. This is a reasonably well-supported protocol that means that
+           *     transducers from a few libraries should work fine out of the box. If a transducer is provided on an unbuffered
+           *     channel, an error will be thrown.
+           * @param {module:cispy~exceptionHandler} [options.handler] An error handler that is run whenever an error occurs inside
+           *     a transducer function. If that happens, this function is called with one parameter, which is the error object.
            *     The value that the handler returns (if it is not `{@link module:cispy~Cispy.CLOSED|CLOSED}`) will be put onto the
            *     channel when the handler finishes running.
-           * @param {Object} [options] A set of options for configuring the channel's queue.
            * @param {number} [options.maxDirty=64] The maximum number of dirty operations that can be in the queue
            *     before those operations are subject to being purged. Dirty operations are those that may not be valid anymore
            *     because they were in the list of operations passed to `alts` but were not chosen to run. This provides a chance
@@ -3045,18 +3040,26 @@
 
           function chan() {
             var buffer = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-            var xform = arguments.length > 1 ? arguments[1] : undefined;
-            var handler = arguments.length > 2 ? arguments[2] : undefined;
-            var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+
+            var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+              _ref2$transducer = _ref2.transducer,
+              transducer = _ref2$transducer === void 0 ? undefined : _ref2$transducer,
+              _ref2$handler = _ref2.handler,
+              handler = _ref2$handler === void 0 ? undefined : _ref2$handler,
+              _ref2$maxDirty = _ref2.maxDirty,
+              maxDirty = _ref2$maxDirty === void 0 ? MAX_DIRTY : _ref2$maxDirty,
+              _ref2$maxQueued = _ref2.maxQueued,
+              maxQueued = _ref2$maxQueued === void 0 ? MAX_QUEUED : _ref2$maxQueued;
+
             var buf = buffer === 0 ? null : buffer;
             var b = typeof buf === 'number' ? fixed(buf) : buf;
 
-            if (xform && !b) {
+            if (transducer && !b) {
               throw Error('Only buffered channels can use transformers');
             }
 
-            var xf = wrapTransformer(xform ? xform(bufferReducer) : bufferReducer, handler);
-            return channel(b, xf, false, options);
+            var xf = wrapTransformer(transducer ? transducer(bufferReducer) : bufferReducer, handler);
+            return channel(b, xf, false, maxDirty, maxQueued);
           }
           /**
            * **Creates a new unbuffered channel that closes after some amount of time.**
