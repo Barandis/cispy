@@ -161,7 +161,7 @@ function randomArray(n) {
  *     not set, the `alts` call will block until one of the operations completes and that value and channel will be the
  *     ones returned.
  */
-function altsAsync(ops, callback, options) {
+function altsAsync(ops, callback, options = {}) {
   const count = ops.length;
   if (count === 0) {
     throw Error('Alts called with no operations');
@@ -440,13 +440,9 @@ function alts(ops, options = {}) {
  */
 function sleep(delay = 0) {
   return new Promise(resolve => {
-    if (delay === 0) {
-      setTimeout(resolve, 0);
-    } else {
-      const ch = chan();
-      setTimeout(() => ch.close(), delay);
-      takeAsync(ch, resolve);
-    }
+    const ch = chan();
+    setTimeout(() => ch.close(), delay);
+    takeAsync(ch, resolve);
   });
 }
 
