@@ -5,7 +5,7 @@ const sinon = require('sinon');
 const { fixed, dropping, sliding } = require('../../src/modules/buffers');
 const { chan, timeout, close, CLOSED } = require('../../src/modules/channel');
 const { config, SET_TIMEOUT } = require('../../src/modules/dispatcher');
-const { go, sleep, put, take, alts } = require('../../src/modules/ops');
+const { go, sleep, put, take, takeAsync, altsAsync } = require('../../src/modules/ops');
 
 const { compose, protocols, transducers } = require('xduce');
 const t = transducers;
@@ -31,52 +31,61 @@ describe('CSP channel', () => {
     it('cannot queue more than 1024 puts at once', done => {
       const ch = chan();
 
-      try {
-        for (let i = 0; i < 1025; ++i) {
-          go(async () => {
-            await put(ch, i);
-          });
-        }
-        expect.fail();
-      } catch (ex) {
-        expect(ex.message).to.equal('No more than 1024 pending puts are allowed on a single channel');
-      } finally {
-        done();
+      for (let i = 0; i < 1024; ++i) {
+        go(async () => {
+          await put(ch, i);
+        });
       }
+      go(async () => {
+        try {
+          await put(ch, 1025);
+          expect.fail();
+        } catch (ex) {
+          expect(ex.message).to.equal('No more than 1024 pending puts are allowed on a single channel');
+        } finally {
+          done();
+        }
+      });
     });
 
     it('cannot queue more than 1024 takes at once', done => {
       const ch = chan();
 
-      try {
-        for (let i = 0; i < 1025; ++i) {
-          go(async () => {
-            await take(ch);
-          });
-        }
-        expect.fail();
-      } catch (ex) {
-        expect(ex.message).to.equal('No more than 1024 pending takes are allowed on a single channel');
-      } finally {
-        done();
+      for (let i = 0; i < 1024; ++i) {
+        go(async () => {
+          await take(ch);
+        });
       }
+      go(async () => {
+        try {
+          await take(ch);
+          expect.fail();
+        } catch (ex) {
+          expect(ex.message).to.equal('No more than 1024 pending takes are allowed on a single channel');
+        } finally {
+          done();
+        }
+      });
     });
 
     it('can configure how many pending puts/takes to allow', done => {
       const ch = chan(0, null, null, { maxQueued: 2 });
 
-      try {
-        for (let i = 0; i < 3; ++i) {
-          go(async () => {
-            await take(ch);
-          });
-        }
-        expect.fail();
-      } catch (ex) {
-        expect(ex.message).to.equal('No more than 2 pending takes are allowed on a single channel');
-      } finally {
-        done();
+      for (let i = 0; i < 2; ++i) {
+        go(async () => {
+          await take(ch);
+        });
       }
+      go(async () => {
+        try {
+          await take(ch);
+          expect.fail();
+        } catch (ex) {
+          expect(ex.message).to.equal('No more than 2 pending takes are allowed on a single channel');
+        } finally {
+          done();
+        }
+      });
     });
 
     describe('buffer argument', () => {
@@ -233,7 +242,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('closes the channel if hte transducer reduces the value early', done => {
+      it('closes the channel if the transducer reduces the value early', done => {
         const ch = chan(3, t.take(2));
 
         go(async () => {
@@ -251,7 +260,11 @@ describe('CSP channel', () => {
       });
 
       it('handles composed transformers', done => {
-        const xform = compose(t.map(x => x * 3), t.filter(even), t.take(3));
+        const xform = compose(
+          t.map(x => x * 3),
+          t.filter(even),
+          t.take(3)
+        );
         const ch = chan(10, xform);
 
         go(async () => {
@@ -270,7 +283,13 @@ describe('CSP channel', () => {
       });
 
       it('correctly closes the channel even if another taker is active', done => {
-        const ch = chan(10, compose(t.flatten(), t.take(3)));
+        const ch = chan(
+          10,
+          compose(
+            t.flatten(),
+            t.take(3)
+          )
+        );
         const out = chan();
         const ctrl = chan();
 
@@ -357,11 +376,11 @@ describe('CSP channel', () => {
         };
 
         const ch = chan(1, stepErrorTransducer, exh);
-        go(async() => {
+        go(async () => {
           await put(ch, 1);
         });
 
-        go(async() => {
+        go(async () => {
           // The step function runs when a channel is taken from, so
           await take(ch);
         });
@@ -433,36 +452,29 @@ describe('CSP channel', () => {
     afterEach(() => clock.restore());
     after(() => config({ dispatchMethod: null }));
 
-    it('creates a channel that closes after a certain amount of time', done => {
+    it('creates a channel that closes after a certain amount of time', () => {
       const spy = sinon.spy();
       const ch = timeout(500);
 
-      go(async () => {
-        await take(ch);
+      takeAsync(ch, value => {
+        expect(value).to.equal(CLOSED);
         spy();
       });
 
       expect(spy).not.to.be.called;
-
-      clock.tick(250);
-      expect(spy).not.to.be.called;
-
-      clock.tick(300);
+      clock.tick(600);
       expect(spy).to.be.called;
-
-      done();
     });
 
     it('marks itself as a timeout channel', () => {
       expect(timeout(0).timeout).to.be.true;
     });
 
-    it('is useful in limiting how long an alts call will wait', done => {
+    it('is useful in limiting how long an alts call will wait', () => {
       const spy = sinon.spy();
       const chs = [chan(), chan(), timeout(500)];
 
-      go(async () => {
-        await alts(chs);
+      altsAsync(chs, () => {
         spy();
       });
 
@@ -473,8 +485,6 @@ describe('CSP channel', () => {
 
       clock.tick(300);
       expect(spy).to.be.called;
-
-      done();
     });
   });
 

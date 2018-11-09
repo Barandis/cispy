@@ -1,17 +1,5 @@
 /* eslint-disable max-lines */
 
-// ********************************************************************************************************************
-// IMPORTANT NOTE
-//
-// These tests are currently non-deterministic, because I don't yet have a way to fake timers in the context of native
-// promises. These tests are largely done with actual small delays, which means that normal, short delays in execution
-// can cause them to fail. They're good enough for me to check as I'm coding, but they're not good enough to run in a
-// CI environment or just for someone who wants to run the tests to ensure correctness.
-//
-// For this reason, I'm calling `skip` on all tests of promise-based channels until I work out how to make these tests
-// deterministic.
-// ********************************************************************************************************************
-
 const { expect } = require('../helper');
 const sinon = require('sinon');
 
@@ -19,37 +7,35 @@ const { chan, close, CLOSED, DEFAULT } = require('../../src/modules/channel');
 const { put, take, takeOrThrow, alts, sleep, putAsync, takeAsync } = require('../../src/modules/ops');
 const { config, SET_TIMEOUT } = require('../../src/modules/dispatcher');
 
-describe.skip('Promise functions', () => {
-  // Sleep continues to vex, as the promise-based version fails while using Sinon's fake timers. I've opted to
-  // leave in a test using raw setTimeout calls set to short enough to not make the testing process too long, but
-  // I'm not particularly pleased about it.
+async function cycle() {
+  return Promise.resolve();
+}
+
+describe('Channel operations', () => {
   describe('sleep', () => {
-    // let clock;
+    let clock;
 
     before(() => config({ dispatchMethod: SET_TIMEOUT }));
-    // beforeEach(() => (clock = sinon.useFakeTimers()));
-    // afterEach(() => clock.restore());
+    beforeEach(() => (clock = sinon.useFakeTimers()));
+    afterEach(() => clock.restore());
     after(() => config({ dispatchMethod: null }));
 
-    it('causes an async function to block for a certain amount of time', done => {
+    it('causes an async function to block for a certain amount of time', async () => {
       const spy = sinon.spy();
 
-      async function proc() {
-        await sleep(25);
+      sleep(500).then(() => {
         spy();
-      }
-      proc();
+      });
 
-      // clock.tick(250);
-      // expect(spy).not.to.be.called;
-      setTimeout(() => expect(spy).not.to.be.called, 10);
+      expect(spy).not.to.be.called;
 
-      // clock.tick(500);
-      // expect(spy).to.be.called;
-      setTimeout(() => {
-        expect(spy).to.be.called;
-        done();
-      }, 40);
+      clock.tick(250);
+      await cycle();
+      expect(spy).not.to.be.called;
+
+      clock.tick(300);
+      await cycle();
+      expect(spy).to.be.called;
     });
   });
 

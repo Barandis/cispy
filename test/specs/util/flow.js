@@ -71,11 +71,14 @@ async function join(num, end, done) {
   done();
 }
 
-describe.skip('Flow control functions', () => {
+describe('Flow control functions', () => {
   describe('pipe', () => {
     it('feeds all of the values from one channel to another', done => {
       const input = chan();
-      const output = pipe(input, chan());
+      const output = pipe(
+        input,
+        chan()
+      );
 
       (async () => {
         expect(await take(output)).to.equal(1729);
@@ -92,7 +95,10 @@ describe.skip('Flow control functions', () => {
     it('closes the output channel when the input channel closes', done => {
       const input = chan();
       const output = chan();
-      pipe(input, output);
+      pipe(
+        input,
+        output
+      );
 
       (async () => {
         expect(await take(output)).to.equal(CLOSED);
@@ -105,7 +111,11 @@ describe.skip('Flow control functions', () => {
     it('keeps the output channel open with keepOpen', done => {
       const input = chan();
       const output = chan();
-      pipe(input, output, true);
+      pipe(
+        input,
+        output,
+        true
+      );
 
       (async () => {
         expect(await take(output)).to.equal(1729);
@@ -126,7 +136,10 @@ describe.skip('Flow control functions', () => {
       const output = chan();
       const start = chan();
       const finished = chan();
-      pipe(input, output);
+      pipe(
+        input,
+        output
+      );
 
       (async () => {
         // First put to soon-to-be closed channel and is lost

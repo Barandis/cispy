@@ -46,7 +46,7 @@ async function expectChannel(channel, expected, end, start) {
   }
 }
 
-describe.skip('Channel conversion functions', () => {
+describe('Channel conversion functions', () => {
   describe('reduce', () => {
     it('creates a one-value channel with the reduction value of the input channel', done => {
       const input = chan();
