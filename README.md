@@ -47,6 +47,16 @@ async function player(name) {
 go(main);
 ```
 
+## Features
+
+- Full implementation of channels, including the dispatch mechanism to make them act nicely
+- Utility functions to make "async functions as processes" work more elegantly
+- Channels will accept any value other than `CLOSED`, including `null` and `undefined`
+- Channels are independent of processes (unlike the Actor model), so each can have an arbitrary number of senders and receivers
+- Processes have the ability to listen to multiple channels simultaneously and respond to the first action
+- Values on channels can be modified by transducers, available in the [xduce](https://barandis.github.io/xduce) library
+- A full suite of channel utilities for combining, separating, tapping and throttling channels, etc.
+
 ## Documentation
 
 See [the github.io page](https://barandis.github.io/cispy) for all of the documentation.
