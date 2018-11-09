@@ -1379,7 +1379,7 @@ that are available to <code><a href="module-cispy-Cispy.html#.alts">alts</a></co
 
     
 
-    <h4 class="name" id=".chan"><span class="type-signature">(static) </span>chan<span class="signature">(buffer<span class="signature-attributes">opt</span>, xform<span class="signature-attributes">opt</span>, handler<span class="signature-attributes">opt</span>, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="module-cispy_channel-Channel.html">module:cispy/channel~Channel</a>}</span></h4>
+    <h4 class="name" id=".chan"><span class="type-signature">(static) </span>chan<span class="signature">(buffer<span class="signature-attributes">opt</span>, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="module-cispy_channel-Channel.html">module:cispy/channel~Channel</a>}</span></h4>
 
     
 
@@ -1535,87 +1535,6 @@ receive an error object as a parameter and can return a value that is then put o
 
         <tr>
             
-                <td class="name"><code>xform</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-cispy.html#~transducer">module:cispy~transducer</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>A transducer to run each value through before putting it onto the channel.
-    This function should expect one parameter (another transducer that it's chained to) and return an object that
-    conforms to the transducer protocol. This is a reasonably well-supported protocol that means that transducers
-    from a few libraries should work fine out of the box. If a transducer is provided on an unbuffered channel, an
-    error will be thrown.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>handler</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-cispy.html#~exceptionHandler">module:cispy~exceptionHandler</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>An error handler that is run whenever an error occurs inside a
-    transducer function. If that happens, this function is called with one parameter, which is the error object.
-    The value that the handler returns (if it is not <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>) will be put onto the
-    channel when the handler finishes running.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
                 <td class="name"><code>options</code></td>
             
 
@@ -1672,6 +1591,87 @@ receive an error object as a parameter and can return a value that is then put o
     </thead>
 
     <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>transducer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy.html#~transducer">module:cispy~transducer</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>A transducer to run each value through before putting it onto
+    the channel. This function should expect one parameter (another transducer that it's chained to) and return an
+    object that conforms to the transducer protocol. This is a reasonably well-supported protocol that means that
+    transducers from a few libraries should work fine out of the box. If a transducer is provided on an unbuffered
+    channel, an error will be thrown.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handler</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-cispy.html#~exceptionHandler">module:cispy~exceptionHandler</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>An error handler that is run whenever an error occurs inside
+    a transducer function. If that happens, this function is called with one parameter, which is the error object.
+    The value that the handler returns (if it is not <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>) will be put onto the
+    channel when the handler finishes running.</p></td>
+        </tr>
+
     
 
         <tr>
@@ -1819,7 +1819,7 @@ receive an error object as a parameter and can return a value that is then put o
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line740">line 740</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line743">line 743</a>
     </li></ul></dd>
     
 
@@ -3822,7 +3822,7 @@ if (Error.prototype.isPrototypeOf(value)) {
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line720">line 720</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line723">line 723</a>
     </li></ul></dd>
     
 
