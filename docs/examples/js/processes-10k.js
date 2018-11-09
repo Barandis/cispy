@@ -39,7 +39,7 @@ function render(queue) {
 
 function renderLoop(rate) {
   // 1000-element buffered channel that will accept 4096 queued operations
-  const main = chan(1000, null, null, { maxQueued: 4096 });
+  const main = chan(1000, { maxQueued: 4096 });
   let refresh = timeout(rate);
   let queue = [];
 

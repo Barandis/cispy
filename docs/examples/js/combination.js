@@ -44,9 +44,9 @@ function setStatus(html) {
   setHtml('status', text);
 }
 
-const chA = listen(byId('button-a'), 'click', chan(1, map(constantly(A))));
-const chB = listen(byId('button-b'), 'click', chan(1, map(constantly(B))));
-const chC = listen(byId('button-c'), 'click', chan(1, map(constantly(C))));
+const chA = listen(byId('button-a'), 'click', chan(1, { transducer: map(constantly(A)) }));
+const chB = listen(byId('button-b'), 'click', chan(1, { transducer: map(constantly(B)) }));
+const chC = listen(byId('button-c'), 'click', chan(1, { transducer: map(constantly(C)) }));
 
 go(async () => {
   let clicks = [];

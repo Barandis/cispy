@@ -98,8 +98,8 @@ function coordinates(el) {
 
 go(async () => {
   const el = document.querySelector('#transducers');
-  const mouseCh = listen(el, 'mousemove', chan(1, map(coordinates(el))));
-  const clickCh = listen(el, 'click', chan(1, map(coordinates(el))));
+  const mouseCh = listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) }));
+  const clickCh = listen(el, 'click', chan(1, { transducer: map(coordinates(el)) }));
   let mousePos = { x: 0, y: 0 };
   let clickPos = { x: 0, y: 0 };
 
@@ -120,8 +120,8 @@ go(async () => {
 
 go(async () => {
   const el = document.querySelector('#debounce');
-  const mouseCh = debounce(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
-  const clickCh = listen(el, 'click', chan(1, map(coordinates(el))));
+  const mouseCh = debounce(listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) })), 500);
+  const clickCh = listen(el, 'click', chan(1, { transducer: map(coordinates(el)) }));
   let mousePos = { x: 0, y: 0 };
   let clickPos = { x: 0, y: 0 };
 
@@ -138,8 +138,8 @@ go(async () => {
 
 go(async () => {
   const el = document.querySelector('#throttle');
-  const mouseCh = throttle(listen(el, 'mousemove', chan(1, map(coordinates(el)))), 500);
-  const clickCh = listen(el, 'click', chan(1, map(coordinates(el))));
+  const mouseCh = throttle(listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) })), 500);
+  const clickCh = listen(el, 'click', chan(1, { transducer: map(coordinates(el)) }));
   let mousePos = { x: 0, y: 0 };
   let clickPos = { x: 0, y: 0 };
 
