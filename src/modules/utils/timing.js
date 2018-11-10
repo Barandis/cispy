@@ -60,8 +60,8 @@ function isNumber(x) {
  * @memberOf module:cispy/utils~CispyUtils
  * @param {module:cispy/channel~Channel} src The source channel.
  * @param {(number|module:cispy/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
- *     this is a number, a {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or
- *     not present, the channel will be unbuffered.
+ *     this is a number, a {@link module:cispy/buffers~FixedBuffer|FixedBuffer} of that size will be used. If this is
+ *     `0` or not present, the channel will be unbuffered.
  * @param {number} delay The debouncing delay, in milliseconds.
  * @param {Object} [options={}] A set of options to further configure the debouncing.
  * @param {boolean} [options.leading=false] Instead of making a value available on the destination channel after the
@@ -79,7 +79,7 @@ function isNumber(x) {
  * @param {module:cispy/channel~Channel} [options.cancel] A channel used to signal a cancellation of the
  *     debouncing. Any value put onto this channel will cancel the current debouncing operation, closing the output
  *     channel and discarding any values that were waiting for the debounce threshold timer to be sent to the output.
- * @return {module:cispy/channel~Channel}} The newly-created destination channel, where all of the values will be
+ * @return {module:cispy/channel~Channel} The newly-created destination channel, where all of the values will be
  *     debounced from the source channel.
  */
 function debounce(src, buffer, delay, options) {
@@ -170,8 +170,8 @@ function debounce(src, buffer, delay, options) {
  * @memberOf module:cispy/utils~CispyUtils
  * @param {module:cispy/channel~Channel} src The source channel.
  * @param {(number|module:cispy/buffers~Buffer)} [buffer=0] A buffer used to create the destination channel. If
- *     this is a number, a {@link module:cispy/buffers~FixedBuffer} of that size will be used. If this is `0` or
- *     not present, the channel will be unbuffered.
+ *     this is a number, a {@link module:cispy/buffers~FixedBuffer|FixedBuffer} of that size will be used. If this is
+ *     `0` or not present, the channel will be unbuffered.
  * @param {number} delay The throttling delay, in milliseconds.
  * @param {Object} [options={}] A set of options to further configure the throttling.
  * @param {boolean} [options.leading=true] Makes the value that triggered the throttling immediately available on the

@@ -63,7 +63,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line206">line 206</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line205">line 205</a>
     </li></ul></dd>
     
 
@@ -106,9 +106,9 @@
 <p>For each operation, the channel first tests to see if there's a corresponding operation already queued (i.e., if
 we're doing a <code>put</code> that there's a queued <code>take</code> and vice versa). If there is, that corresponding operation is
 unblocked and both operations complete. If not, the operation is queued to wait for a corresponding operation. The
-process or async function that created the operation then blocks.</p>
+process or that created the operation then blocks.</p>
 <p>The channel can be backed by a buffer, though it is not by default. If a buffer is in place, and that buffer is not
-full, then the process/async function that created an operation that has to be queued is <strong>not</strong> blocked.</p>
+full, then the process that created an operation that has to be queued is <strong>not</strong> blocked.</p>
 <p>This channel object supports transformations, assuming that they follow the rather informal protocol created by a
 few transducer library authors to allow them to interoperate. The support must be explicitly created because the
 normal method of making an object support transformations won't work here. This method is to create a new object
@@ -118,7 +118,7 @@ transformed values, in the same order even in a multi-process environment. Thus 
 the transformation still happens. Also, transformations require that the channel be buffered (this buffer is what
 is sent to the transformer's reduction step function); trying to create a channel with a transformer but without a
 buffer will result in an error being thrown.</p>
-<p>This is the object that is returned from a call to chan(). However, this
+<p>This is the object that is returned from a call to <a href="module-cispy-Cispy.html#.chan">chan()</a>. However, this
 object is intended to be used as a value to pass to channel operation functions; the function properties on this
 object are low-level.</p></div>
             
@@ -154,7 +154,7 @@ object are low-level.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line248">line 248</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line247">line 247</a>
     </li></ul></dd>
     
 
@@ -227,7 +227,7 @@ object are low-level.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line235">line 235</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line234">line 234</a>
     </li></ul></dd>
     
 
@@ -300,7 +300,7 @@ object are low-level.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line261">line 261</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line260">line 260</a>
     </li></ul></dd>
     
 

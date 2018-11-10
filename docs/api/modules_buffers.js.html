@@ -184,7 +184,7 @@ function queue() {
     },
 
     /**
-     * Filters out any item in the queue that does not cause the supplied predicate functoin to return `true` when
+     * Filters out any item in the queue that does not cause the supplied predicate function to return `true` when
      * passed that item. This is not exactly a general purpose queue operation, but we need it with channels that will
      * occasionally want to get rid of inactive handlers.
      *
@@ -378,7 +378,7 @@ function dropping(size) {
   /**
    * A buffer implementation that drops newly added items when the buffer is full.
    *
-   * This dropping behavior is silent: the new item is simply not added to the queue. Note taht this buffer is never
+   * This dropping behavior is silent: the new item is simply not added to the queue. Note that this buffer is never
    * `full` because it can always be added to wiehtout exceeding the size, even if that 'adding' doesn't result in a new
    * item actually appearing in the buffer.
    *

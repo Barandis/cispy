@@ -30,7 +30,7 @@
  */
 
 /**
- * A set of utility functions using generators (processes) to work with channels.
+ * A set of utility functions using processes to work with channels.
  *
  * These are all accessed through the `cispy.utils` namespace; e.g.,
  * `{@link module:cispy/utils~CispyUtils.reduce|reduce}` can be called like this:

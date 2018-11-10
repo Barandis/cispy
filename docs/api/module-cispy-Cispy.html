@@ -180,8 +180,8 @@ accessible as a member of the main <code>cispy</code> object that is required, i
     <p><strong>The value returned from a take on a channel when that channel is closed and has no more values available.</strong></p>
 <p>This is a special value that is returned under a certain circumstance, namely when a take is performed on a closed
 channel. Because of that, it cannot be returned from a take on an open channel. For that reason, <code>CLOSED</code> is the
-only value that cannot be put onto a channel - it would be impossible to distinguish between a legitimate value of
-<code>CLOSED</code> and an actual closed channel.</p>
+only value that cannot be put onto a channel &mdash; it would be impossible to distinguish between a legitimate
+value of <code>CLOSED</code> and an actual closed channel.</p>
 </div>
 
 
@@ -214,7 +214,7 @@ only value that cannot be put onto a channel - it would be impossible to disting
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line105">line 105</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line104">line 104</a>
     </li></ul></dd>
     
 
@@ -254,8 +254,8 @@ only value that cannot be put onto a channel - it would be impossible to disting
 
 
 <div class="description">
-    <p><strong>The name of the channel returned from <code>await <a href="module-cispy-Cispy.html#.alts">alts</a></code> (generator),
-await <a href="module-cispy-Cispy.html#.alts">alts</a><code>(promise), and</code><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a>` when the default is returned as its value.</strong></p>
+    <p><strong>The name of the channel returned from  <code>await <a href="module-cispy-Cispy.html#.alts">alts</a></code> or sent to the callback in
+<code><a href="module-cispy-Cispy.html#.altsAsync">altsAsync</a></code> when the default is returned as its value.</strong></p>
 <p>This only happens when an alts call is performed, all operations are initially blocking, and a <code>default</code> option is
 sent. The immediate response in that situation is <code>{ value: options.default, channel: DEFAULT }</code>.</p>
 </div>
@@ -698,7 +698,7 @@ as a last resort.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line416">line 416</a>
+        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line414">line 414</a>
     </li></ul></dd>
     
 
@@ -1044,7 +1044,7 @@ special value <code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a></code
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line164">line 164</a>
+        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line163">line 163</a>
     </li></ul></dd>
     
 
@@ -1088,10 +1088,9 @@ special value <code><a href="module-cispy-Cispy.html#.DEFAULT">DEFAULT</a></code
 <p>This means that a call to <code>altsAsync</code> does not go into an <code>await</code> expression, and it is not necessary to use it
 inside a process. Rather than blocking until an operation completes, this one returns immediately and then invokes
 the callback (if provided) as soon as one of the supplied operations completes. It can be regarded as a
-non-blocking version of generator-based <code><a href="module-cispy-Cispy.html#.alts">alts</a></code> or promise-based
-<code>alts</code>.</p>
-<p>This function uses an operations list that's identical to the one used by <code>alts</code>. It's
-an array of values; if a value is a channel, then that operation is a take on that channel, while if it's a
+non-blocking version of <code><a href="module-cispy-Cispy.html#.alts">alts</a></code>.</p>
+<p>This function uses an operations list that's identical to the one used by <code><a href="module-cispy-Cispy.html#.alts">alts</a></code>.
+It's an array of values; if a value is a channel, then that operation is a take on that channel, while if it's a
 two-element array of channel and value, then that operation is a put of that value onto that channel. All options
 that are available to <code><a href="module-cispy-Cispy.html#.alts">alts</a></code> are also available here.</p>
 <p>The callback is a function of one parameter, which in this case is an object with <code>value</code> and <code>channel</code> properties.</p>
@@ -1391,7 +1390,7 @@ that are available to <code><a href="module-cispy-Cispy.html#.alts">alts</a></co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line695">line 695</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line694">line 694</a>
     </li></ul></dd>
     
 
@@ -1433,7 +1432,7 @@ that are available to <code><a href="module-cispy-Cispy.html#.alts">alts</a></co
 <div class="description">
     <p><strong>Creates and returns a new channel.</strong></p>
 <p>By default this channel will be a simple unbuffered, untransformed channel, but that can be changed through
-parameters to this function. A channel does not have any externally useful functions. It exists largely to be
+options. A channel does not have any externally useful functions. It exists largely to be
 passed into <code><a href="module-cispy-Cispy.html#.put">put</a></code>, <code><a href="module-cispy-Cispy.html#.take">take</a></code>, and
 <code><a href="module-cispy-Cispy.html#.alts">alts</a></code> invocations, along with their non-blocking variations
 (<code><a href="module-cispy-Cispy.html#.putAsync">putAsync</a></code>, <code>takeAsync</code>, and
@@ -1443,7 +1442,7 @@ completely missing, the channel will be unbuffered. If it's a positive number, t
 <a href="module-cispy_buffers-FixedBuffer.html">FixedBuffer</a> of that size. If it's a
 <a href="module-cispy_buffers-Buffer.html">Buffer</a> object, that object will be used as the channel's buffer.</p>
 <p><code>chan</code> supports transducers by allowing a transducer function to be associated with it. This is passed as the
-second parameter and can only be used if the channel is buffered (otherwise an error is thrown). This transducer
+<code>transducer</code> option and can only be used if the channel is buffered (otherwise an error is thrown). This transducer
 function must take another transducer as a parameter (allowing transformers to be chained), and it must return an
 object conforming to the transducer protocol. The transducer functions provided by several libraries meet these
 requirements.</p>
@@ -1819,7 +1818,7 @@ receive an error object as a parameter and can return a value that is then put o
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line743">line 743</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line742">line 742</a>
     </li></ul></dd>
     
 
@@ -1862,7 +1861,7 @@ receive an error object as a parameter and can return a value that is then put o
     <p><strong>Closes a channel.</strong></p>
 <p>Marks a particular channel as closed. A closed channel cannot accept any new puts
 (<code><a href="module-cispy-Cispy.html#.put">put</a></code> will return <code>false</code> if an attempt is made, and no new value will be on the
-channel). If it's buffered, it will* still provide the values that are already on the channel until all of them are
+channel). If it's buffered, it <em>will</em> still provide the values that are already on the channel until all of them are
 taken, after which any <code><a href="module-cispy-Cispy.html#.take">take</a></code> will return <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>.</p>
 <p>If there are pending takes on a channel when it's closed, then all takes will immediately return with
 <code><a href="module-cispy-Cispy.html#.CLOSED">CLOSED</a></code>.</p>
@@ -2516,7 +2515,7 @@ block until at least one item is removed from the buffer.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line461">line 461</a>
+        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line458">line 458</a>
     </li></ul></dd>
     
 
@@ -2717,7 +2716,7 @@ at least releases us from the need to put the empty parentheses after the functi
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line302">line 302</a>
+        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line300">line 300</a>
     </li></ul></dd>
     
 
@@ -2924,7 +2923,7 @@ another process, or <code>false</code> if the unblocking happened because the ta
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line246">line 246</a>
+        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line244">line 244</a>
     </li></ul></dd>
     
 
@@ -2968,8 +2967,7 @@ another process, or <code>false</code> if the unblocking happened because the ta
 <p>This means that a call to <code>putAsync</code> does not go into an <code>await</code> expression, and it is not necessary to use it
 inside a process. Rather than blocking until the put value is taken by another process, this one returns
 immediately and then invokes the callback (if provided) when the put value is taken. It can be seen as a
-non-blocking version of generator-based <code><a href="module-cispy-Cispy.html#.put">put</a></code> or promise-based
-<code>put</code>.</p>
+non-blocking version of <code><a href="module-cispy-Cispy.html#.put">put</a></code>.</p>
 <p>While the primary use of this function is to put values onto channels in contexts where being inside a process is
 impossible (for example, in a DOM element's event handler), it can still be used inside processes at times when
 it's important to make sure that the process doesn't block from the put.</p>
@@ -3146,7 +3144,7 @@ present, nothing will happen after the value is taken.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line441">line 441</a>
+        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line438">line 438</a>
     </li></ul></dd>
     
 
@@ -3188,9 +3186,8 @@ present, nothing will happen after the value is taken.</p>
 <div class="description">
     <p><strong>Blocks the process for the specified time (in milliseconds) and then unblocks it.</strong></p>
 <p>This implements a delay, but one that's superior to other kinds of delays (<code>setTimeout</code>, etc.) because it blocks
-the process and allows the dispatcher to allow other processes to run while this one waits. If the delay is set to
-<code>0</code> or is missing altogether, the process will relinquish control to the next process in the queue and immediately
-reschedule itself to be continued, rather than blocking.</p>
+the process and allows the dispatcher to allow other processes to run while this one waits. The default delay is 0,
+which will release the process to allow others to run and then immediately re-queue it.</p>
 <p>This function <em>must</em> be called from within an <code>async</code> function and as part of an <code>await</code> expression.</p>
 <p>When this function completes and its process unblocks, the <code>await</code> expression doesn't take on any meaningful value.
 The purpose of this function is simply to delay, not to communicate any data.</p>
@@ -3489,7 +3486,7 @@ therefore a put to a channel buffered by a sliding buffer never blocks.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line325">line 325</a>
+        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line323">line 323</a>
     </li></ul></dd>
     
 
@@ -3652,7 +3649,7 @@ returned.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line359">line 359</a>
+        <a href="modules_ops.js.html">modules/ops.js</a>, <a href="modules_ops.js.html#line357">line 357</a>
     </li></ul></dd>
     
 
@@ -3822,7 +3819,7 @@ if (Error.prototype.isPrototypeOf(value)) {
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line723">line 723</a>
+        <a href="modules_channel.js.html">modules/channel.js</a>, <a href="modules_channel.js.html#line722">line 722</a>
     </li></ul></dd>
     
 

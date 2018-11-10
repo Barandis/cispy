@@ -100,7 +100,7 @@ function isNumber(x) {
  * Because of the ability to leave the destination channel open, a possible use case for this function is to wrap the
  * destination channel(s) of one of the other flow control functions below to have a channel that survives the source
  * channel closing. The rest of those functions (aside from the special-case
- * `{@link module:cispy/promise/util~CispyPromiseUtil.tap}`) automatically close their destination channels when the
+ * `{@link module:cispy/util~CispyUtils.tap|tap}`) automatically close their destination channels when the
  * source channels close.
  *
  * ```
@@ -337,10 +337,10 @@ function merge(srcs, buffer = 0) {
  * @param  {module:cispy/channel~Channel} src The source channel.
  * @param  {...(number|module:cispy/buffers~Buffer)} [buffers=2] The buffers used to create the destination
  *     channels. Each entry is treated separately. If one is a number, then a
- *     {@link module:cispy/buffers~FixedBuffer} of that size will be used. If one is a `0`, then the corresponding
- *     channel will be unbuffered. **Exception:** if a single number is passed, then that number of unbuferred channels
- *     will be created. This means that the default is to create two unbuffered channels. To create a single channel
- *     with a fixed buffer, use `{@link cispy~Cispy.fixedBuffer}` explicitly.
+ *     {@link module:cispy/buffers~FixedBuffer|FixedBuffer} of that size will be used. If one is a `0`, then the
+ *     corresponding channel will be unbuffered. **Exception:** if a single number is passed, then that number of
+ *     unbuferred channels will be created. This means that the default is to create two unbuffered channels. To create
+ *     a single channel with a fixed buffer, use `{@link cispy~Cispy.fixedBuffer|fixedBuffer}` explicitly.
  * @return {module:cispy/channel~Channel[]} An array of destination channels.
  */
 function split(src, ...buffers) {
@@ -441,11 +441,11 @@ function tapped(src) {
  * A source channel can be tapped multiple times, and all of the tapping (destination) channels receive each value put
  * onto the tapped (source) channel.
  *
- * This is different from `{@link module:cispy/utils~CispyUtils.split}` in that it's temporary. Channels
+ * This is different from `{@link module:cispy/utils~CispyUtils.split|split}` in that it's temporary. Channels
  * can tap a channel and then untap it, multiple times, as needed. If a source channel has all of its taps removed, then
  * it reverts to a normal channel, just as it was before it was tapped.
  *
- * Also unlike `{@link module:cispy/utils~CispyUtils.split}`, each call can only tap once. For multiple
+ * Also unlike `{@link module:cispy/utils~CispyUtils.split|split}`, each call can only tap once. For multiple
  * channels to tap a source channel, `tap` has to be called multiple times.
  *
  * Closing either the source or any of the destination channels has no effect on any of the other channels.

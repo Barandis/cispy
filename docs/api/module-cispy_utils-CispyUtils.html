@@ -102,7 +102,7 @@
 
 
             
-                <div class="description"><p>A set of utility functions using generators (processes) to work with channels.</p>
+                <div class="description"><p>A set of utility functions using processes to work with channels.</p>
 <p>These are all accessed through the <code>cispy.utils</code> namespace; e.g.,
 <code><a href="module-cispy_utils-CispyUtils.html#.reduce">reduce</a></code> can be called like this:</p>
 <pre class="prettyprint source"><code>const output = cispy.utils.reduce((acc, value) => acc + value, ch, 0);</code></pre></div>
@@ -314,8 +314,8 @@ value was put onto the source channel before the delay expired.</p>
             
 
             <td class="description last"><p>A buffer used to create the destination channel. If
-    this is a number, a <a href="module-cispy_buffers-FixedBuffer.html">module:cispy/buffers~FixedBuffer</a> of that size will be used. If this is <code>0</code> or
-    not present, the channel will be unbuffered.</p></td>
+    this is a number, a <a href="module-cispy_buffers-FixedBuffer.html">FixedBuffer</a> of that size will be used. If this is
+    <code>0</code> or not present, the channel will be unbuffered.</p></td>
         </tr>
 
     
@@ -608,7 +608,7 @@ value was put onto the source channel before the delay expired.</p>
 
         
 <div class="param-desc">
-    <p>} The newly-created destination channel, where all of the values will be
+    <p>The newly-created destination channel, where all of the values will be
     debounced from the source channel.</p>
 </div>
 
@@ -1316,7 +1316,7 @@ channel to remain open even when the source channel is closed (the connection is
 <p>Because of the ability to leave the destination channel open, a possible use case for this function is to wrap the
 destination channel(s) of one of the other flow control functions below to have a channel that survives the source
 channel closing. The rest of those functions (aside from the special-case
-<code>module:cispy/promise/util~CispyPromiseUtil.tap</code>) automatically close their destination channels when the
+<code>tap</code>) automatically close their destination channels when the
 source channels close.</p>
 <pre class="prettyprint source"><code>const { go, chan, put, take, close, utils } = cispy;
 const { pipe } = utils;
@@ -1951,10 +1951,10 @@ complete.</p>
 
             <td class="description last"><p>The buffers used to create the destination
     channels. Each entry is treated separately. If one is a number, then a
-    <a href="module-cispy_buffers-FixedBuffer.html">module:cispy/buffers~FixedBuffer</a> of that size will be used. If one is a <code>0</code>, then the corresponding
-    channel will be unbuffered. <strong>Exception:</strong> if a single number is passed, then that number of unbuferred channels
-    will be created. This means that the default is to create two unbuffered channels. To create a single channel
-    with a fixed buffer, use <code>cispy~Cispy.fixedBuffer</code> explicitly.</p></td>
+    <a href="module-cispy_buffers-FixedBuffer.html">FixedBuffer</a> of that size will be used. If one is a <code>0</code>, then the
+    corresponding channel will be unbuffered. <strong>Exception:</strong> if a single number is passed, then that number of
+    unbuferred channels will be created. This means that the default is to create two unbuffered channels. To create
+    a single channel with a fixed buffer, use <code>fixedBuffer</code> explicitly.</p></td>
         </tr>
 
     
@@ -2058,10 +2058,10 @@ complete.</p>
     <p><strong>Taps a channel, sending all of the values put onto it to the destination channel.</strong></p>
 <p>A source channel can be tapped multiple times, and all of the tapping (destination) channels receive each value put
 onto the tapped (source) channel.</p>
-<p>This is different from <code><a href="module-cispy_utils-CispyUtils.html#.split">module:cispy/utils~CispyUtils.split</a></code> in that it's temporary. Channels
+<p>This is different from <code><a href="module-cispy_utils-CispyUtils.html#.split">split</a></code> in that it's temporary. Channels
 can tap a channel and then untap it, multiple times, as needed. If a source channel has all of its taps removed, then
 it reverts to a normal channel, just as it was before it was tapped.</p>
-<p>Also unlike <code><a href="module-cispy_utils-CispyUtils.html#.split">module:cispy/utils~CispyUtils.split</a></code>, each call can only tap once. For multiple
+<p>Also unlike <code><a href="module-cispy_utils-CispyUtils.html#.split">split</a></code>, each call can only tap once. For multiple
 channels to tap a source channel, <code>tap</code> has to be called multiple times.</p>
 <p>Closing either the source or any of the destination channels has no effect on any of the other channels.</p>
 <pre class="prettyprint source"><code>const { go, chan, put, take, utils } = cispy;
@@ -2412,8 +2412,8 @@ value was put onto the source channel before the delay expired.</p>
             
 
             <td class="description last"><p>A buffer used to create the destination channel. If
-    this is a number, a <a href="module-cispy_buffers-FixedBuffer.html">module:cispy/buffers~FixedBuffer</a> of that size will be used. If this is <code>0</code> or
-    not present, the channel will be unbuffered.</p></td>
+    this is a number, a <a href="module-cispy_buffers-FixedBuffer.html">FixedBuffer</a> of that size will be used. If this is
+    <code>0</code> or not present, the channel will be unbuffered.</p></td>
         </tr>
 
     

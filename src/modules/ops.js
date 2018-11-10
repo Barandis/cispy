@@ -136,11 +136,10 @@ function randomArray(n) {
  * This means that a call to `altsAsync` does not go into an `await` expression, and it is not necessary to use it
  * inside a process. Rather than blocking until an operation completes, this one returns immediately and then invokes
  * the callback (if provided) as soon as one of the supplied operations completes. It can be regarded as a
- * non-blocking version of generator-based `{@link module:cispy~Cispy.alts|alts}` or promise-based
- * `{@link module:cispy/promise~CispyPromise.alts|alts}`.
+ * non-blocking version of `{@link module:cispy~Cispy.alts|alts}`.
  *
- * This function uses an operations list that's identical to the one used by `{@link module:cispy~alts|alts}`. It's
- * an array of values; if a value is a channel, then that operation is a take on that channel, while if it's a
+ * This function uses an operations list that's identical to the one used by `{@link module:cispy~Cispy.alts|alts}`.
+ * It's an array of values; if a value is a channel, then that operation is a take on that channel, while if it's a
  * two-element array of channel and value, then that operation is a put of that value onto that channel. All options
  * that are available to `{@link module:cispy~Cispy.alts|alts}` are also available here.
  *
@@ -225,8 +224,7 @@ function altsAsync(ops, callback, options = {}) {
  * This means that a call to `putAsync` does not go into an `await` expression, and it is not necessary to use it
  * inside a process. Rather than blocking until the put value is taken by another process, this one returns
  * immediately and then invokes the callback (if provided) when the put value is taken. It can be seen as a
- * non-blocking version of generator-based `{@link module:cispy~Cispy.put|put}` or promise-based
- * `{@link module:cispy/promise~CispyPromise.put|put}`.
+ * non-blocking version of `{@link module:cispy~Cispy.put|put}`.
  *
  * While the primary use of this function is to put values onto channels in contexts where being inside a process is
  * impossible (for example, in a DOM element's event handler), it can still be used inside processes at times when
@@ -423,9 +421,8 @@ function alts(ops, options = {}) {
  * **Blocks the process for the specified time (in milliseconds) and then unblocks it.**
  *
  * This implements a delay, but one that's superior to other kinds of delays (`setTimeout`, etc.) because it blocks
- * the process and allows the dispatcher to allow other processes to run while this one waits. If the delay is set to
- * `0` or is missing altogether, the process will relinquish control to the next process in the queue and immediately
- * reschedule itself to be continued, rather than blocking.
+ * the process and allows the dispatcher to allow other processes to run while this one waits. The default delay is 0,
+ * which will release the process to allow others to run and then immediately re-queue it.
  *
  * This function *must* be called from within an `async` function and as part of an `await` expression.
  *
