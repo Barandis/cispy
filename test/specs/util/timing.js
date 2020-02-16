@@ -1,32 +1,45 @@
 /* eslint-disable max-lines */
 
 /*
- * Turns out testing the timing of async functions is hard. These tests are suboptimal. I will want to improve them,
- * but they'll suffice for the moment.
+ * Turns out testing the timing of async functions is hard. These tests are
+ * suboptimal. I will want to improve them, but they'll suffice for the moment.
  *
- * The big problem is that they're not terribly compatible with Sinon fake timers. That means that all of these tests
- * are run real-time, with short delays on the debounce and throttle functions to make it so the tests don't take a
- * long time. But with short tests, there is the possibility that a quick delay here or there in the browser or computer
- * will make an otherwise passing test fail.
+ * The big problem is that they're not terribly compatible with Sinon fake
+ * timers. That means that all of these tests are run real-time, with short
+ * delays on the debounce and throttle functions to make it so the tests don't
+ * take a long time. But with short tests, there is the possibility that a quick
+ * delay here or there in the browser or computer will make an otherwise passing
+ * test fail.
  *
- * I have run each of these tests individually. When I do them individually, they never fail (as far as I can tell).
- * That's not good enough for CI and the like (nor should it be), so I have added retries to increase the chance that
- * they'll pass in any environment. THIS IS NOT IDEAL. There's still a chance that good tests can fail four times in a
- * row (though I hope that chance is slim). That's what we've got for now though.
+ * I have run each of these tests individually. When I do them individually,
+ * they never fail (as far as I can tell). That's not good enough for CI and the
+ * like (nor should it be), so I have added retries to increase the chance that
+ * they'll pass in any environment. THIS IS NOT IDEAL. There's still a chance
+ * that good tests can fail four times in a row (though I hope that chance is
+ * slim). That's what we've got for now though.
  */
 
-const { expect } = require('../../helper');
-const sinon = require('sinon');
+const { expect } = require("../../helper");
+const sinon = require("sinon");
 
-const { chan, fixedBuffer, putAsync, takeAsync, sleep, close, CLOSED, utils } = require('../../../src/api');
+const {
+  chan,
+  fixedBuffer,
+  putAsync,
+  takeAsync,
+  sleep,
+  close,
+  CLOSED,
+  utils,
+} = require("../../../src/api");
 
 const { debounce, throttle } = utils;
 
-describe('Channel timing functions', () => {
-  describe('debounce', function() {
+describe("Channel timing functions", () => {
+  describe("debounce", function() {
     this.retries(4);
 
-    it('can accept a buffer value for the output channel', async () => {
+    it("can accept a buffer value for the output channel", async () => {
       const input = chan();
       const output = debounce(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
@@ -47,7 +60,7 @@ describe('Channel timing functions', () => {
       expect(spy).to.be.called;
     });
 
-    it('closes the output channel when the input channel closes', async () => {
+    it("closes the output channel when the input channel closes", async () => {
       const input = chan();
       const output = debounce(input, 100);
 
@@ -58,7 +71,7 @@ describe('Channel timing functions', () => {
       close(input);
     });
 
-    describe('with trailing option', () => {
+    describe("with trailing option", () => {
       let input, output;
 
       beforeEach(() => {
@@ -66,7 +79,7 @@ describe('Channel timing functions', () => {
         output = debounce(input, 100);
       });
 
-      it('holds the input value until the delay expires', async () => {
+      it("holds the input value until the delay expires", async () => {
         const spy = sinon.spy();
 
         putAsync(input, 1729);
@@ -85,7 +98,7 @@ describe('Channel timing functions', () => {
         expect(spy).to.be.called;
       });
 
-      it('restarts the delay if another value is put on the input channel', async () => {
+      it("restarts the delay if another value is put on the input channel", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value => {
@@ -109,7 +122,7 @@ describe('Channel timing functions', () => {
       });
     });
 
-    describe('with leading option and no trailing option', () => {
+    describe("with leading option and no trailing option", () => {
       let input, output;
 
       beforeEach(() => {
@@ -117,7 +130,7 @@ describe('Channel timing functions', () => {
         output = debounce(input, 100, { leading: true, trailing: false });
       });
 
-      it('returns the input value immediately', async () => {
+      it("returns the input value immediately", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value => {
@@ -133,7 +146,7 @@ describe('Channel timing functions', () => {
         expect(spy).to.be.called;
       });
 
-      it('will not allow another input value through until the delay expires', async () => {
+      it("will not allow another input value through until the delay expires", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value1 => {
@@ -163,7 +176,7 @@ describe('Channel timing functions', () => {
       });
     });
 
-    describe('with both leading and trailing option', () => {
+    describe("with both leading and trailing option", () => {
       let input, output;
 
       beforeEach(() => {
@@ -171,7 +184,7 @@ describe('Channel timing functions', () => {
         output = debounce(input, 100, { leading: true });
       });
 
-      it('returns the input value immediately', async () => {
+      it("returns the input value immediately", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value => {
@@ -185,7 +198,7 @@ describe('Channel timing functions', () => {
         expect(spy).to.be.called;
       });
 
-      it('does not return a single input value after the delay expires', async () => {
+      it("does not return a single input value after the delay expires", async () => {
         takeAsync(output, value1 => {
           expect(value1).to.equal(1729);
           takeAsync(output, value2 => {
@@ -198,7 +211,7 @@ describe('Channel timing functions', () => {
         putAsync(input, 1723);
       });
 
-      it('does return a second input value after the delay expires', async () => {
+      it("does return a second input value after the delay expires", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value1 => {
@@ -233,7 +246,7 @@ describe('Channel timing functions', () => {
       });
     });
 
-    describe('with maxDelay option', () => {
+    describe("with maxDelay option", () => {
       let input, output;
 
       beforeEach(() => {
@@ -241,7 +254,7 @@ describe('Channel timing functions', () => {
         output = debounce(input, 100, { maxDelay: 250 });
       });
 
-      it('interrupts the debounce delay after maxDelay elapses', async () => {
+      it("interrupts the debounce delay after maxDelay elapses", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value => {
@@ -268,7 +281,7 @@ describe('Channel timing functions', () => {
         expect(spy).to.be.called;
       });
 
-      it('restarts the maxDelay if the delay is allowed to elapse', async () => {
+      it("restarts the maxDelay if the delay is allowed to elapse", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value1 => {
@@ -304,7 +317,7 @@ describe('Channel timing functions', () => {
       });
     });
 
-    describe('with cancel option', () => {
+    describe("with cancel option", () => {
       let input, output, cancel;
 
       beforeEach(() => {
@@ -313,7 +326,7 @@ describe('Channel timing functions', () => {
         output = debounce(input, 100, { cancel });
       });
 
-      it('cancels debouncing and closes the output channel if a value is put onto the cancel channel', async () => {
+      it("cancels debouncing and closes the output channel if a value is put onto the cancel channel", async () => {
         takeAsync(output, value1 => {
           expect(value1).to.equal(1729);
           takeAsync(output, value2 => {
@@ -330,10 +343,10 @@ describe('Channel timing functions', () => {
     });
   });
 
-  describe('throttle', function() {
+  describe("throttle", function() {
     this.retries(4);
 
-    it('can accept a buffer value for the output channel', async () => {
+    it("can accept a buffer value for the output channel", async () => {
       const input = chan();
       const output = throttle(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
@@ -350,7 +363,7 @@ describe('Channel timing functions', () => {
       expect(spy).to.be.called;
     });
 
-    it('closes the output channel when the input channel closes', async () => {
+    it("closes the output channel when the input channel closes", async () => {
       const input = chan();
       const output = throttle(input, 100);
 
@@ -361,7 +374,7 @@ describe('Channel timing functions', () => {
       close(input);
     });
 
-    describe('with leading and trailing options', () => {
+    describe("with leading and trailing options", () => {
       let input, output;
 
       beforeEach(() => {
@@ -369,7 +382,7 @@ describe('Channel timing functions', () => {
         output = throttle(input, 100);
       });
 
-      it('returns the first input value immediately', async () => {
+      it("returns the first input value immediately", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value => {
@@ -383,7 +396,7 @@ describe('Channel timing functions', () => {
         expect(spy).to.be.called;
       });
 
-      it('does not return a single input value after the delay expires', async () => {
+      it("does not return a single input value after the delay expires", async () => {
         takeAsync(output, value1 => {
           expect(value1).to.equal(1729);
           takeAsync(output, value2 => {
@@ -396,7 +409,7 @@ describe('Channel timing functions', () => {
         putAsync(input, 1723);
       });
 
-      it('does return a second input value after the delay expires', async () => {
+      it("does return a second input value after the delay expires", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value1 => {
@@ -422,7 +435,7 @@ describe('Channel timing functions', () => {
         expect(spy).to.be.calledTwice;
       });
 
-      it('restarts the timer without waiting for a new initial input', async () => {
+      it("restarts the timer without waiting for a new initial input", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value1 => {
@@ -464,7 +477,7 @@ describe('Channel timing functions', () => {
       });
     });
 
-    describe('with leading option only', () => {
+    describe("with leading option only", () => {
       let input, output;
 
       beforeEach(() => {
@@ -472,7 +485,7 @@ describe('Channel timing functions', () => {
         output = throttle(input, 100, { trailing: false });
       });
 
-      it('returns the first value immediately', async () => {
+      it("returns the first value immediately", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value => {
@@ -486,7 +499,7 @@ describe('Channel timing functions', () => {
         expect(spy).to.be.called;
       });
 
-      it('drops any input that is put before the delay elapses', async () => {
+      it("drops any input that is put before the delay elapses", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value1 => {
@@ -516,7 +529,7 @@ describe('Channel timing functions', () => {
       });
     });
 
-    describe('with trailing option only', () => {
+    describe("with trailing option only", () => {
       let input, output;
 
       beforeEach(() => {
@@ -524,7 +537,7 @@ describe('Channel timing functions', () => {
         output = throttle(input, 100, { leading: false });
       });
 
-      it('returns a single value after the delay has elapsed', async () => {
+      it("returns a single value after the delay has elapsed", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value => {
@@ -544,7 +557,7 @@ describe('Channel timing functions', () => {
         expect(spy).to.be.called;
       });
 
-      it('returns only the last input to happen before the delay has elapsed', async () => {
+      it("returns only the last input to happen before the delay has elapsed", async () => {
         const spy = sinon.spy();
 
         takeAsync(output, value => {
@@ -574,7 +587,7 @@ describe('Channel timing functions', () => {
       });
     });
 
-    describe('with cancel option', () => {
+    describe("with cancel option", () => {
       let input, output, cancel;
 
       beforeEach(() => {
@@ -583,7 +596,7 @@ describe('Channel timing functions', () => {
         output = throttle(input, 100, { cancel });
       });
 
-      it('cancels throttling and closes the output channel if a value is placed onto the cancel channel', async () => {
+      it("cancels throttling and closes the output channel if a value is placed onto the cancel channel", async () => {
         takeAsync(output, value1 => {
           expect(value1).to.equal(1729);
           takeAsync(output, value2 => {

@@ -1,9 +1,9 @@
-const { expect } = require('../helper');
+const { expect } = require("../helper");
 
-const { chan, close, CLOSED } = require('../../src/modules/channel');
-const { go, put, take } = require('../../src/modules/ops');
+const { chan, close, CLOSED } = require("../../src/modules/channel");
+const { go, put, take } = require("../../src/modules/ops");
 
-const t = require('xduce').transducers;
+const t = require("xduce").transducers;
 
 const add1 = x => x + 1;
 const even = x => x % 2 === 0;
@@ -48,125 +48,133 @@ function expectChannel(channel, expected, done) {
   });
 }
 
-describe('Transducers', () => {
-  it('cannot be used on an unbuffered channel', () => {
-    expect(() => chan(0, { transducer: t.map(add1) })).to.throw('Only buffered channels can use transformers');
+describe("Transducers", () => {
+  it("cannot be used on an unbuffered channel", () => {
+    expect(() => chan(0, { transducer: t.map(add1) })).to.throw(
+      "Only buffered channels can use transformers",
+    );
   });
 
-  describe('identity', () => {
-    it('works on channels', done => {
+  describe("identity", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.identity() });
       fillChannel(ch, 10);
       expectChannel(ch, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], done);
     });
   });
 
-  describe('flatten', () => {
-    it('works on channels', done => {
+  describe("flatten", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.flatten() });
-      fillChannelWith(ch, [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6]]);
+      fillChannelWith(ch, [
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [4, 5],
+        [5, 6],
+      ]);
       expectChannel(ch, [1, 2, 2, 3, 3, 4, 4, 5, 5, 6], done);
     });
   });
 
-  describe('repeat', () => {
-    it('works on channels', done => {
+  describe("repeat", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.repeat(3) });
       fillChannel(ch, 5);
       expectChannel(ch, [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5], done);
     });
   });
 
-  describe('map', () => {
-    it('works on channels', done => {
+  describe("map", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.map(add1) });
       fillChannel(ch, 5);
       expectChannel(ch, [2, 3, 4, 5, 6], done);
     });
   });
 
-  describe('flatMap', () => {
-    it('works on channels', done => {
+  describe("flatMap", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.flatMap(x => [x, x + 1]) });
       fillChannel(ch, 5);
       expectChannel(ch, [1, 2, 2, 3, 3, 4, 4, 5, 5, 6], done);
     });
   });
 
-  describe('filter', () => {
-    it('works on channels', done => {
+  describe("filter", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.filter(even) });
       fillChannel(ch, 10);
       expectChannel(ch, [2, 4, 6, 8, 10], done);
     });
   });
 
-  describe('reject', () => {
-    it('works on channels', done => {
+  describe("reject", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.reject(even) });
       fillChannel(ch, 10);
       expectChannel(ch, [1, 3, 5, 7, 9], done);
     });
   });
 
-  describe('compact', () => {
-    it('works on channels', done => {
+  describe("compact", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.compact() });
-      fillChannelWith(ch, [1, 0, 2, null, 3, undefined, 4, '', 5]);
+      fillChannelWith(ch, [1, 0, 2, null, 3, undefined, 4, "", 5]);
       expectChannel(ch, [1, 2, 3, 4, 5], done);
     });
   });
 
-  describe('take', () => {
-    it('works on channels', done => {
+  describe("take", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.take(3) });
       fillChannel(ch, 5);
       expectChannel(ch, [1, 2, 3, CLOSED, CLOSED], done);
     });
   });
 
-  describe('takeWhile', () => {
-    it('works on channels', done => {
+  describe("takeWhile", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.takeWhile(lt4) });
       fillChannel(ch, 5);
       expectChannel(ch, [1, 2, 3, CLOSED, CLOSED], done);
     });
   });
 
-  describe('takeNth', () => {
-    it('works on channels', done => {
+  describe("takeNth", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.takeNth(3) });
       fillChannel(ch, 10);
       expectChannel(ch, [1, 4, 7, 10], done);
     });
   });
 
-  describe('drop', () => {
-    it('works on channels', done => {
+  describe("drop", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.drop(3) });
       fillChannel(ch, 5);
       expectChannel(ch, [4, 5], done);
     });
   });
 
-  describe('dropWhile', () => {
-    it('works on channels', done => {
+  describe("dropWhile", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.dropWhile(lt4) });
       fillChannel(ch, 5);
       expectChannel(ch, [4, 5], done);
     });
   });
 
-  describe('unique', () => {
-    it('works on channels', done => {
+  describe("unique", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.unique() });
       fillChannelWith(ch, [1, 1, 2, 3, 3, 3, 4, 5, 3, 1, 5]);
       expectChannel(ch, [1, 2, 3, 4, 5], done);
     });
   });
 
-  describe('uniqueBy', () => {
-    it('works on channels', done => {
+  describe("uniqueBy", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.uniqueBy(xprop) });
       const array = [
         { x: 1, y: 1 },
@@ -179,32 +187,38 @@ describe('Transducers', () => {
         { x: 5, y: 8 },
         { x: 3, y: 9 },
         { x: 1, y: 10 },
-        { x: 5, y: 11 }
+        { x: 5, y: 11 },
       ];
-      const expected = [{ x: 1, y: 1 }, { x: 2, y: 3 }, { x: 3, y: 4 }, { x: 4, y: 7 }, { x: 5, y: 8 }];
+      const expected = [
+        { x: 1, y: 1 },
+        { x: 2, y: 3 },
+        { x: 3, y: 4 },
+        { x: 4, y: 7 },
+        { x: 5, y: 8 },
+      ];
       fillChannelWith(ch, array);
       expectChannel(ch, expected, done);
     });
   });
 
-  describe('uniqueWith', () => {
-    it('works on channels', done => {
+  describe("uniqueWith", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.uniqueWith(magComp) });
       fillChannelWith(ch, [6, 42, 632, 23, 56, 893, 1729, 32768, 1000]);
       expectChannel(ch, [6, 42, 632, 1729, 32768], done);
     });
   });
 
-  describe('distinct', () => {
-    it('works on channels', done => {
+  describe("distinct", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.distinct() });
       fillChannelWith(ch, [1, 1, 2, 3, 3, 3, 4, 5, 3, 1, 5]);
       expectChannel(ch, [1, 2, 3, 4, 5, 3, 1, 5], done);
     });
   });
 
-  describe('distinctBy', () => {
-    it('works on channels', done => {
+  describe("distinctBy", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.distinctBy(xprop) });
       const array = [
         { x: 1, y: 1 },
@@ -217,7 +231,7 @@ describe('Transducers', () => {
         { x: 5, y: 8 },
         { x: 3, y: 9 },
         { x: 1, y: 10 },
-        { x: 5, y: 11 }
+        { x: 5, y: 11 },
       ];
       const expected = [
         { x: 1, y: 1 },
@@ -227,31 +241,39 @@ describe('Transducers', () => {
         { x: 5, y: 8 },
         { x: 3, y: 9 },
         { x: 1, y: 10 },
-        { x: 5, y: 11 }
+        { x: 5, y: 11 },
       ];
       fillChannelWith(ch, array);
       expectChannel(ch, expected, done);
     });
   });
 
-  describe('distinctWith', () => {
-    it('works on channels', done => {
+  describe("distinctWith", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.distinctWith(magComp) });
       fillChannelWith(ch, [6, 42, 632, 23, 56, 893, 1729, 32768, 1000]);
       expectChannel(ch, [6, 42, 632, 23, 893, 1729, 32768, 1000], done);
     });
   });
 
-  describe('chunk', () => {
-    it('works on channels', done => {
+  describe("chunk", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.chunk(3) });
       fillChannel(ch, 8, true);
-      expectChannel(ch, [[1, 2, 3], [4, 5, 6], [7, 8]], done);
+      expectChannel(
+        ch,
+        [
+          [1, 2, 3],
+          [4, 5, 6],
+          [7, 8],
+        ],
+        done,
+      );
     });
   });
 
-  describe('chunkBy', () => {
-    it('works on channels', done => {
+  describe("chunkBy", () => {
+    it("works on channels", done => {
       const ch = chan(5, { transducer: t.chunkBy(even) });
       fillChannelWith(ch, [0, 1, 1, 2, 3, 5, 8, 13, 21, 34], true);
       expectChannel(ch, [[0], [1, 1], [2], [3, 5], [8], [13, 21], [34]], done);

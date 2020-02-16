@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 
-const { expect } = require('../../helper');
+const { expect } = require("../../helper");
 
 const {
   chan,
@@ -12,8 +12,8 @@ const {
   put,
   take,
   sleep,
-  utils
-} = require('../../../src/api');
+  utils,
+} = require("../../../src/api");
 
 const { pipe, partition, merge, split, tap, untap, untapAll, map } = utils;
 
@@ -59,14 +59,11 @@ async function join(num, end, done) {
   done();
 }
 
-describe('Flow control functions', () => {
-  describe('pipe', () => {
-    it('feeds all of the values from one channel to another', done => {
+describe("Flow control functions", () => {
+  describe("pipe", () => {
+    it("feeds all of the values from one channel to another", done => {
       const input = chan();
-      const output = pipe(
-        input,
-        chan()
-      );
+      const output = pipe(input, chan());
 
       (async () => {
         expect(await take(output)).to.equal(1729);
@@ -80,13 +77,10 @@ describe('Flow control functions', () => {
       })();
     });
 
-    it('closes the output channel when the input channel closes', done => {
+    it("closes the output channel when the input channel closes", done => {
       const input = chan();
       const output = chan();
-      pipe(
-        input,
-        output
-      );
+      pipe(input, output);
 
       (async () => {
         expect(await take(output)).to.equal(CLOSED);
@@ -96,14 +90,10 @@ describe('Flow control functions', () => {
       close(input);
     });
 
-    it('keeps the output channel open with keepOpen', done => {
+    it("keeps the output channel open with keepOpen", done => {
       const input = chan();
       const output = chan();
-      pipe(
-        input,
-        output,
-        true
-      );
+      pipe(input, output, true);
 
       (async () => {
         expect(await take(output)).to.equal(1729);
@@ -112,22 +102,18 @@ describe('Flow control functions', () => {
 
       (async () => {
         close(input);
-        // This ensures that the take happens AFTER the close but
-        // BEFORE the put
+        // This ensures that the take happens AFTER the close but BEFORE the put
         await sleep();
         await await put(output, 1729);
       })();
     });
 
-    it('breaks the pipe when the output channel closes', done => {
+    it("breaks the pipe when the output channel closes", done => {
       const input = chan();
       const output = chan();
       const start = chan();
       const finished = chan();
-      pipe(
-        input,
-        output
-      );
+      pipe(input, output);
 
       (async () => {
         // First put to soon-to-be closed channel and is lost
@@ -154,8 +140,8 @@ describe('Flow control functions', () => {
     });
   });
 
-  describe('partition', () => {
-    it('creates two output channels, splitting them by predicate', done => {
+  describe("partition", () => {
+    it("creates two output channels, splitting them by predicate", done => {
       const input = chan();
       const [evens, odds] = partition(even, input);
       const ctrl = chan();
@@ -168,9 +154,14 @@ describe('Flow control functions', () => {
       join(2, ctrl, done);
     });
 
-    it('accepts buffers to back the output channels', done => {
+    it("accepts buffers to back the output channels", done => {
       const input = chan();
-      const [evens, odds] = partition(even, input, slidingBuffer(3), droppingBuffer(3));
+      const [evens, odds] = partition(
+        even,
+        input,
+        slidingBuffer(3),
+        droppingBuffer(3),
+      );
       const start = chan();
       const end = chan();
 
@@ -189,7 +180,7 @@ describe('Flow control functions', () => {
       join(2, end, done);
     });
 
-    it('closes the output channels when the input channel is closed', done => {
+    it("closes the output channels when the input channel is closed", done => {
       const input = chan();
       const [evens, odds] = partition(even, input);
       const end = chan();
@@ -213,8 +204,8 @@ describe('Flow control functions', () => {
     });
   });
 
-  describe('merge', () => {
-    it('combines several input channels into one output channel', done => {
+  describe("merge", () => {
+    it("combines several input channels into one output channel", done => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs);
       const values = Array(15).fill(false);
@@ -235,7 +226,7 @@ describe('Flow control functions', () => {
       })();
     });
 
-    it('accepts a buffer to back the output channel', done => {
+    it("accepts a buffer to back the output channel", done => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs, slidingBuffer(3));
 
@@ -253,7 +244,7 @@ describe('Flow control functions', () => {
       })();
     });
 
-    it('closes the output when all inputs have been closed', done => {
+    it("closes the output when all inputs have been closed", done => {
       const inputs = [chan(), chan(), chan()];
       const output = merge(inputs);
 
@@ -268,8 +259,8 @@ describe('Flow control functions', () => {
     });
   });
 
-  describe('split', () => {
-    it('splits the input into some number of outputs', done => {
+  describe("split", () => {
+    it("splits the input into some number of outputs", done => {
       const input = chan();
       const outputs = split(input, 3);
       const ctrl = chan();
@@ -285,7 +276,7 @@ describe('Flow control functions', () => {
       join(3, ctrl, done);
     });
 
-    it('defaults to two unbuffered outputs', done => {
+    it("defaults to two unbuffered outputs", done => {
       const input = chan();
       const outputs = split(input);
       const ctrl = chan();
@@ -300,9 +291,14 @@ describe('Flow control functions', () => {
       join(2, ctrl, done);
     });
 
-    it('can accept a series of output buffers', done => {
+    it("can accept a series of output buffers", done => {
       const input = chan();
-      const outputs = split(input, fixedBuffer(5), droppingBuffer(3), slidingBuffer(3));
+      const outputs = split(
+        input,
+        fixedBuffer(5),
+        droppingBuffer(3),
+        slidingBuffer(3),
+      );
       const start = chan();
       const end = chan();
 
@@ -322,7 +318,7 @@ describe('Flow control functions', () => {
       join(3, end, done);
     });
 
-    it('closes all output when the input closes', done => {
+    it("closes all output when the input closes", done => {
       const input = chan();
       const outputs = split(input, 3);
 
@@ -338,9 +334,9 @@ describe('Flow control functions', () => {
     });
   });
 
-  context('multitap', () => {
-    describe('tap', () => {
-      it('taps the input and directs values to the tapper', done => {
+  context("multitap", () => {
+    describe("tap", () => {
+      it("taps the input and directs values to the tapper", done => {
         const input = chan();
         const output = tap(input);
         const ctrl = chan();
@@ -350,7 +346,7 @@ describe('Flow control functions', () => {
         join(1, ctrl, done);
       });
 
-      it('can tap the input multiple times', done => {
+      it("can tap the input multiple times", done => {
         const input = chan();
         const outputs = [tap(input), tap(input), tap(input)];
         const ctrl = chan();
@@ -364,7 +360,7 @@ describe('Flow control functions', () => {
         join(3, ctrl, done);
       });
 
-      it('will not tap with the same channel more than once', done => {
+      it("will not tap with the same channel more than once", done => {
         const input = chan();
         const output = chan();
         const ctrl = chan();
@@ -376,7 +372,7 @@ describe('Flow control functions', () => {
         join(1, ctrl, done);
       });
 
-      it('will not close tapping channels when tapped channel is closed', () => {
+      it("will not close tapping channels when tapped channel is closed", () => {
         const input = chan();
         const outputs = [tap(input), tap(input)];
 
@@ -386,8 +382,8 @@ describe('Flow control functions', () => {
       });
     });
 
-    describe('untap', () => {
-      it('will remove the tap of a tapping channel', done => {
+    describe("untap", () => {
+      it("will remove the tap of a tapping channel", done => {
         const input = chan();
         const outputs = [tap(input), tap(input), tap(input)];
         const ctrl = chan();
@@ -427,7 +423,7 @@ describe('Flow control functions', () => {
         join(1, ctrl, done);
       });
 
-      it('restores normal operation to the tapped channel if the last tap is removed', done => {
+      it("restores normal operation to the tapped channel if the last tap is removed", done => {
         const input = chan();
         const output = tap(input);
         const ctrl = chan();
@@ -443,8 +439,8 @@ describe('Flow control functions', () => {
         join(2, ctrl, done);
       });
     });
-    describe('untapAll', () => {
-      it('removes all taps from the tapped channel', done => {
+    describe("untapAll", () => {
+      it("removes all taps from the tapped channel", done => {
         const input = chan();
         const ctrl = chan();
         tap(input);
@@ -459,8 +455,8 @@ describe('Flow control functions', () => {
     });
   });
 
-  describe('map', () => {
-    it('combines multiple channels into one through a mapping function', done => {
+  describe("map", () => {
+    it("combines multiple channels into one through a mapping function", done => {
       const inputs = [chan(), chan(), chan()];
       const output = map(sum3, inputs);
       const ctrl = chan();
@@ -473,7 +469,7 @@ describe('Flow control functions', () => {
       join(1, ctrl, done);
     });
 
-    it('accepts a buffer to back th eoutput channel', done => {
+    it("accepts a buffer to back th eoutput channel", done => {
       const inputs = [chan(5), chan(5), chan(5)];
       const output = map(sum3, inputs, slidingBuffer(3));
 
@@ -491,7 +487,7 @@ describe('Flow control functions', () => {
       })();
     });
 
-    it('closes the output when the first input closes', done => {
+    it("closes the output when the first input closes", done => {
       const inputs = [chan(), chan(), chan()];
       const output = map(sum3, inputs);
       const ctrl = chan();

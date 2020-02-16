@@ -1,20 +1,26 @@
-const { expect } = require('../helper');
+const { expect } = require("../helper");
 
-const { EMPTY, queue, fixed, dropping, sliding } = require('../../src/modules/buffers');
+const {
+  EMPTY,
+  queue,
+  fixed,
+  dropping,
+  sliding,
+} = require("../../src/modules/buffers");
 
-describe('Buffers', () => {
-  context('queue', () => {
+describe("Buffers", () => {
+  context("queue", () => {
     let q;
 
     beforeEach(() => (q = queue()));
 
-    it('begins as an empty queue', () => {
+    it("begins as an empty queue", () => {
       expect(q.empty).to.be.true;
       expect(q.count).to.equal(0);
     });
 
-    context('dequeue', () => {
-      it('removes the oldest item from the queue', () => {
+    context("dequeue", () => {
+      it("removes the oldest item from the queue", () => {
         for (const i of [1, 2, 3]) {
           q.enqueue(i);
         }
@@ -24,13 +30,13 @@ describe('Buffers', () => {
         expect(q.empty).to.be.true;
       });
 
-      it('returns EMPTY if the queue is empty', () => {
+      it("returns EMPTY if the queue is empty", () => {
         expect(q.dequeue()).to.equal(EMPTY);
       });
     });
 
-    context('peek', () => {
-      it('peeks at the oldest item in the queue without removing it', () => {
+    context("peek", () => {
+      it("peeks at the oldest item in the queue without removing it", () => {
         for (const i of [1, 2, 3]) {
           q.enqueue(i);
         }
@@ -40,13 +46,13 @@ describe('Buffers', () => {
         expect(q.count).to.equal(3);
       });
 
-      it('returns EMPTY if the queue is empty', () => {
+      it("returns EMPTY if the queue is empty", () => {
         expect(q.peek()).to.equal(EMPTY);
       });
     });
 
-    context('filter', () => {
-      it('filters queued items by a predicate', () => {
+    context("filter", () => {
+      it("filters queued items by a predicate", () => {
         for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
           q.enqueue(i);
         }
@@ -64,29 +70,29 @@ describe('Buffers', () => {
     });
   });
 
-  context('fixed', () => {
+  context("fixed", () => {
     let buffer;
 
     beforeEach(() => (buffer = fixed(3)));
 
-    it('does not start full', () => {
+    it("does not start full", () => {
       expect(buffer.full).to.be.false;
     });
 
-    it('becomes full when enough items are added', () => {
+    it("becomes full when enough items are added", () => {
       buffer.add(1, 2, 3);
       expect(buffer.full).to.be.true;
     });
 
-    it('allows items to be added when full', () => {
+    it("allows items to be added when full", () => {
       buffer.add(1, 2, 3);
       expect(() => buffer.add(3)).not.to.throw();
       expect(buffer.count).to.equal(4);
       expect(buffer.full).to.be.true;
     });
 
-    context('count', () => {
-      it('equals the number of items added, even if that exceeds size', () => {
+    context("count", () => {
+      it("equals the number of items added, even if that exceeds size", () => {
         expect(buffer.count).to.equal(0);
         buffer.add(1);
         expect(buffer.count).to.equal(1);
@@ -99,8 +105,8 @@ describe('Buffers', () => {
       });
     });
 
-    context('remove', () => {
-      it('returns the oldest item', () => {
+    context("remove", () => {
+      it("returns the oldest item", () => {
         buffer.add(1, 2, 3);
 
         expect(buffer.remove()).to.equal(1);
@@ -111,7 +117,7 @@ describe('Buffers', () => {
         expect(buffer.count).to.equal(0);
       });
 
-      it('includes items added over the size limit', () => {
+      it("includes items added over the size limit", () => {
         buffer.add(1, 2, 3, 4);
 
         expect(buffer.full).to.be.true;
@@ -126,21 +132,21 @@ describe('Buffers', () => {
     });
   });
 
-  context('dropping', () => {
+  context("dropping", () => {
     let buffer;
 
     beforeEach(() => (buffer = dropping(3)));
 
-    it('does not start full', () => {
+    it("does not start full", () => {
       expect(buffer.full).to.be.false;
     });
 
-    it('never gets full', () => {
+    it("never gets full", () => {
       buffer.add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
       expect(buffer.full).to.be.false;
     });
 
-    it('ignores items added after it reaches its size limit', () => {
+    it("ignores items added after it reaches its size limit", () => {
       buffer.add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
       expect(buffer.count).to.equal(3);
       expect(buffer.remove()).to.equal(1);
@@ -148,8 +154,8 @@ describe('Buffers', () => {
       expect(buffer.remove()).to.equal(3);
     });
 
-    context('count', () => {
-      it('equals the number of added items, up to its limit', () => {
+    context("count", () => {
+      it("equals the number of added items, up to its limit", () => {
         expect(buffer.count).to.equal(0);
         buffer.add(1);
         expect(buffer.count).to.equal(1);
@@ -161,35 +167,35 @@ describe('Buffers', () => {
       });
     });
 
-    context('remove', () => {
-      it('returns the oldest item', () => {
+    context("remove", () => {
+      it("returns the oldest item", () => {
         buffer.add(1, 2, 3);
         expect(buffer.remove()).to.equal(1);
         expect(buffer.remove()).to.equal(2);
         expect(buffer.remove()).to.equal(3);
       });
 
-      it('returns EMPTY if the buffer has no items', () => {
+      it("returns EMPTY if the buffer has no items", () => {
         expect(buffer.remove()).to.equal(EMPTY);
       });
     });
   });
 
-  context('sliding', () => {
+  context("sliding", () => {
     let buffer;
 
     beforeEach(() => (buffer = sliding(3)));
 
-    it('does not start full', () => {
+    it("does not start full", () => {
       expect(buffer.full).to.be.false;
     });
 
-    it('never gets full', () => {
+    it("never gets full", () => {
       buffer.add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
       expect(buffer.full).to.be.false;
     });
 
-    it('discards the oldest item after it reaches its size limit', () => {
+    it("discards the oldest item after it reaches its size limit", () => {
       buffer.add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
       expect(buffer.count).to.equal(3);
       expect(buffer.remove()).to.equal(8);
@@ -197,8 +203,8 @@ describe('Buffers', () => {
       expect(buffer.remove()).to.equal(10);
     });
 
-    context('count', () => {
-      it('equals the number of added items, up to its limit', () => {
+    context("count", () => {
+      it("equals the number of added items, up to its limit", () => {
         expect(buffer.count).to.equal(0);
         buffer.add(1);
         expect(buffer.count).to.equal(1);
@@ -210,15 +216,15 @@ describe('Buffers', () => {
       });
     });
 
-    context('remove', () => {
-      it('returns the oldest item', () => {
+    context("remove", () => {
+      it("returns the oldest item", () => {
         buffer.add(1, 2, 3);
         expect(buffer.remove()).to.equal(1);
         expect(buffer.remove()).to.equal(2);
         expect(buffer.remove()).to.equal(3);
       });
 
-      it('returns EMPTY if the buffer has no items', () => {
+      it("returns EMPTY if the buffer has no items", () => {
         expect(buffer.remove()).to.equal(EMPTY);
       });
     });

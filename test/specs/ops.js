@@ -1,18 +1,26 @@
 /* eslint-disable max-lines */
 
-const { expect } = require('../helper');
-const sinon = require('sinon');
+const { expect } = require("../helper");
+const sinon = require("sinon");
 
-const { chan, close, CLOSED, DEFAULT } = require('../../src/modules/channel');
-const { put, take, takeOrThrow, alts, sleep, putAsync, takeAsync } = require('../../src/modules/ops');
-const { config, SET_TIMEOUT } = require('../../src/modules/dispatcher');
+const { chan, close, CLOSED, DEFAULT } = require("../../src/modules/channel");
+const {
+  put,
+  take,
+  takeOrThrow,
+  alts,
+  sleep,
+  putAsync,
+  takeAsync,
+} = require("../../src/modules/ops");
+const { config, SET_TIMEOUT } = require("../../src/modules/dispatcher");
 
 async function cycle() {
   return Promise.resolve();
 }
 
-describe('Channel operations', () => {
-  describe('sleep', () => {
+describe("Channel operations", () => {
+  describe("sleep", () => {
     let clock;
 
     before(() => config({ dispatchMethod: SET_TIMEOUT }));
@@ -20,7 +28,7 @@ describe('Channel operations', () => {
     afterEach(() => clock.restore());
     after(() => config({ dispatchMethod: null }));
 
-    it('causes an async function to block for a certain amount of time', async () => {
+    it("causes an async function to block for a certain amount of time", async () => {
       const spy = sinon.spy();
 
       sleep(500).then(() => {
@@ -39,8 +47,8 @@ describe('Channel operations', () => {
     });
   });
 
-  describe('take', () => {
-    it('returns a value that was put onto a channel', done => {
+  describe("take", () => {
+    it("returns a value that was put onto a channel", done => {
       const ch = chan();
 
       async function taker() {
@@ -57,9 +65,9 @@ describe('Channel operations', () => {
       putter();
     });
 
-    it('returns the value even if it is an error obejct', done => {
+    it("returns the value even if it is an error obejct", done => {
       const ch = chan();
-      const obj = Error('test error');
+      const obj = Error("test error");
 
       async function taker() {
         expect(await take(ch)).to.equal(obj);
@@ -74,7 +82,7 @@ describe('Channel operations', () => {
       putter();
     });
 
-    it('returns a value that was putAsync onto a channel', done => {
+    it("returns a value that was putAsync onto a channel", done => {
       const ch = chan();
 
       async function taker() {
@@ -86,7 +94,7 @@ describe('Channel operations', () => {
       taker();
     });
 
-    it('blocks until there is a value on the channel', done => {
+    it("blocks until there is a value on the channel", done => {
       const spy = sinon.spy();
       const ch = chan();
 
@@ -111,8 +119,8 @@ describe('Channel operations', () => {
     });
   });
 
-  describe('put', () => {
-    it('puts a value onto a channel for take', done => {
+  describe("put", () => {
+    it("puts a value onto a channel for take", done => {
       const ch = chan();
 
       async function putter() {
@@ -128,7 +136,7 @@ describe('Channel operations', () => {
       taker();
     });
 
-    it('puts a value onto a channel for takeAsync', done => {
+    it("puts a value onto a channel for takeAsync", done => {
       const ch = chan();
 
       async function putter() {
@@ -143,7 +151,7 @@ describe('Channel operations', () => {
       putter();
     });
 
-    it('does not require being in an async function if nothing is being done with the return value', done => {
+    it("does not require being in an async function if nothing is being done with the return value", done => {
       const ch = chan();
 
       put(ch, 1729);
@@ -156,7 +164,7 @@ describe('Channel operations', () => {
       taker();
     });
 
-    it('does not allow putting CLOSED onto a channel', done => {
+    it("does not allow putting CLOSED onto a channel", done => {
       const ch = chan();
 
       async function test() {
@@ -164,7 +172,7 @@ describe('Channel operations', () => {
           await put(ch, CLOSED);
           expect.fail();
         } catch (ex) {
-          expect(ex.message).to.equal('Cannot put CLOSED on a channel');
+          expect(ex.message).to.equal("Cannot put CLOSED on a channel");
         } finally {
           done();
         }
@@ -173,7 +181,7 @@ describe('Channel operations', () => {
       test();
     });
 
-    it('returns true if invoked on an open channel', done => {
+    it("returns true if invoked on an open channel", done => {
       const ch = chan();
 
       async function putter() {
@@ -187,7 +195,7 @@ describe('Channel operations', () => {
       putter();
     });
 
-    it('returns false if invoked on a closed channel', done => {
+    it("returns false if invoked on a closed channel", done => {
       const ch = chan();
 
       async function putter() {
@@ -199,7 +207,7 @@ describe('Channel operations', () => {
       putter();
     });
 
-    it('blocks until a value is taken off the channel', done => {
+    it("blocks until a value is taken off the channel", done => {
       const spy = sinon.spy();
       const ch = chan();
 
@@ -222,7 +230,7 @@ describe('Channel operations', () => {
     });
   });
 
-  describe('alts', () => {
+  describe("alts", () => {
     function numTrue(array) {
       return array.filter(x => x).length;
     }
@@ -231,7 +239,7 @@ describe('Channel operations', () => {
 
     beforeEach(() => (chs = [chan(), chan(), chan()]));
 
-    it('accepts a value off exactly one channel at a time', done => {
+    it("accepts a value off exactly one channel at a time", done => {
       put(chs[1], 1);
       put(chs[0], 0);
       put(chs[2], 2);
@@ -257,12 +265,16 @@ describe('Channel operations', () => {
       test();
     });
 
-    it('puts values onto exactly one channel at a time', done => {
+    it("puts values onto exactly one channel at a time", done => {
       const called = [false, false, false];
 
       (async () => {
         for (let i = 1; i <= 3; ++i) {
-          await alts([[chs[0], 0], [chs[1], 1], [chs[2], 2]]);
+          await alts([
+            [chs[0], 0],
+            [chs[1], 1],
+            [chs[2], 2],
+          ]);
           await sleep();
           expect(numTrue(called)).to.equal(i);
           await sleep();
@@ -286,7 +298,7 @@ describe('Channel operations', () => {
       })();
     });
 
-    it('can handle takes and puts in the same call', done => {
+    it("can handle takes and puts in the same call", done => {
       const called = [false, false, false];
 
       (async () => {
@@ -314,13 +326,13 @@ describe('Channel operations', () => {
       })();
     });
 
-    it('throws an error if no operations are provided', done => {
+    it("throws an error if no operations are provided", done => {
       async function test() {
         try {
           await alts([]);
           expect.fail();
         } catch (ex) {
-          expect(ex.message).to.equal('Alts called with no operations');
+          expect(ex.message).to.equal("Alts called with no operations");
         } finally {
           done();
         }
@@ -328,7 +340,7 @@ describe('Channel operations', () => {
       test();
     });
 
-    it('can take a priority option to explicitly order operations', done => {
+    it("can take a priority option to explicitly order operations", done => {
       put(chs[1], 1);
       put(chs[2], 2);
       put(chs[0], 0);
@@ -353,7 +365,7 @@ describe('Channel operations', () => {
       test();
     });
 
-    it('blocks if none of the operations is ready yet', done => {
+    it("blocks if none of the operations is ready yet", done => {
       const spy = sinon.spy();
 
       async function setup() {
@@ -378,7 +390,7 @@ describe('Channel operations', () => {
       test();
     });
 
-    it('returns a default if one is provided and it would otherwise block', done => {
+    it("returns a default if one is provided and it would otherwise block", done => {
       async function test() {
         const { value, channel } = await alts(chs, { default: 1729 });
         expect(value).to.equal(1729);
@@ -388,7 +400,7 @@ describe('Channel operations', () => {
       test();
     });
 
-    it('does not return the default if there is a value available', done => {
+    it("does not return the default if there is a value available", done => {
       const chs = [chan(1), chan(1), chan(1)];
       const ctrl = chan();
 
@@ -410,8 +422,8 @@ describe('Channel operations', () => {
     });
   });
 
-  describe('takeOrThrow', () => {
-    it('acts like a take if no error object is taken from the channel', done => {
+  describe("takeOrThrow", () => {
+    it("acts like a take if no error object is taken from the channel", done => {
       const ch = chan();
       put(ch, 1729);
 
@@ -422,11 +434,11 @@ describe('Channel operations', () => {
       taker();
     });
 
-    it('throws the error if an error object is taken from the channel', done => {
+    it("throws the error if an error object is taken from the channel", done => {
       const ch = chan();
       const ctrl = chan();
       const spy = sinon.spy();
-      const err = Error('test error');
+      const err = Error("test error");
 
       async function taker() {
         try {
@@ -450,16 +462,16 @@ describe('Channel operations', () => {
       test();
     });
 
-    it('lets the function continue running if it catches the error', done => {
+    it("lets the function continue running if it catches the error", done => {
       const ch = chan();
       const spy = sinon.spy();
-      const err = Error('test error');
+      const err = Error("test error");
 
       async function proc() {
         try {
           await takeOrThrow(ch);
         } catch (ex) {
-          expect(ex.message).to.equal('test error');
+          expect(ex.message).to.equal("test error");
           spy();
         }
         return 1729;
@@ -475,16 +487,16 @@ describe('Channel operations', () => {
       test();
     });
 
-    it('allows the function to run further operations if it catches the error', done => {
+    it("allows the function to run further operations if it catches the error", done => {
       const ch = chan();
       const spy = sinon.spy();
-      const err = Error('test error');
+      const err = Error("test error");
 
       async function proc() {
         try {
           await takeOrThrow(ch);
         } catch (ex) {
-          expect(ex.message).to.equal('test error');
+          expect(ex.message).to.equal("test error");
           spy();
         }
         expect(await takeOrThrow(ch)).to.equal(1729);

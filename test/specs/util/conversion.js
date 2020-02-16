@@ -1,6 +1,13 @@
-const { expect } = require('../../helper');
+const { expect } = require("../../helper");
 
-const { chan, close, put, take, takeAsync, utils } = require('../../../src/api');
+const {
+  chan,
+  close,
+  put,
+  take,
+  takeAsync,
+  utils,
+} = require("../../../src/api");
 
 const { reduce, onto, into } = utils;
 
@@ -34,9 +41,9 @@ async function expectChannel(channel, expected, end, start) {
   }
 }
 
-describe('Channel conversion functions', () => {
-  describe('reduce', () => {
-    it('creates a one-value channel with the reduction value of the input channel', done => {
+describe("Channel conversion functions", () => {
+  describe("reduce", () => {
+    it("creates a one-value channel with the reduction value of the input channel", done => {
       const input = chan();
       const output = reduce((acc, input) => acc + input, input, 0);
 
@@ -49,7 +56,7 @@ describe('Channel conversion functions', () => {
       });
     });
 
-    it('works to collapse channels into arrays', done => {
+    it("works to collapse channels into arrays", done => {
       const input = chan();
       const output = reduce(
         (acc, input) => {
@@ -57,7 +64,7 @@ describe('Channel conversion functions', () => {
           return acc;
         },
         input,
-        []
+        [],
       );
 
       fillChannel(input, 5, true);
@@ -70,8 +77,8 @@ describe('Channel conversion functions', () => {
     });
   });
 
-  describe('onto', () => {
-    it('puts the values from an array onto a channel', done => {
+  describe("onto", () => {
+    it("puts the values from an array onto a channel", done => {
       const output = chan();
       const array = [1, 2, 3, 4, 5];
       const ctrl = chan();
@@ -86,7 +93,7 @@ describe('Channel conversion functions', () => {
       join(1, ctrl, done);
     });
 
-    it('defaults to a new channel if given only an array', done => {
+    it("defaults to a new channel if given only an array", done => {
       const output = onto([1, 2, 3, 4, 5]);
       const ctrl = chan();
 
@@ -95,8 +102,8 @@ describe('Channel conversion functions', () => {
     });
   });
 
-  describe('into', () => {
-    it('returns a channel with an array containing the input channel values', done => {
+  describe("into", () => {
+    it("returns a channel with an array containing the input channel values", done => {
       const input = chan();
       const output = into([1, 2, 3, 4, 5], input);
 
@@ -113,7 +120,7 @@ describe('Channel conversion functions', () => {
       });
     });
 
-    it('will create a new array if none is supplied', done => {
+    it("will create a new array if none is supplied", done => {
       const input = chan();
       const output = into(input);
 

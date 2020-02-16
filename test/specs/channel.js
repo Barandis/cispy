@@ -1,19 +1,26 @@
 /* eslint-disable max-lines */
-const { expect } = require('../helper');
-const sinon = require('sinon');
+const { expect } = require("../helper");
+const sinon = require("sinon");
 
-const { fixed, dropping, sliding } = require('../../src/modules/buffers');
-const { chan, timeout, close, CLOSED } = require('../../src/modules/channel');
-const { config, SET_TIMEOUT } = require('../../src/modules/dispatcher');
-const { go, sleep, put, take, takeAsync, altsAsync } = require('../../src/modules/ops');
+const { fixed, dropping, sliding } = require("../../src/modules/buffers");
+const { chan, timeout, close, CLOSED } = require("../../src/modules/channel");
+const { config, SET_TIMEOUT } = require("../../src/modules/dispatcher");
+const {
+  go,
+  sleep,
+  put,
+  take,
+  takeAsync,
+  altsAsync,
+} = require("../../src/modules/ops");
 
-const { compose, protocols, transducers } = require('xduce');
+const { compose, protocols, transducers } = require("xduce");
 const t = transducers;
 const p = protocols;
 
-describe('CSP channel', () => {
-  describe('chan() creation function', () => {
-    it('creates a non-timeout channel', () => {
+describe("CSP channel", () => {
+  describe("chan() creation function", () => {
+    it("creates a non-timeout channel", () => {
       expect(chan().timeout).to.be.false;
       expect(chan(0).timeout).to.be.false;
       expect(chan(3).timeout).to.be.false;
@@ -26,12 +33,12 @@ describe('CSP channel', () => {
           transducer: t.map(x => x),
           handler: e => {
             throw e;
-          }
-        }).timeout
+          },
+        }).timeout,
       ).to.be.false;
     });
 
-    it('cannot queue more than 1024 puts at once', done => {
+    it("cannot queue more than 1024 puts at once", done => {
       const ch = chan();
 
       for (let i = 0; i < 1024; ++i) {
@@ -44,14 +51,16 @@ describe('CSP channel', () => {
           await put(ch, 1025);
           expect.fail();
         } catch (ex) {
-          expect(ex.message).to.equal('No more than 1024 pending puts are allowed on a single channel');
+          expect(ex.message).to.equal(
+            "No more than 1024 pending puts are allowed on a single channel",
+          );
         } finally {
           done();
         }
       });
     });
 
-    it('cannot queue more than 1024 takes at once', done => {
+    it("cannot queue more than 1024 takes at once", done => {
       const ch = chan();
 
       for (let i = 0; i < 1024; ++i) {
@@ -64,14 +73,16 @@ describe('CSP channel', () => {
           await take(ch);
           expect.fail();
         } catch (ex) {
-          expect(ex.message).to.equal('No more than 1024 pending takes are allowed on a single channel');
+          expect(ex.message).to.equal(
+            "No more than 1024 pending takes are allowed on a single channel",
+          );
         } finally {
           done();
         }
       });
     });
 
-    it('can configure how many pending puts/takes to allow', done => {
+    it("can configure how many pending puts/takes to allow", done => {
       const ch = chan(0, { maxQueued: 2 });
 
       for (let i = 0; i < 2; ++i) {
@@ -84,15 +95,17 @@ describe('CSP channel', () => {
           await take(ch);
           expect.fail();
         } catch (ex) {
-          expect(ex.message).to.equal('No more than 2 pending takes are allowed on a single channel');
+          expect(ex.message).to.equal(
+            "No more than 2 pending takes are allowed on a single channel",
+          );
         } finally {
           done();
         }
       });
     });
 
-    describe('buffer argument', () => {
-      it('defaults to being unbuffered', done => {
+    describe("buffer argument", () => {
+      it("defaults to being unbuffered", done => {
         const ch = chan();
         expect(ch.buffered).to.be.false;
 
@@ -106,7 +119,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('provides a fixed buffer if given a number', done => {
+      it("provides a fixed buffer if given a number", done => {
         const ch = chan(3);
         expect(ch.buffered).to.be.true;
 
@@ -126,7 +139,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('creates an unbuffered channel if 0 is passed', done => {
+      it("creates an unbuffered channel if 0 is passed", done => {
         const ch = chan(0);
         expect(ch.buffered).to.be.false;
 
@@ -140,7 +153,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('accepts fixed buffers', done => {
+      it("accepts fixed buffers", done => {
         const ch = chan(fixed(3));
         expect(ch.buffered).to.be.true;
 
@@ -160,7 +173,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('accepts dropping buffers', done => {
+      it("accepts dropping buffers", done => {
         const ch = chan(dropping(3));
 
         go(async () => {
@@ -186,7 +199,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('accepts sliding buffers', done => {
+      it("accepts sliding buffers", done => {
         const ch = chan(sliding(3));
         expect(ch.buffered).to.be.true;
 
@@ -213,7 +226,7 @@ describe('CSP channel', () => {
       });
     });
 
-    describe('transducers option', () => {
+    describe("transducers option", () => {
       const even = x => x % 2 === 0;
 
       it("can modify values on the channel before they're taken", done => {
@@ -229,7 +242,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('can accept transducers that return fewer values than were passed', done => {
+      it("can accept transducers that return fewer values than were passed", done => {
         const ch = chan(1, { transducer: t.filter(even) });
 
         go(async () => {
@@ -245,7 +258,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('closes the channel if the transducer reduces the value early', done => {
+      it("closes the channel if the transducer reduces the value early", done => {
         const ch = chan(3, { transducer: t.take(2) });
 
         go(async () => {
@@ -262,11 +275,11 @@ describe('CSP channel', () => {
         });
       });
 
-      it('handles composed transformers', done => {
+      it("handles composed transformers", done => {
         const xform = compose(
           t.map(x => x * 3),
           t.filter(even),
-          t.take(3)
+          t.take(3),
         );
         const ch = chan(10, { transducer: xform });
 
@@ -285,12 +298,9 @@ describe('CSP channel', () => {
         });
       });
 
-      it('correctly closes the channel even if another taker is active', done => {
+      it("correctly closes the channel even if another taker is active", done => {
         const ch = chan(10, {
-          transducer: compose(
-            t.flatten(),
-            t.take(3)
-          )
+          transducer: compose(t.flatten(), t.take(3)),
         });
         const out = chan();
         const ctrl = chan();
@@ -307,34 +317,34 @@ describe('CSP channel', () => {
           await take(ctrl);
           await take(ch);
           const value = await take(ch);
-          await put(out, value === CLOSED ? 'closed' : value);
+          await put(out, value === CLOSED ? "closed" : value);
         });
 
         go(async () => {
           await take(ctrl);
           await take(ch);
           const value = await take(ch);
-          await put(out, value === CLOSED ? 'closed' : value);
+          await put(out, value === CLOSED ? "closed" : value);
         });
 
         go(async () => {
           const value1 = await take(out);
           const value2 = await take(out);
-          expect(value1 === 'closed' || value2 === 'closed').to.be.true;
-          expect(value1 === 'closed' && value2 === 'closed').to.be.false;
+          expect(value1 === "closed" || value2 === "closed").to.be.true;
+          expect(value1 === "closed" && value2 === "closed").to.be.false;
           done();
         });
       });
     });
 
-    describe('handler option', () => {
+    describe("handler option", () => {
       const stepErrorTransducer = xform => ({
         [p.step]() {
-          throw Error('step error');
+          throw Error("step error");
         },
         [p.result](value) {
           return xform[p.result](value);
-        }
+        },
       });
 
       const resultErrorTransducer = xform => ({
@@ -342,38 +352,38 @@ describe('CSP channel', () => {
           return xform[p.step](acc, input);
         },
         [p.result]() {
-          throw Error('result error');
-        }
+          throw Error("result error");
+        },
       });
 
       const oneTimeStepErrorTransducer = xform => ({
         count: 0,
         [p.step](acc, input) {
           if (this.count++ === 0) {
-            throw Error('step error');
+            throw Error("step error");
           }
           return xform[p.step](acc, input);
         },
         [p.result](value) {
           return xform[p.result](value);
-        }
+        },
       });
 
       const mustBe1729Transducer = xform => ({
         [p.step](acc, input) {
           if (input !== 1729) {
-            throw Error('not 1729!');
+            throw Error("not 1729!");
           }
           return xform[p.step](acc, input);
         },
         [p.result](value) {
           return xform[p.result](value);
-        }
+        },
       });
 
-      it('provides a way to handle an error that happens in the step function of a transducer', done => {
+      it("provides a way to handle an error that happens in the step function of a transducer", done => {
         const exh = ex => {
-          expect(ex.message).to.equal('step error');
+          expect(ex.message).to.equal("step error");
           done();
         };
 
@@ -388,9 +398,9 @@ describe('CSP channel', () => {
         });
       });
 
-      it('provides a way to handle an error that happens in the result function of a transducer', done => {
+      it("provides a way to handle an error that happens in the result function of a transducer", done => {
         const exh = ex => {
-          expect(ex.message).to.equal('result error');
+          expect(ex.message).to.equal("result error");
           done();
         };
 
@@ -407,7 +417,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('provides a default handler that simply makes nothing available', done => {
+      it("provides a default handler that simply makes nothing available", done => {
         const ch = chan(1, { transducer: oneTimeStepErrorTransducer });
 
         go(async () => {
@@ -423,7 +433,7 @@ describe('CSP channel', () => {
         });
       });
 
-      it('puts its return value onto the channel in place of whatever caused the error', done => {
+      it("puts its return value onto the channel in place of whatever caused the error", done => {
         const exh = () => 2317;
         const ch = chan(1, { transducer: mustBe1729Transducer, handler: exh });
 
@@ -446,7 +456,7 @@ describe('CSP channel', () => {
     });
   });
 
-  describe('timeout', () => {
+  describe("timeout", () => {
     let clock;
 
     before(() => config({ dispatchMethod: SET_TIMEOUT }));
@@ -454,7 +464,7 @@ describe('CSP channel', () => {
     afterEach(() => clock.restore());
     after(() => config({ dispatchMethod: null }));
 
-    it('creates a channel that closes after a certain amount of time', () => {
+    it("creates a channel that closes after a certain amount of time", () => {
       const spy = sinon.spy();
       const ch = timeout(500);
 
@@ -468,11 +478,11 @@ describe('CSP channel', () => {
       expect(spy).to.be.called;
     });
 
-    it('marks itself as a timeout channel', () => {
+    it("marks itself as a timeout channel", () => {
       expect(timeout(0).timeout).to.be.true;
     });
 
-    it('is useful in limiting how long an alts call will wait', () => {
+    it("is useful in limiting how long an alts call will wait", () => {
       const spy = sinon.spy();
       const chs = [chan(), chan(), timeout(500)];
 
@@ -490,8 +500,8 @@ describe('CSP channel', () => {
     });
   });
 
-  describe('close', () => {
-    it('does nothing if the channel is already closed', () => {
+  describe("close", () => {
+    it("does nothing if the channel is already closed", () => {
       const ch = chan();
       close(ch);
       expect(ch.closed).to.be.true;
@@ -499,7 +509,7 @@ describe('CSP channel', () => {
       expect(ch.closed).to.be.true;
     });
 
-    it('causes any pending and future puts to return false', done => {
+    it("causes any pending and future puts to return false", done => {
       const ch = chan();
 
       go(async () => {
@@ -516,7 +526,7 @@ describe('CSP channel', () => {
       });
     });
 
-    it('still lets buffered puts return true until the buffer is full', done => {
+    it("still lets buffered puts return true until the buffer is full", done => {
       const ch = chan(1);
 
       go(async () => {
@@ -535,7 +545,7 @@ describe('CSP channel', () => {
       });
     });
 
-    it('causes any pending and future takes to return CLOSED', done => {
+    it("causes any pending and future takes to return CLOSED", done => {
       const ch = chan();
 
       go(async () => {
@@ -552,7 +562,7 @@ describe('CSP channel', () => {
       });
     });
 
-    it('lets buffered values return before returning CLOSED', done => {
+    it("lets buffered values return before returning CLOSED", done => {
       const ch = chan(1);
       const ctrl = chan();
 
