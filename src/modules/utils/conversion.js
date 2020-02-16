@@ -28,8 +28,8 @@
  * @private
  */
 
-const { chan, close, CLOSED } = require("../channel");
-const { put, take, putAsync } = require("../ops");
+import { chan, close, CLOSED } from "../channel";
+import { put, take, putAsync } from "../ops";
 
 /**
  * **Creates a single value from a channel by running its values through a
@@ -81,7 +81,7 @@ const { put, take, putAsync } = require("../ops");
  *     channel closes, have the reduced value put into it. When this value is
  *     taken, the channel will automatically close.
  */
-function reduce(fn, ch, init) {
+export function reduce(fn, ch, init) {
   const output = chan();
 
   async function loop() {
@@ -134,7 +134,7 @@ function reduce(fn, ch, init) {
  *     channel is specified, this will be a new channel. It will close when the
  *     final value is taken from it.
  */
-function onto(ch, array) {
+export function onto(ch, array) {
   const [chnl, arr] = Array.isArray(ch) ? [chan(ch.length), ch] : [ch, array];
 
   async function loop() {
@@ -192,7 +192,7 @@ function onto(ch, array) {
  *     channel closes, have the array of channel values put onto it. When this
  *     array is taken, the channel will automatically close.
  */
-function into(array, ch) {
+export function into(array, ch) {
   const [arr, chnl] = Array.isArray(array) ? [array, ch] : [[], array];
   const init = arr.slice();
 
@@ -205,9 +205,3 @@ function into(array, ch) {
     init,
   );
 }
-
-module.exports = {
-  reduce,
-  onto,
-  into,
-};

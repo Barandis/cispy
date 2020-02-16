@@ -1,8 +1,8 @@
 /* eslint-disable max-lines */
 
-const { expect } = require("../../helper");
+import { expect } from "../../helper";
 
-const {
+import {
   chan,
   close,
   CLOSED,
@@ -13,7 +13,7 @@ const {
   take,
   sleep,
   utils,
-} = require("../../../src/api");
+} from "api";
 
 const { pipe, partition, merge, split, tap, untap, untapAll, map } = utils;
 

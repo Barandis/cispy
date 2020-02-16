@@ -60,9 +60,9 @@
  * @module cispy/channel
  */
 
-const { queue, fixed, EMPTY } = require("./buffers");
-const { dispatch } = require("./dispatcher");
-const p = require("./protocol").protocols;
+import { queue, fixed, EMPTY } from "./buffers";
+import { dispatch } from "./dispatcher";
+import { protocols as p } from "./protocol";
 
 /**
  * The maximum number of dirty operations that can be queued on a channel before
@@ -106,7 +106,7 @@ const BOX = Symbol();
  * @type {Symbol}
  * @memberOf module:cispy~Cispy
  */
-const CLOSED = Symbol("CLOSED");
+export const CLOSED = Symbol("CLOSED");
 
 /**
  * **The name of the channel returned from  `await
@@ -121,7 +121,7 @@ const CLOSED = Symbol("CLOSED");
  * @type {Symbol}
  * @memberOf module:cispy~Cispy
  */
-const DEFAULT = Symbol("DEFAULT");
+export const DEFAULT = Symbol("DEFAULT");
 
 /**
  * Determines whether an object is reduced. This is done using the transducer
@@ -159,7 +159,7 @@ function isReduced(value) {
  * @return {module:cispy/channel~Box} The boxed value.
  * @private
  */
-function box(value) {
+export function box(value) {
   return {
     value,
     box: BOX,
@@ -201,7 +201,7 @@ function putBox(handler, value) {
  * not.
  * @private
  */
-function isBox(value) {
+export function isBox(value) {
   return value && value.box === BOX;
 }
 
@@ -801,7 +801,7 @@ const bufferReducer = {
  *     accidentally eating up all of the available memory.
  * @return {module:cispy/channel~Channel} A new channel.
  */
-function chan(
+export function chan(
   buffer = 0,
   {
     transducer = undefined,
@@ -840,7 +840,7 @@ function chan(
  * @return {module:cispy/channel~Channel} A new channel that automatically
  * closes after the delay completes.
  */
-function timeout(delay) {
+export function timeout(delay) {
   const ch = channel(null, wrapTransformer(bufferReducer), true);
   setTimeout(() => close(ch), delay);
   return ch;
@@ -862,16 +862,6 @@ function timeout(delay) {
  * @memberOf module:cispy~Cispy
  * @param {module:cispy/channel~Channel} channel The channel to be closed.
  */
-function close(channel) {
+export function close(channel) {
   channel.close();
 }
-
-module.exports = {
-  CLOSED,
-  DEFAULT,
-  box,
-  isBox,
-  chan,
-  timeout,
-  close,
-};

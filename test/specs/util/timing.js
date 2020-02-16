@@ -19,10 +19,10 @@
  * slim). That's what we've got for now though.
  */
 
-const { expect } = require("../../helper");
-const sinon = require("sinon");
+import { expect } from "../../helper";
+import sinon from "sinon";
 
-const {
+import {
   chan,
   fixedBuffer,
   putAsync,
@@ -31,7 +31,7 @@ const {
   close,
   CLOSED,
   utils,
-} = require("../../../src/api");
+} from "api";
 
 const { debounce, throttle } = utils;
 

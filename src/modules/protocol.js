@@ -108,7 +108,7 @@ function generateKey(name) {
  * @memberof module:cispy/protocols
  * @type {module:cispy/protocols~protocolMap}
  */
-const protocols = {
+export const protocols = {
   // Since this one is built in, it already has a custom Symbol property, so we
   // don't need to generate a symbol for a key when symbols are supported.
   iterator: symbol ? Symbol.iterator : "@@iterator",
@@ -120,5 +120,3 @@ const protocols = {
   reduced: generateKey("transducer/reduced"),
   value: generateKey("transducer/value"),
 };
-
-module.exports = { protocols };

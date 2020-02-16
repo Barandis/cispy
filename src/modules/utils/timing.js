@@ -28,8 +28,8 @@
  * @private
  */
 
-const { chan, timeout, close, CLOSED } = require("../channel");
-const { put, alts } = require("../ops");
+import { chan, timeout, close, CLOSED } from "../channel";
+import { put, alts } from "../ops";
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === "[object Number]" && isFinite(x);
@@ -101,7 +101,7 @@ function isNumber(x) {
  * @return {module:cispy/channel~Channel} The newly-created destination channel,
  *     where all of the values will be debounced from the source channel.
  */
-function debounce(src, buffer, delay, options) {
+export function debounce(src, buffer, delay, options) {
   const defaults = {
     leading: false,
     trailing: true,
@@ -231,7 +231,7 @@ function debounce(src, buffer, delay, options) {
  *     channel, where all of the values will be throttled from the source
  *     channel.
  */
-function throttle(src, buffer, delay, options) {
+export function throttle(src, buffer, delay, options) {
   const defaults = { leading: true, trailing: true, cancel: chan() };
   const buf = isNumber(delay) ? buffer : 0;
   const del = isNumber(delay) ? delay : buffer;
@@ -286,8 +286,3 @@ function throttle(src, buffer, delay, options) {
   loop();
   return dest;
 }
-
-module.exports = {
-  debounce,
-  throttle,
-};

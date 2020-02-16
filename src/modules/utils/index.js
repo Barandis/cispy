@@ -78,8 +78,15 @@
  * @return {*} The output value, calculated based on the input values.
  */
 
-const conversion = require("./conversion");
-const flow = require("./flow");
-const timing = require("./timing");
-
-module.exports = Object.assign({}, conversion, flow, timing);
+export { reduce, onto, into } from "./conversion";
+export {
+  pipe,
+  partition,
+  merge,
+  split,
+  tap,
+  untap,
+  untapAll,
+  map,
+} from "./flow";
+export { debounce, throttle } from "./timing";

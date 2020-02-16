@@ -43,7 +43,7 @@
  * @type {Symbol}
  * @memberOf module:cispy~Cispy
  */
-const EMPTY = Symbol("EMPTY");
+export const EMPTY = Symbol("EMPTY");
 
 /**
  * A general purpose, highly efficient JavaScript queue. It is backed by a
@@ -71,7 +71,7 @@ const EMPTY = Symbol("EMPTY");
  * @returns {module:cispy/buffers~Queue} a new, empty queue
  * @private
  */
-function queue() {
+export function queue() {
   const obj = {
     store: [],
     pointer: 0,
@@ -288,7 +288,7 @@ function base(size) {
  * @return {module:cispy/buffers~FixedBuffer} A new fixed buffer of the
  * specified capacity.
  */
-function fixed(size) {
+export function fixed(size) {
   /**
    * A buffer implementation that never discards buffered items when a new item
    * is added.
@@ -361,7 +361,7 @@ function fixed(size) {
  * @return {module:cispy/buffers~DroppingBuffer} A new dropping buffer of the
  * specified capacity.
  */
-function dropping(size) {
+export function dropping(size) {
   /**
    * A buffer implementation that drops newly added items when the buffer is
    * full.
@@ -432,7 +432,7 @@ function dropping(size) {
  * @return {module:cispy/buffers~SlidingBuffer} A new sliding buffer of the
  * specified capacity.
  */
-function sliding(size) {
+export function sliding(size) {
   /**
    * A buffer implementation that drops the oldest item when an item is added to
    * a full buffer.
@@ -488,11 +488,3 @@ function sliding(size) {
     },
   );
 }
-
-module.exports = {
-  EMPTY,
-  queue,
-  fixed,
-  dropping,
-  sliding,
-};

@@ -35,8 +35,8 @@
  * @private
  */
 
-const { chan, close, CLOSED } = require("../channel");
-const { put, take, alts, putAsync, takeAsync } = require("../ops");
+import { chan, close, CLOSED } from "../channel";
+import { put, take, alts, putAsync, takeAsync } from "../ops";
 
 const protocols = {
   taps: Symbol("multitap/taps"),
@@ -97,7 +97,7 @@ function isNumber(x) {
  *     the destination channel will close when the source channel closes.
  * @return {module:cispy/channel~Channel} The destination channel.
  */
-function pipe(src, dest, keepOpen) {
+export function pipe(src, dest, keepOpen) {
   async function loop() {
     for (;;) {
       const value = await take(src);
@@ -179,7 +179,7 @@ function pipe(src, dest, keepOpen) {
  *     the second is the destination channel with all of the values that did not
  *     pass the predicate.
  */
-function partition(fn, src, tBuffer = 0, fBuffer = 0) {
+export function partition(fn, src, tBuffer = 0, fBuffer = 0) {
   const tDest = chan(tBuffer);
   const fDest = chan(fBuffer);
 
@@ -252,7 +252,7 @@ function partition(fn, src, tBuffer = 0, fBuffer = 0) {
  * @return {module:cispy/channel~Channel} The destination channel, which will
  *     receive all values put onto every source channel.
  */
-function merge(srcs, buffer = 0) {
+export function merge(srcs, buffer = 0) {
   const dest = chan(buffer);
   const inputs = srcs.slice();
 
@@ -331,7 +331,7 @@ function merge(srcs, buffer = 0) {
  *     buffer, use `{@link cispy~Cispy.fixedBuffer|fixedBuffer}` explicitly.
  * @return {module:cispy/channel~Channel[]} An array of destination channels.
  */
-function split(src, ...buffers) {
+export function split(src, ...buffers) {
   const dests = [];
 
   let bs = buffers.length === 0 ? [2] : buffers;
@@ -474,7 +474,7 @@ function tapped(src) {
  *     same as the second argument, if present; otherwise it is the
  *     newly-created channel tapping the source channel.
  */
-function tap(src, dest = chan()) {
+export function tap(src, dest = chan()) {
   if (!src[protocols.taps]) {
     tapped(src);
   }
@@ -500,7 +500,7 @@ function tap(src, dest = chan()) {
  * @param {module:cispy/channel~Channel} dest The channel that is tapping the
  *     source channel that should no longer be tapping the source channel.
  */
-function untap(src, dest) {
+export function untap(src, dest) {
   const taps = src[protocols.taps];
   if (taps) {
     const index = taps.indexOf(dest);
@@ -524,7 +524,7 @@ function untap(src, dest) {
  * @param {module:cispy/channel~Channel} src The tapped channel. All taps will
  * be removed from this channel.
  */
-function untapAll(src) {
+export function untapAll(src) {
   if (src[protocols.taps]) {
     src[protocols.taps] = [];
     putAsync(src);
@@ -598,7 +598,7 @@ function untapAll(src) {
  *     this is `0` or not present, the channel will be unbuffered.
  * @return {module:cispy/channel~Channel} The destination channel.
  */
-function map(fn, srcs, buffer = 0) {
+export function map(fn, srcs, buffer = 0) {
   const dest = chan(buffer);
   const srcLen = srcs.length;
   const values = [];
@@ -637,14 +637,3 @@ function map(fn, srcs, buffer = 0) {
   loop();
   return dest;
 }
-
-module.exports = {
-  pipe,
-  partition,
-  merge,
-  split,
-  tap,
-  untap,
-  untapAll,
-  map,
-};

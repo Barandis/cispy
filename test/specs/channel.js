@@ -1,22 +1,13 @@
 /* eslint-disable max-lines */
-const { expect } = require("../helper");
-const sinon = require("sinon");
+import { expect } from "../helper";
+import sinon from "sinon";
 
-const { fixed, dropping, sliding } = require("../../src/modules/buffers");
-const { chan, timeout, close, CLOSED } = require("../../src/modules/channel");
-const { config, SET_TIMEOUT } = require("../../src/modules/dispatcher");
-const {
-  go,
-  sleep,
-  put,
-  take,
-  takeAsync,
-  altsAsync,
-} = require("../../src/modules/ops");
+import { fixed, dropping, sliding } from "modules/buffers";
+import { chan, timeout, close, CLOSED } from "modules/channel";
+import { config, SET_TIMEOUT } from "modules/dispatcher";
+import { go, sleep, put, take, takeAsync, altsAsync } from "modules/ops";
 
-const { compose, protocols, transducers } = require("xduce");
-const t = transducers;
-const p = protocols;
+import { compose, protocols as p, transducers as t } from "xduce";
 
 describe("CSP channel", () => {
   describe("chan() creation function", () => {

@@ -30,7 +30,7 @@
  * @private
  */
 
-const { box, isBox, chan, DEFAULT } = require("./channel");
+import { box, isBox, chan, DEFAULT } from "./channel";
 
 /**
  * These two handlers are used by channels to track execution of instructions
@@ -186,7 +186,7 @@ function randomArray(n) {
  *     call will block until one of the operations completes and that value and
  *     channel will be the ones returned.
  */
-function altsAsync(ops, callback, options = {}) {
+export function altsAsync(ops, callback, options = {}) {
   const count = ops.length;
   if (count === 0) {
     throw Error("Alts called with no operations");
@@ -278,7 +278,7 @@ function altsAsync(ops, callback, options = {}) {
  *     closed. This function can take one parameter, which is `true` in the
  *     former case and `false` in the latter.
  */
-function putAsync(channel, value, callback) {
+export function putAsync(channel, value, callback) {
   const result = channel.put(value, opHandler(callback));
   if (result && callback) {
     callback(result.value);
@@ -314,7 +314,7 @@ function putAsync(channel, value, callback) {
  *     available value). The function can take one parameter, which is the value
  *     that is taken from the channel.
  */
-function takeAsync(channel, callback) {
+export function takeAsync(channel, callback) {
   const result = channel.take(opHandler(callback));
   if (result && callback) {
     callback(result.value);
@@ -346,7 +346,7 @@ function takeAsync(channel, callback) {
  * @return {Promise} A promise that will resolve to `true` or `false` depending
  *     on whether the put value is actually taken.
  */
-function put(channel, value) {
+export function put(channel, value) {
   return new Promise(resolve => {
     putAsync(channel, value, resolve);
   });
@@ -374,7 +374,7 @@ function put(channel, value) {
  *     value being made available, this will resolve to
  *     `{@link module:cispy~Cispy.CLOSED|CLOSED}`.
  */
-function take(channel) {
+export function take(channel) {
   return new Promise(resolve => {
     takeAsync(channel, resolve);
   });
@@ -415,7 +415,7 @@ function take(channel) {
  *     error, the promise will instead be rejected with the error object as the
  *     reason.
  */
-function takeOrThrow(channel) {
+export function takeOrThrow(channel) {
   return new Promise((resolve, reject) => {
     takeAsync(channel, result => {
       if (Object.prototype.isPrototypeOf.call(Error.prototype, result)) {
@@ -489,7 +489,7 @@ function takeOrThrow(channel) {
  *     reference to the channel that completed the operation to allow `alts` to
  *     unblock.
  */
-function alts(ops, options = {}) {
+export function alts(ops, options = {}) {
   return new Promise(resolve => {
     altsAsync(ops, resolve, options);
   });
@@ -521,7 +521,7 @@ function alts(ops, options = {}) {
  * @return {Promise} A promise that resolves with no meaningful result when the
  * time has elapsed.
  */
-function sleep(delay = 0) {
+export function sleep(delay = 0) {
   return new Promise(resolve => {
     const ch = chan();
     setTimeout(() => ch.close(), delay);
@@ -544,18 +544,6 @@ function sleep(delay = 0) {
  * invoked.
  * @return {Promise} The promise returned by the async function.
  */
-function go(fn, ...args) {
+export function go(fn, ...args) {
   return fn(...args);
 }
-
-module.exports = {
-  altsAsync,
-  putAsync,
-  takeAsync,
-  put,
-  take,
-  takeOrThrow,
-  alts,
-  sleep,
-  go,
-};

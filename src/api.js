@@ -28,9 +28,14 @@
  * @module cispy
  */
 
-const { fixed, sliding, dropping, EMPTY } = require("./modules/buffers");
-const { chan, timeout, close, CLOSED, DEFAULT } = require("./modules/channel");
-const {
+export {
+  fixed as fixedBuffer,
+  sliding as slidingBuffer,
+  dropping as droppingBuffer,
+  EMPTY,
+} from "modules/buffers";
+export { chan, timeout, close, CLOSED, DEFAULT } from "modules/channel";
+export {
   putAsync,
   takeAsync,
   altsAsync,
@@ -40,15 +45,26 @@ const {
   alts,
   sleep,
   go,
-} = require("./modules/ops");
-const {
+} from "modules/ops";
+export {
   config,
   SET_IMMEDIATE,
   MESSAGE_CHANNEL,
   SET_TIMEOUT,
-} = require("./modules/dispatcher");
+} from "modules/dispatcher";
 
-const utils = require("./modules/utils");
+import * as u from "modules/utils";
+
+/**
+ * **A set of utility functions for working with channels.**
+ *
+ * This is a small 'standard library' of promise-based operations that are
+ * useful when working with channels.
+ *
+ * @type {module:cispy/util~CispyUtils}
+ * @memberOf module:cispy~Cispy
+ */
+export const utils = u;
 
 /**
  * The core namespace under which all of the main functions reside in the API.
@@ -123,39 +139,3 @@ const utils = require("./modules/utils");
  * @return {module:cispy~transducer} A new transducer chaining this one to
  * `xform`.
  */
-
-module.exports = {
-  go,
-  put,
-  take,
-  takeOrThrow,
-  alts,
-  sleep,
-  chan,
-  timeout,
-  close,
-  putAsync,
-  takeAsync,
-  altsAsync,
-  config,
-  fixedBuffer: fixed,
-  slidingBuffer: sliding,
-  droppingBuffer: dropping,
-  CLOSED,
-  DEFAULT,
-  EMPTY,
-  SET_IMMEDIATE,
-  MESSAGE_CHANNEL,
-  SET_TIMEOUT,
-
-  /**
-   * **A set of utility functions for working with channels.**
-   *
-   * This is a small 'standard library' of promise-based operations that are
-   * useful when working with channels.
-   *
-   * @type {module:cispy/util~CispyUtils}
-   * @memberOf module:cispy~Cispy
-   */
-  utils,
-};

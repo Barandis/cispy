@@ -1,14 +1,14 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
-  mode: 'development',
-  devtool: 'none',
-  entry: './src/api.js',
+  mode: "development",
+  devtool: "none",
+  entry: "./src/api.js",
   output: {
-    path: path.join(__dirname, 'dist'),
-    filename: 'cispy.js',
-    library: 'cispy',
-    libraryTarget: 'umd',
+    path: path.join(__dirname, "dist"),
+    filename: "cispy.js",
+    library: "cispy",
+    libraryTarget: "umd",
   },
   module: {
     rules: [
@@ -16,9 +16,14 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
         },
       },
     ],
+  },
+  resolve: {
+    alias: {
+      modules: path.resolve(__dirname, "src/modules/"),
+    },
   },
 };

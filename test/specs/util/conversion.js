@@ -1,13 +1,6 @@
-const { expect } = require("../../helper");
+import { expect } from "../../helper";
 
-const {
-  chan,
-  close,
-  put,
-  take,
-  takeAsync,
-  utils,
-} = require("../../../src/api");
+import { chan, close, put, take, takeAsync, utils } from "api";
 
 const { reduce, onto, into } = utils;
 

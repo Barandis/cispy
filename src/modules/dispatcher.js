@@ -55,10 +55,8 @@
  * @private
  */
 
-const buffers = require("./buffers");
-
-const queue = buffers.queue();
-const EMPTY = buffers.EMPTY;
+import { queue as q, EMPTY } from "./buffers";
+const queue = q();
 
 /**
  * **The dispatch method option indicating that `setImmediate` should be used to
@@ -72,7 +70,7 @@ const EMPTY = buffers.EMPTY;
  * @type {Symbol}
  * @see {@link module:cispy~Cispy.config|config}
  */
-const SET_IMMEDIATE = Symbol("SET_IMMEDIATE");
+export const SET_IMMEDIATE = Symbol("SET_IMMEDIATE");
 
 /**
  * **The dispatch method option indicating that a `MessageChannel` should be
@@ -85,7 +83,7 @@ const SET_IMMEDIATE = Symbol("SET_IMMEDIATE");
  * @type {Symbol}
  * @see  {@link module:cispy~Cispy.config|config}
  */
-const MESSAGE_CHANNEL = Symbol("MESSAGE_CHANNEL");
+export const MESSAGE_CHANNEL = Symbol("MESSAGE_CHANNEL");
 
 /**
  * **The dispatch method option indicating that `setTimeout` should be used to
@@ -98,7 +96,7 @@ const MESSAGE_CHANNEL = Symbol("MESSAGE_CHANNEL");
  * @type {Symbol}
  * @see  {@link module:cispy~Cispy.config|config}
  */
-const SET_TIMEOUT = Symbol("SET_TIMEOUT");
+export const SET_TIMEOUT = Symbol("SET_TIMEOUT");
 
 const options = {
   batchSize: 1024,
@@ -136,7 +134,7 @@ let dispatcher = createDispatcher();
  *     method is set but is not available in that environment, then it will
  *     silently fall back to the next method that is available.
  */
-function config(opts) {
+export function config(opts) {
   for (const key in options) {
     if (Object.prototype.hasOwnProperty.call(opts, key)) {
       options[key] = opts[key];
@@ -284,15 +282,7 @@ function processTasks() {
  * @param {function} task The new function to be queued into the dispatcher.
  * @private
  */
-function dispatch(task) {
+export function dispatch(task) {
   queue.enqueue(task);
   dispatcher();
 }
-
-module.exports = {
-  config,
-  dispatch,
-  SET_IMMEDIATE,
-  MESSAGE_CHANNEL,
-  SET_TIMEOUT,
-};

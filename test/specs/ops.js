@@ -1,10 +1,10 @@
 /* eslint-disable max-lines */
 
-const { expect } = require("../helper");
-const sinon = require("sinon");
+import { expect } from "../helper";
+import sinon from "sinon";
 
-const { chan, close, CLOSED, DEFAULT } = require("../../src/modules/channel");
-const {
+import { chan, close, CLOSED, DEFAULT } from "modules/channel";
+import {
   put,
   take,
   takeOrThrow,
@@ -12,8 +12,8 @@ const {
   sleep,
   putAsync,
   takeAsync,
-} = require("../../src/modules/ops");
-const { config, SET_TIMEOUT } = require("../../src/modules/dispatcher");
+} from "modules/ops";
+import { config, SET_TIMEOUT } from "modules/dispatcher";
 
 async function cycle() {
   return Promise.resolve();

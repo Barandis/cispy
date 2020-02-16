@@ -1,9 +1,9 @@
-const { expect } = require("../helper");
+import { expect } from "../helper";
 
-const { chan, close, CLOSED } = require("../../src/modules/channel");
-const { go, put, take } = require("../../src/modules/ops");
+import { chan, close, CLOSED } from "modules/channel";
+import { go, put, take } from "modules/ops";
 
-const t = require("xduce").transducers;
+import { transducers as t } from "xduce";
 
 const add1 = x => x + 1;
 const even = x => x % 2 === 0;
