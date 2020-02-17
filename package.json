@@ -1,7 +1,7 @@
 {
   "name": "cispy",
-  "version": "2.0.1",
-  "description": "Communicating sequential processes library for JavaScript",
+  "version": "3.0.0",
+  "description": "Channel library for JavaScript",
   "main": "dist/cispy.js",
   "scripts": {
     "clean": "rimraf dist",
@@ -16,7 +16,12 @@
     "check": "cross-env NODE_PATH=./src NODE_ENV=test nyc --check-coverage --lines 80 --branches 80 --functions 80 --statements 80 mocha ./test --require @babel/register --recursive",
     "upload": "npm run cover -s && cat ./coverage/lcov.info | coveralls"
   },
-  "keywords": [],
+  "keywords": [
+    "csp",
+    "channel",
+    "async",
+    "concurrent"
+  ],
   "author": "Thomas Otterson <tjotterson@gmail.com>",
   "repository": {
     "type": "git",
