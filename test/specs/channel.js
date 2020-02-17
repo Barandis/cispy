@@ -5,7 +5,7 @@ import sinon from "sinon";
 import { fixed, dropping, sliding } from "modules/buffers";
 import { chan, CLOSED } from "modules/channel";
 import { config, SET_TIMEOUT } from "modules/dispatcher";
-import { go, sleep, altsAsync } from "modules/ops";
+import { go, sleep, selectAsync } from "modules/ops";
 
 import { compose, protocols as p, transducers as t } from "xduce";
 
@@ -478,7 +478,7 @@ describe("Channel", () => {
       const spy = sinon.spy();
       const chs = [chan(), chan(), chan(0, { timeout: 500 })];
 
-      altsAsync(chs, () => {
+      selectAsync(chs, () => {
         spy();
       });
 

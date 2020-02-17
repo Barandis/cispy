@@ -36,7 +36,7 @@
  */
 
 import { chan, CLOSED } from "../channel";
-import { alts } from "../ops";
+import { select } from "../ops";
 
 const protocols = {
   taps: Symbol("multitap/taps"),
@@ -261,7 +261,7 @@ export function merge(srcs, buffer = 0) {
       if (inputs.length === 0) {
         break;
       }
-      const { value, channel } = await alts(inputs);
+      const { value, channel } = await select(inputs);
       if (value === CLOSED) {
         const index = inputs.indexOf(channel);
         inputs.splice(index, 1);

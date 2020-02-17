@@ -4,7 +4,7 @@ import { expect } from "../helper";
 import sinon from "sinon";
 
 import { chan, CLOSED, DEFAULT } from "modules/channel";
-import { alts, sleep } from "modules/ops";
+import { select, sleep } from "modules/ops";
 import { config, SET_TIMEOUT } from "modules/dispatcher";
 
 async function cycle() {
@@ -239,15 +239,15 @@ describe("Channel operations", () => {
       async function test() {
         const called = [false, false, false];
 
-        const alt1 = await alts(chs);
+        const alt1 = await select(chs);
         called[alt1.value] = true;
         expect(numTrue(called)).to.equal(1);
 
-        const alt2 = await alts(chs);
+        const alt2 = await select(chs);
         called[alt2.value] = true;
         expect(numTrue(called)).to.equal(2);
 
-        const alt3 = await alts(chs);
+        const alt3 = await select(chs);
         called[alt3.value] = true;
         expect(numTrue(called)).to.equal(3);
 
@@ -262,7 +262,7 @@ describe("Channel operations", () => {
 
       (async () => {
         for (let i = 1; i <= 3; ++i) {
-          await alts([
+          await select([
             [chs[0], 0],
             [chs[1], 1],
             [chs[2], 2],
@@ -295,7 +295,7 @@ describe("Channel operations", () => {
 
       (async () => {
         for (let i = 1; i <= 3; ++i) {
-          await alts([chs[0], [chs[1], 1], chs[2]]);
+          await select([chs[0], [chs[1], 1], chs[2]]);
           await sleep();
           expect(numTrue(called)).to.equal(i);
         }
@@ -321,7 +321,7 @@ describe("Channel operations", () => {
     it("throws an error if no operations are provided", done => {
       async function test() {
         try {
-          await alts([]);
+          await select([]);
           expect.fail();
         } catch (ex) {
           expect(ex.message).to.equal("Alts called with no operations");
@@ -340,15 +340,15 @@ describe("Channel operations", () => {
       async function test() {
         await sleep();
 
-        const alt1 = await alts(chs, { priority: true });
+        const alt1 = await select(chs, { priority: true });
         expect(alt1.value).to.equal(0);
         expect(alt1.channel).to.equal(chs[0]);
 
-        const alt2 = await alts(chs, { priority: true });
+        const alt2 = await select(chs, { priority: true });
         expect(alt2.value).to.equal(1);
         expect(alt2.channel).to.equal(chs[1]);
 
-        const alt3 = await alts(chs, { priority: true });
+        const alt3 = await select(chs, { priority: true });
         expect(alt3.value).to.equal(2);
         expect(alt3.channel).to.equal(chs[2]);
 
@@ -362,7 +362,7 @@ describe("Channel operations", () => {
 
       async function setup() {
         for (let i = 0; i < 3; ++i) {
-          await alts([chs[0], [chs[1], 1], chs[2]]);
+          await select([chs[0], [chs[1], 1], chs[2]]);
           spy();
           await sleep();
         }
@@ -384,7 +384,7 @@ describe("Channel operations", () => {
 
     it("returns a default if one is provided and it would otherwise block", done => {
       async function test() {
-        const { value, channel } = await alts(chs, { default: 1729 });
+        const { value, channel } = await select(chs, { default: 1729 });
         expect(value).to.equal(1729);
         expect(channel).to.equal(DEFAULT);
         done();
@@ -403,7 +403,7 @@ describe("Channel operations", () => {
 
       async function test() {
         await ctrl.take();
-        const { value, channel } = await alts(chs, { default: 1723 });
+        const { value, channel } = await select(chs, { default: 1723 });
         expect(value).to.equal(1729);
         expect(channel).to.equal(chs[0]);
         done();

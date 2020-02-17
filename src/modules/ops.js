@@ -165,7 +165,7 @@ function randomArray(n) {
  *     call will block until one of the operations completes and that value and
  *     channel will be the ones returned.
  */
-export function altsAsync(ops, callback, options = {}) {
+export function selectAsync(ops, callback, options = {}) {
   const count = ops.length;
   if (count === 0) {
     throw Error("Alts called with no operations");
@@ -290,9 +290,9 @@ export function altsAsync(ops, callback, options = {}) {
  *     reference to the channel that completed the operation to allow `alts` to
  *     unblock.
  */
-export function alts(ops, options = {}) {
+export function select(ops, options = {}) {
   return new Promise(resolve => {
-    altsAsync(ops, resolve, options);
+    selectAsync(ops, resolve, options);
   });
 }
 

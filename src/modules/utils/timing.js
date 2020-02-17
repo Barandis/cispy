@@ -29,7 +29,7 @@
  */
 
 import { chan, CLOSED } from "../channel";
-import { alts } from "../ops";
+import { select } from "../ops";
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === "[object Number]" && isFinite(x);
@@ -124,7 +124,7 @@ export function debounce(src, buffer, delay, options) {
     let current = CLOSED;
 
     for (;;) {
-      const { value, channel } = await alts([src, timer, max, cancel]);
+      const { value, channel } = await select([src, timer, max, cancel]);
 
       if (channel === cancel) {
         dest.close();
@@ -248,7 +248,7 @@ export function throttle(src, buffer, delay, options) {
     let current = CLOSED;
 
     for (;;) {
-      const { value, channel } = await alts([src, timer, cancel]);
+      const { value, channel } = await select([src, timer, cancel]);
 
       if (channel === cancel) {
         dest.close();
