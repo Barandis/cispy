@@ -28,8 +28,8 @@
  * @private
  */
 
-import { chan, timeout, close, CLOSED } from "../channel";
-import { put, alts } from "../ops";
+import { chan, timeout, CLOSED } from "../channel";
+import { alts } from "../ops";
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === "[object Number]" && isFinite(x);
@@ -127,12 +127,12 @@ export function debounce(src, buffer, delay, options) {
       const { value, channel } = await alts([src, timer, max, cancel]);
 
       if (channel === cancel) {
-        close(dest);
+        dest.close();
         break;
       }
       if (channel === src) {
         if (value === CLOSED) {
-          close(dest);
+          dest.close();
           break;
         }
 
@@ -145,7 +145,7 @@ export function debounce(src, buffer, delay, options) {
 
         if (leading) {
           if (!timing) {
-            await put(dest, value);
+            await dest.put(value);
           } else {
             current = value;
           }
@@ -156,7 +156,7 @@ export function debounce(src, buffer, delay, options) {
         timer = chan();
         max = chan();
         if (trailing && current !== CLOSED) {
-          await put(dest, current);
+          await dest.put(current);
           current = CLOSED;
         }
       }
@@ -251,11 +251,11 @@ export function throttle(src, buffer, delay, options) {
       const { value, channel } = await alts([src, timer, cancel]);
 
       if (channel === cancel) {
-        close(dest);
+        dest.close();
         break;
       } else if (channel === src) {
         if (value === CLOSED) {
-          close(dest);
+          dest.close();
           break;
         }
 
@@ -266,7 +266,7 @@ export function throttle(src, buffer, delay, options) {
 
         if (leading) {
           if (!timing) {
-            await put(dest, value);
+            await dest.put(value);
           } else if (trailing) {
             current = value;
           }
@@ -275,7 +275,7 @@ export function throttle(src, buffer, delay, options) {
         }
       } else if (trailing && current !== CLOSED) {
         timer = timeout(del);
-        await put(dest, current);
+        await dest.put(current);
         current = CLOSED;
       } else {
         timer = chan();

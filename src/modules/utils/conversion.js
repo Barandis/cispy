@@ -28,8 +28,7 @@
  * @private
  */
 
-import { chan, close, CLOSED } from "../channel";
-import { put, take, putAsync } from "../ops";
+import { chan, CLOSED } from "../channel";
 
 /**
  * **Creates a single value from a channel by running its values through a
@@ -46,21 +45,21 @@ import { put, take, putAsync } from "../ops";
  * is closed.
  *
  * ```
- * const { go, chan, put, take, close, utils } = cispy;
+ * const { go, chan, close, utils } = cispy;
  * const { reduce } = utils;
  *
  * const input = chan();
  * const output = reduce((acc, value) => acc + value, input, 0);
  *
  * go(async () => {
- *   await put(input, 1);
- *   await put(input, 2);
- *   await put(input, 3);
- *   close(input);
+ *   await input.put(1);
+ *   await input.put(2);
+ *   await input.put(3);
+ *   input.close();
  * });
  *
  * go(async () => {
- *   const result = await take(output);
+ *   const result = await output.take();
  *   console.log(output);                  // -> 6
  * });
  *
@@ -87,9 +86,9 @@ export function reduce(fn, ch, init) {
   async function loop() {
     let acc = init;
     for (;;) {
-      const value = await take(ch);
+      const value = await ch.take();
       if (value === CLOSED) {
-        putAsync(output, acc, () => close(output));
+        output.putAsync(acc, () => output.close());
         return;
       }
       acc = fn(acc, value);
@@ -101,26 +100,26 @@ export function reduce(fn, ch, init) {
 }
 
 /**
- * **Puts all values from an array onto the supplied channel.**
+ * **Sends all values from an array onto the supplied channel.**
  *
  * If no channel is passed to this function, a new channel is created. In
  * effect, this directly converts an array into a channel with the same values
  * on it.
  *
- * The channel is closed after the final array value is put onto it.
+ * The channel is closed after the final array value is sent to it.
  *
  * ```
- * const { go, chan, take, utils } = cispy;
+ * const { go, chan, utils } = cispy;
  * const { onto } = utils;
  *
  * const input = [1, 2, 3];
  * const output = onto(input);
  *
  * go(async () => {
- *   console.log(await take(output));     // -> 1
- *   console.log(await take(output));     // -> 2
- *   console.log(await take(output));     // -> 3
- *   console.log(output.closed);          // -> true
+ *   console.log(await output.take());     // -> 1
+ *   console.log(await output.take());     // -> 2
+ *   console.log(await output.take());     // -> 3
+ *   console.log(output.closed);           // -> true
  * });
  * ```
  *
@@ -139,9 +138,9 @@ export function onto(ch, array) {
 
   async function loop() {
     for (const item of arr) {
-      await put(chnl, item);
+      await chnl.put(item);
     }
-    close(chnl);
+    chnl.close();
   }
 
   loop();
@@ -149,33 +148,33 @@ export function onto(ch, array) {
 }
 
 /**
- * **Takes all of the values from a channel and pushes them into an array.**
+ * **Receives all of the values from a channel and pushes them into an array.**
  *
  * If no array is passed to this function, a new (empty) one is created. In
  * effect, this directly converts a channel into an array with the same values.
  * Either way, this operation cannot complete until the input channel is closed.
  *
- * This function returns a channel. When the final array is produced, it is put
- * onto this channel, and when that value is taken from it, the channel is
+ * This function returns a channel. When the final array is produced, it is sent
+ * to this channel, and when that value is received from it, the channel is
  * closed.
  *
  * ```
- * const { go, chan, put, take, close, utils } = cispy;
+ * const { go, chan, utils } = cispy;
  * const { into } = utils;
  *
  * const input = chan();
  * const output = into(input);
  *
  * go(async () => {
- *   await put(input, 1);
- *   await put(input, 2);
- *   await put(input, 3);
- *   close(input);
+ *   await input.put(1);
+ *   await input.put(2);
+ *   await input.put(3);
+ *   input.close();
  * });
  *
  * go(async () => {
- *   const result = await take(output);
- *   console.log(result);                 // -> [1, 2, 3]
+ *   const result = await output.take();
+ *   console.log(result);                     // -> [1, 2, 3]
  * });
  * ```
  *

@@ -1,7 +1,7 @@
 import { expect } from "../helper";
 
-import { chan, close, CLOSED } from "modules/channel";
-import { go, put, take } from "modules/ops";
+import { chan, CLOSED } from "modules/channel";
+import { go } from "modules/ops";
 
 import { transducers as t } from "xduce";
 
@@ -18,10 +18,10 @@ function magComp(a, b) {
 function fillChannel(channel, count, cl) {
   go(async () => {
     for (let i = 1; i <= count; ++i) {
-      await put(channel, i);
+      await channel.put(i);
     }
     if (cl) {
-      close(channel);
+      channel.close();
     }
   });
 }
@@ -29,10 +29,10 @@ function fillChannel(channel, count, cl) {
 function fillChannelWith(channel, array, cl) {
   go(async () => {
     for (const i of array) {
-      await put(channel, i);
+      await channel.put(i);
     }
     if (cl) {
-      close(channel);
+      channel.close();
     }
   });
 }
@@ -41,7 +41,7 @@ function expectChannel(channel, expected, done) {
   go(async () => {
     const values = [];
     for (let i = 0, count = expected.length; i < count; ++i) {
-      values.push(await take(channel));
+      values.push(await channel.take());
     }
     expect(values).to.deep.equal(expected);
     done();

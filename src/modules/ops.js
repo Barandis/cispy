@@ -77,27 +77,6 @@ import { box, isBox, chan, DEFAULT } from "./channel";
  */
 
 /**
- * Creates a new handler used for put and take operations. This handler is
- * always active, as there will never be a time when it's in the queue but
- * already handled.
- *
- * @param {module:cispy/ops~HandlerCallback} fn The callback to be run when the
- *     put or take operation completes.
- * @return {module:cispy/ops~Handler} The new handler.
- */
-function opHandler(fn) {
-  return {
-    get active() {
-      return true;
-    },
-
-    commit() {
-      return fn;
-    },
-  };
-}
-
-/**
  * Creates a new handler used for alts operations.
  *
  * @param {module:cispy/channel~Box} active A boxed value indicating whether the
@@ -213,10 +192,10 @@ export function altsAsync(ops, callback, options = {}) {
     // Put every operation onto its channel, one at a time
     if (Array.isArray(op)) {
       [channel, value] = op;
-      result = channel.put(value, createAltsHandler(channel));
+      result = channel.handlePut(value, createAltsHandler(channel));
     } else {
       channel = op;
-      result = channel.take(createAltsHandler(channel));
+      result = channel.handleTake(createAltsHandler(channel));
     }
 
     // We check for Box here because a box from a channel indicates that the
@@ -247,184 +226,6 @@ export function altsAsync(ops, callback, options = {}) {
       });
     }
   }
-}
-
-/**
- * **Puts a value onto a channel without blocking.**
- *
- * This means that a call to `putAsync` does not go into an `await` expression,
- * and it is not necessary to use it inside a process. Rather than blocking
- * until the put value is taken by another process, this one returns immediately
- * and then invokes the callback (if provided) when the put value is taken. It
- * can be seen as a non-blocking version of
- * `{@link module:cispy~Cispy.put|put}`.
- *
- * While the primary use of this function is to put values onto channels in
- * contexts where being inside a process is impossible (for example, in a DOM
- * element's event handler), it can still be used inside processes at times when
- * it's important to make sure that the process doesn't block from the put.
- *
- * The callback is a function of one parameter. The parameter that's supplied to
- * the callback is the same as what is supplied to `await put`: `true` if the
- * value was taken, or `false` if the channel was closed. If the callback isn't
- * present, nothing will happen after the value is taken.
- *
- * @memberOf module:cispy~Cispy
- * @param {module:cispy/core/channel~Channel} channel The channel that the value
- * is being put onto.
- * @param {*} [value] The value being put onto the channel.
- * @param {module:cispy~nbCallback} [callback] A function that gets invoked
- *     either when the value is taken by another process or when the channel is
- *     closed. This function can take one parameter, which is `true` in the
- *     former case and `false` in the latter.
- */
-export function putAsync(channel, value, callback) {
-  const result = channel.put(value, opHandler(callback));
-  if (result && callback) {
-    callback(result.value);
-  }
-}
-
-/**
- * **Takes a value from a channel without blocking.**
- *
- * This means that a call to `takeAsync` does not go into an `await` expression,
- * and it is not necessary to use it inside a process. Rather than blocking
- * until a value becomes available on the channel to be taken, this one returns
- * immediately and then invokes the callback (if provided) when a value becomes
- * available. It can be regarded as a non-blocking version of
- * {@link module:cispy~Cispy.take|take}`.
- *
- * While the primary use of this function is to take values from channels in
- * contexts where being inside a process is impossible, it can still be used
- * inside processes at times when it's important that the take doesn't block the
- * process.
- *
- * The callback is a function of one parameter, and the value supplied for that
- * parameter is the value taken from the channel (either a value that was put or
- * `{@link module:cispy~Cispy.CLOSED|CLOSED}`). If the callback isn't present,
- * nothing will happen after the value is taken.
- *
- * @function takeAsync
- * @param {module:cispy/channel~Channel} channel The channel that a value is
- * being taken from.
- * @param {module:cispy~nbCallback} [callback] A function that gets invoked when
- *     a value is made available to be taken (this value may be
- *     `{@link module:cispy~Cispy.CLOSED|CLOSED}` if the channel closes with no
- *     available value). The function can take one parameter, which is the value
- *     that is taken from the channel.
- */
-export function takeAsync(channel, callback) {
-  const result = channel.take(opHandler(callback));
-  if (result && callback) {
-    callback(result.value);
-  }
-}
-
-/**
- * **Puts a value onto a channel, blocking the process until that value is taken
- * from the channel by a different process (or until the channel closes).**
- *
- * A value is always put onto the channel, but if that value isn't specified by
- * the second parameter, it is `undefined`. Any value may be put on a channel,
- * with the sole exception of the special value
- * `{@link module:cispy~Cispy.CLOSED|CLOSED}`.
- *
- * This function *must* be called from within an `async` function and as part of
- * an `await` expression.
- *
- * When `put` is completed and its process unblocks, its `await` expression
- * evaluates to a status boolean that indicates what caused the process to
- * unblock. That value is `true` if the put value was successfully taken by
- * another process, or `false` if the unblocking happened because the target
- * channel closed.
- *
- * @memberOf module:cispy~Cispy
- * @param {module:cispy/channel~Channel} channel The channel that the process is
- * putting a value onto.
- * @param {*} [value] The value being put onto the channel.
- * @return {Promise} A promise that will resolve to `true` or `false` depending
- *     on whether the put value is actually taken.
- */
-export function put(channel, value) {
-  return new Promise(resolve => {
-    putAsync(channel, value, resolve);
-  });
-}
-
-/**
- * **Takes a value from a channel, blocking the process until a value becomes
- * available to be taken (or until the channel closes with no more values on it
- * to be taken).**
- *
- * This function *must* be called from within an `async` function and as part of
- * an `await` expression.
- *
- * When `take` is completed and its process unblocks, its `await` expression
- * evaluates to the actual value that was taken. If the target channel closed,
- * then all of the values already placed onto it are resolved by `take` as
- * normal, and once no more values are available, the special value
- * `{@link module:cispy~Cispy.CLOSED|CLOSED}` is returned.
- *
- * @memberOf module:cispy~Cispy
- * @param {module:cispy/channel~Channel} channel The channel that the process is
- * taking a value from.
- * @return {Promise} A promise that will resolve to the value taken from the
- *     channel once that take is completed. If the channel closes without a
- *     value being made available, this will resolve to
- *     `{@link module:cispy~Cispy.CLOSED|CLOSED}`.
- */
-export function take(channel) {
-  return new Promise(resolve => {
-    takeAsync(channel, resolve);
-  });
-}
-
-/**
- * **Takes a value from a channel, blocking the process until a value becomes
- * available to be taken (or until the channel closes with no more values on it
- * to be taken). If the taken value is an error object, that error is thrown at
- * that point.**
- *
- * This function *must* be called from within an `async` function and as part of
- * an `await` expression.
- *
- * It functions in every way like `{@link module:cispy~Cispy.take|take}`
- * *except* in the case that the value on the channel is an object that has
- * `Error.prototype` in its prototype chain (any built-in error, any
- * properly-constructed custom error). If that happens, the error is thrown,
- * which will cause the returned promise to be rejected with the error. It can
- * then be handled up the promise chain like any other rejected promise.
- *
- * `takeOrThrow` is roughly equivalent to:
- *
- * ```
- * const value = await take(ch);
- * if (Error.prototype.isPrototypeOf(value)) {
- *   throw value;
- * }
- * ```
- *
- * @memberOf module:cispy~Cispy
- * @param {module:cispy/channel~Channel} channel The channel that the process is
- * taking a value from.
- * @return {Promise} A promise that will resolve to the value taken from the
- *     channel once that take is completed. If the channel closes without a
- *     value being made available, this will resolve to
- *     `{@link module:cispy~Cispy.CLOSED|CLOSED}`. If the taken value is an
- *     error, the promise will instead be rejected with the error object as the
- *     reason.
- */
-export function takeOrThrow(channel) {
-  return new Promise((resolve, reject) => {
-    takeAsync(channel, result => {
-      if (Object.prototype.isPrototypeOf.call(Error.prototype, result)) {
-        reject(result);
-      } else {
-        resolve(result);
-      }
-    });
-  });
 }
 
 /**
@@ -525,7 +326,7 @@ export function sleep(delay = 0) {
   return new Promise(resolve => {
     const ch = chan();
     setTimeout(() => ch.close(), delay);
-    takeAsync(ch, resolve);
+    ch.takeAsync(resolve);
   });
 }
 

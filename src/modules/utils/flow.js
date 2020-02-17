@@ -35,8 +35,8 @@
  * @private
  */
 
-import { chan, close, CLOSED } from "../channel";
-import { put, take, alts, putAsync, takeAsync } from "../ops";
+import { chan, CLOSED } from "../channel";
+import { alts } from "../ops";
 
 const protocols = {
   taps: Symbol("multitap/taps"),
@@ -52,9 +52,9 @@ function isNumber(x) {
  * This ties two channels together so that puts on the source channel can be
  * taken off the destination channel. This does not duplicate values in any way
  * - if another process takes a value off the source channel, it will never
- * appear on the destination channel. In most cases you will not want to take
- * values off a channel once it's piped to another channel, since it's difficult
- * to know which values will go to which channel.
+ *   appear on the destination channel. In most cases you will not want to take
+ *   values off a channel once it's piped to another channel, since it's
+ *   difficult to know which values will go to which channel.
  *
  * Closing either channel will break the connection between the two. If the
  * source channel is closed, the destination channel will by default also be
@@ -70,22 +70,22 @@ function isNumber(x) {
  * destination channels when the source channels close.
  *
  * ```
- * const { go, chan, put, take, close, utils } = cispy;
+ * const { go, chan, utils } = cispy;
  * const { pipe } = utils;
  *
  * const input = chan();
  * const output = pipe(input, chan());
  *
  * go(async () => {
- *   await put(input, 1);
- *   await put(input, 2);
- *   close(input);
+ *   await input.put(1);
+ *   await input.put(2);
+ *   input.close();
  * });
  *
  * go(async () => {
- *   console.log(await take(output));      // -> 1
- *   console.log(await take(output));      // -> 2
- *   console.log(output.closed);           // -> true
+ *   console.log(await output.take());      // -> 1
+ *   console.log(await output.take());      // -> 2
+ *   console.log(output.closed);            // -> true
  * });
  * ```
  *
@@ -100,14 +100,14 @@ function isNumber(x) {
 export function pipe(src, dest, keepOpen) {
   async function loop() {
     for (;;) {
-      const value = await take(src);
+      const value = await src.take();
       if (value === CLOSED) {
         if (!keepOpen) {
-          close(dest);
+          dest.close();
         }
         break;
       }
-      if (!(await put(dest, value))) {
+      if (!(await dest.put(value))) {
         break;
       }
     }
@@ -136,27 +136,27 @@ export function pipe(src, dest, keepOpen) {
  *
  *
  * ```
- * const { go, chan, put, take, utils } = cispy;
+ * const { go, utils } = cispy;
  * const { partition } = utils;
  *
  * const input = chan();
  * const [even, odd] = partition(x => x % 2 === 0, input);
  *
  * go(async () => {
- *   await put(input, 1);
- *   await put(input, 2);
- *   await put(input, 3);
- *   await put(input, 4);
+ *   await input.put(1);
+ *   await input.put(2);
+ *   await input.put(3);
+ *   await input.put(4);
  * });
  *
  * go(async () => {
- *   console.log(await take(even));     // -> 2
- *   console.log(await take(even));     // -> 4
+ *   console.log(await even.take());     // -> 2
+ *   console.log(await even.take());     // -> 4
  * });
  *
  * go(async () => {
- *   console.log(await take(odd));      // -> 1
- *   console.log(await take(odd));      // -> 3
+ *   console.log(await odd.take());      // -> 1
+ *   console.log(await odd.take());      // -> 3
  * });
  * ```
  *
@@ -185,13 +185,13 @@ export function partition(fn, src, tBuffer = 0, fBuffer = 0) {
 
   async function loop() {
     for (;;) {
-      const value = await take(src);
+      const value = await src.take();
       if (value === CLOSED) {
-        close(tDest);
-        close(fDest);
+        tDest.close();
+        fDest.close();
         break;
       }
-      await put(fn(value) ? tDest : fDest, value);
+      await (fn(value) ? tDest : fDest).put(value);
     }
   }
 
@@ -202,7 +202,7 @@ export function partition(fn, src, tBuffer = 0, fBuffer = 0) {
 /**
  * **Merges one or more channels into a single destination channel.**
  *
- * Values are given to the destination channel as they are put onto the source
+ * Values are given to the destination channel as they are sent to the source
  * channels. If `merge` is called when there are already values on multiple
  * source channels, the order that they're put onto the destination channel is
  * random.
@@ -219,7 +219,7 @@ export function partition(fn, src, tBuffer = 0, fBuffer = 0) {
  * channels close, then the destination channel is closed.
  *
  * ```
- * const { go, chan, put, take, utils } = cispy;
+ * const { go, chan, utils } = cispy;
  * const { merge } = utils;
  *
  * const input1 = chan();
@@ -228,18 +228,18 @@ export function partition(fn, src, tBuffer = 0, fBuffer = 0) {
  * const output = merge([input1, input2, input3]);
  *
  * go(async () => {
- *   // Because we're putting to all three channels in the same
+ *   // Because we're sending to all three channels in the same
  *   // process, we know the order in which the values will be
- *   // put on the output channel; in general, we won't know this
- *   await put(input1, 1);
- *   await put(input2, 2);
- *   await put(input3, 3);
+ *   // sent to the output channel; in general, we won't know this
+ *   await input1.put(1);
+ *   await input2.put(2);
+ *   await input3.put(3);
  * });
  *
  * go(async () => {
- *   console.log(await take(output));      // -> 1
- *   console.log(await take(output));      // -> 2
- *   console.log(await take(output));      // -> 3
+ *   console.log(await output.take());      // -> 1
+ *   console.log(await output.take());      // -> 2
+ *   console.log(await output.take());      // -> 3
  * });
  * ```
  *
@@ -267,9 +267,9 @@ export function merge(srcs, buffer = 0) {
         inputs.splice(index, 1);
         continue;
       }
-      await put(dest, value);
+      await dest.put(value);
     }
-    close(dest);
+    dest.close();
   }
 
   loop();
@@ -278,7 +278,7 @@ export function merge(srcs, buffer = 0) {
 
 /**
  * **Splits a single channel into multiple destination channels, with each
- * destination channel receiving every value put onto the source channel.**
+ * destination channel receiving every value sent to the source channel.**
  *
  * Every parameter after the first represents the buffer from a single
  * destination channel. Each `0` or `null` will produce an unbuffered channel,
@@ -292,31 +292,31 @@ export function merge(srcs, buffer = 0) {
  * source channel.
  *
  * ```
- * const { go, chan, put, take, utils } = cispy;
+ * const { go, chan, utils } = cispy;
  * const { split } = util;
  *
  * const input = chan();
  * const outputs = split(input, 3);
  *
  * go(async () => {
- *   await put(input, 1);
- *   await put(input, 2);
- *   await put(input, 3);
+ *   await input.put(1);
+ *   await input.put(2);
+ *   await input.put(3);
  * });
  *
  * go(async () => {
- *   for (const output of outputs) {       // Each output will happen 3 times
- *     console.log(await take(output));    // -> 1
- *     console.log(await take(output));    // -> 2
- *     console.log(await take(output));    // -> 3
+ *   for (const output of outputs) {        // Each will happen 3 times
+ *     console.log(await output.take());    // -> 1
+ *     console.log(await output.take());    // -> 2
+ *     console.log(await output.take());    // -> 3
  *   }
  * });
  * ```
  *
  * This function moves its values to the output channels asynchronously. This
  * means that even when using unbuffered channels, it is not necessary for all
- * output channels to be taken from before the next put to the input channel can
- * complete.
+ * output channels to be received from before the next send to the input channel
+ * can complete.
  *
  * @memberOf module:cispy/utils~CispyUtils
  * @param  {module:cispy/channel~Channel} src The source channel.
@@ -352,25 +352,25 @@ export function split(src, ...buffers) {
 
   function cb() {
     if (--count === 0) {
-      putAsync(done);
+      done.putAsync();
     }
   }
 
   async function loop() {
     for (;;) {
-      const value = await take(src);
+      const value = await src.take();
       if (value === CLOSED) {
         for (const dest of dests) {
-          close(dest);
+          dest.close();
         }
         break;
       }
 
       count = dests.length;
       for (const dest of dests) {
-        putAsync(dest, value, cb);
+        dest.putAsync(value, cb);
       }
-      await take(done);
+      await done.take();
     }
   }
 
@@ -402,13 +402,13 @@ function tapped(src) {
 
   function cb() {
     if (--count === 0) {
-      putAsync(done);
+      done.putAsync();
     }
   }
 
   async function loop() {
     for (;;) {
-      const value = await take(src);
+      const value = await src.take();
       if (value === CLOSED || src[protocols.taps].length === 0) {
         delete src[protocols.taps];
         break;
@@ -416,9 +416,9 @@ function tapped(src) {
 
       count = src[protocols.taps].length;
       for (const tap of src[protocols.taps]) {
-        putAsync(tap, value, cb);
+        tap.putAsync(value, cb);
       }
-      await take(done);
+      await done.take();
     }
   }
 
@@ -426,11 +426,11 @@ function tapped(src) {
 }
 
 /**
- * **Taps a channel, sending all of the values put onto it to the destination
+ * **Taps a channel, sending all of the values sent to it to the destination
  * channel.**
  *
  * A source channel can be tapped multiple times, and all of the tapping
- * (destination) channels receive each value put onto the tapped (source)
+ * (destination) channels receive each value sent to the tapped (source)
  * channel.
  *
  * This is different from `{@link module:cispy/utils~CispyUtils.split|split}` in
@@ -446,7 +446,7 @@ function tapped(src) {
  * any of the other channels.
  *
  * ```
- * const { go, chan, put, take, utils } = cispy;
+ * const { go, chan, utils } = cispy;
  * const { tap } = utils;
  *
  * const input = chan();
@@ -454,13 +454,13 @@ function tapped(src) {
  * tap(input, tapper);
  *
  * go(async () => {
- *   await put(input, 1);
- *   await put(input, 2);
+ *   await input.put(1);
+ *   await input.put(2);
  * });
  *
  * go(async () => {
- *   console.log(await take(tapper));   // -> 1
- *   console.log(await take(tapper));   // -> 2
+ *   console.log(await tapper.take());   // -> 1
+ *   console.log(await tapper.take());   // -> 2
  * });
  *
  * ```
@@ -488,7 +488,7 @@ export function tap(src, dest = chan()) {
  * **Untaps a previously tapping destination channel from its source channel.**
  *
  * This removes a previously created tap. The destination (tapping) channel will
- * stop receiving the values put onto the source channel.
+ * stop receiving the values sent to the source channel.
  *
  * If the destination channel was not, in fact, tapping the source channel, this
  * function will do nothing. If all taps are removed, the source channel reverts
@@ -507,7 +507,7 @@ export function untap(src, dest) {
     if (index !== -1) {
       taps.splice(index, 1);
       if (taps.length === 0) {
-        putAsync(src);
+        src.putAsync();
       }
     }
   }
@@ -527,17 +527,17 @@ export function untap(src, dest) {
 export function untapAll(src) {
   if (src[protocols.taps]) {
     src[protocols.taps] = [];
-    putAsync(src);
+    src.putAsync();
   }
 }
 
 /**
  * **Maps the values from one or more source channels through a function,
- * putting the results on a new channel.**
+ * sending the results to a new channel.**
  *
  * The mapping function is given one value from each source channel, after at
  * least one value becomes available on every source channel. The output value
- * from the function is then put onto the destination channel.
+ * from the function is then sent to the destination channel.
  *
  * The destination channel is created by the function based on the buffer value
  * passed as the third parameter. If this is missing, `null`, or `0`, the
@@ -554,7 +554,7 @@ export function untapAll(src) {
  * transducer on a single channel is unable to do.
  *
  * ```
- * const { go, chan, put, take, close, utils } = cispy;
+ * const { go, chan, utils } = cispy;
  * const { map } = utils;
  *
  * const input1 = chan();
@@ -563,28 +563,28 @@ export function untapAll(src) {
  * const output = map((x, y, z) => x + y + z, [input1, input2, input3]);
  *
  * go(async () => {
- *   await put(input1, 1);
- *   await put(input1, 2);
- *   await put(input1, 3);
+ *   await input1.put(1);
+ *   await input1.put(2);
+ *   await input1.put(3);
  * });
  *
  * go(async () => {
- *   await put(input2, 10);
- *   await put(input2, 20);
- *   close(input2);
+ *   await input2.put(10);
+ *   await input2.put(20);
+ *   input2.close();
  * });
  *
  * go(async () => {
- *   await put(input3, 100);
- *   await put(input3, 200);
- *   await put(input3, 300);
+ *   await input3.put(100);
+ *   await input3.put(200);
+ *   await input3.put(300);
  * });
  *
  * go(async () => {
- *   console.log(await take(output));     // -> 111
- *   console.log(await take(output));     // -> 222
+ *   console.log(await output.take());     // -> 111
+ *   console.log(await output.take());     // -> 222
  *   // Output closes now because input2 closes after 2 values
- *   console.log(output.closed);          // -> true
+ *   console.log(output.closed);           // -> true
  * });
  * ```
  *
@@ -611,7 +611,7 @@ export function map(fn, srcs, buffer = 0) {
       return value => {
         values[index] = value;
         if (--count === 0) {
-          putAsync(temp, values.slice());
+          temp.putAsync(values.slice());
         }
       };
     })(i);
@@ -621,16 +621,16 @@ export function map(fn, srcs, buffer = 0) {
     for (;;) {
       count = srcLen;
       for (let i = 0; i < srcLen; ++i) {
-        takeAsync(srcs[i], callbacks[i]);
+        srcs[i].takeAsync(callbacks[i]);
       }
-      const values = await take(temp);
+      const values = await temp.take();
       for (const value of values) {
         if (value === CLOSED) {
-          close(dest);
+          dest.close();
           return;
         }
       }
-      await put(dest, fn(...values));
+      await dest.put(fn(...values));
     }
   }
 

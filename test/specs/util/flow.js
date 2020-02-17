@@ -4,13 +4,10 @@ import { expect } from "../../helper";
 
 import {
   chan,
-  close,
   CLOSED,
   fixedBuffer,
   droppingBuffer,
   slidingBuffer,
-  put,
-  take,
   sleep,
   utils,
 } from "api";
@@ -22,39 +19,39 @@ const sum3 = (a, b, c) => a + b + c;
 
 async function fillChannel(channel, count, cl) {
   for (let i = 1; i <= count; ++i) {
-    await put(channel, i);
+    await channel.put(i);
   }
   if (cl) {
-    close(channel);
+    channel.close();
   }
 }
 
 async function fillChannelWith(channel, array, cl) {
   for (const i of array) {
-    await put(channel, i);
+    await channel.put(i);
   }
   if (cl) {
-    close(channel);
+    channel.close();
   }
 }
 
 async function expectChannel(channel, expected, end, start) {
   if (start) {
-    await take(start);
+    await start.take();
   }
   const values = [];
   for (let i = 0, count = expected.length; i < count; ++i) {
-    values.push(await take(channel));
+    values.push(await channel.take());
   }
   expect(values).to.deep.equal(expected);
   if (end) {
-    await put(end);
+    await end.put();
   }
 }
 
 async function join(num, end, done) {
   for (let i = 0; i < num; ++i) {
-    await take(end);
+    await end.take();
   }
   done();
 }
@@ -66,14 +63,14 @@ describe("Flow control functions", () => {
       const output = pipe(input, chan());
 
       (async () => {
-        expect(await take(output)).to.equal(1729);
-        expect(await take(output)).to.equal(2317);
+        expect(await output.take()).to.equal(1729);
+        expect(await output.take()).to.equal(2317);
         done();
       })();
 
       (async () => {
-        await put(input, 1729);
-        await put(input, 2317);
+        await input.put(1729);
+        await input.put(2317);
       })();
     });
 
@@ -83,11 +80,11 @@ describe("Flow control functions", () => {
       pipe(input, output);
 
       (async () => {
-        expect(await take(output)).to.equal(CLOSED);
+        expect(await output.take()).to.equal(CLOSED);
         done();
       })();
 
-      close(input);
+      input.close();
     });
 
     it("keeps the output channel open with keepOpen", done => {
@@ -96,15 +93,15 @@ describe("Flow control functions", () => {
       pipe(input, output, true);
 
       (async () => {
-        expect(await take(output)).to.equal(1729);
+        expect(await output.take()).to.equal(1729);
         done();
       })();
 
       (async () => {
-        close(input);
+        input.close();
         // This ensures that the take happens AFTER the close but BEFORE the put
         await sleep();
-        await await put(output, 1729);
+        await await output.put(1729);
       })();
     });
 
@@ -117,24 +114,24 @@ describe("Flow control functions", () => {
 
       (async () => {
         // First put to soon-to-be closed channel and is lost
-        await put(input, 1729);
+        await input.put(1729);
         // Signal second process to close channel
-        await put(start);
+        await start.put();
         // Second put taken by third process
-        await put(input, 2317);
+        await input.put(2317);
       })();
 
       (async () => {
-        await take(start);
+        await start.take();
         // Close the output, break the pipe
-        close(output);
+        output.close();
         // Signal the third process to take input
-        await put(finished);
+        await finished.put();
       })();
 
       (async () => {
-        await take(finished);
-        expect(await take(input)).to.equal(2317);
+        await finished.take();
+        expect(await input.take()).to.equal(2317);
         done();
       })();
     });
@@ -167,11 +164,11 @@ describe("Flow control functions", () => {
 
       (async () => {
         for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
-          await put(input, i);
+          await input.put(i);
           await sleep();
         }
-        await put(start);
-        await put(start);
+        await start.put();
+        await start.put();
       })();
 
       expectChannel(evens, [6, 8, 10], end, start);
@@ -186,19 +183,19 @@ describe("Flow control functions", () => {
       const end = chan();
 
       (async () => {
-        expect(await take(evens)).to.equal(CLOSED);
-        await put(end);
+        expect(await evens.take()).to.equal(CLOSED);
+        await end.put();
       })();
 
       (async () => {
-        expect(await take(odds)).to.equal(CLOSED);
-        await put(end);
+        expect(await odds.take()).to.equal(CLOSED);
+        await end.put();
       })();
 
       (async () => {
-        close(input);
-        await take(end);
-        await take(end);
+        input.close();
+        await end.take();
+        await end.take();
         done();
       })();
     });
@@ -217,7 +214,7 @@ describe("Flow control functions", () => {
       (async () => {
         for (let i = 0; i < 15; ++i) {
           await sleep();
-          const index = await take(output);
+          const index = await output.take();
           values[index] = true;
           await sleep();
         }
@@ -238,7 +235,9 @@ describe("Flow control functions", () => {
         await sleep();
         await sleep();
         for (let i = 0; i < 3; ++i) {
-          expect([2, 3, 4, 7, 8, 9, 12, 13, 14]).to.include(await take(output));
+          expect([2, 3, 4, 7, 8, 9, 12, 13, 14]).to.include(
+            await output.take(),
+          );
         }
         done();
       })();
@@ -249,11 +248,11 @@ describe("Flow control functions", () => {
       const output = merge(inputs);
 
       for (const ch of inputs) {
-        close(ch);
+        ch.close();
       }
 
       (async () => {
-        expect(await take(output)).to.equal(CLOSED);
+        expect(await output.take()).to.equal(CLOSED);
         done();
       })();
     });
@@ -304,11 +303,11 @@ describe("Flow control functions", () => {
 
       (async () => {
         for (let i = 1; i <= 5; ++i) {
-          await put(input, i);
+          await input.put(i);
         }
-        await put(start);
-        await put(start);
-        await put(start);
+        await start.put();
+        await start.put();
+        await start.put();
       })();
 
       expectChannel(outputs[0], [1, 2, 3, 4, 5], end, start);
@@ -323,7 +322,7 @@ describe("Flow control functions", () => {
       const outputs = split(input, 3);
 
       (async () => {
-        close(input);
+        input.close();
         await sleep();
         await sleep();
         for (let i = 0, count = outputs.length; i < count; ++i) {
@@ -376,7 +375,7 @@ describe("Flow control functions", () => {
         const input = chan();
         const outputs = [tap(input), tap(input)];
 
-        close(input);
+        input.close();
         expect(outputs[0].closed).to.be.false;
         expect(outputs[1].closed).to.be.false;
       });
@@ -396,16 +395,16 @@ describe("Flow control functions", () => {
 
         (async () => {
           for (let i = 1; i <= 5; ++i) {
-            expect(await take(outputs[1])).to.equal(-i);
+            expect(await outputs[1].take()).to.equal(-i);
           }
           done();
         })();
 
         (async () => {
-          await take(ctrl);
-          await take(ctrl);
+          await ctrl.take();
+          await ctrl.take();
           for (let i = 1; i <= 5; ++i) {
-            await put(outputs[1], -i);
+            await outputs[1].put(-i);
           }
         })();
       });
@@ -481,7 +480,7 @@ describe("Flow control functions", () => {
         await sleep();
         await sleep();
         for (let i = 1; i <= 3; ++i) {
-          expect(await take(output)).to.equal((i + 2) * 3);
+          expect(await output.take()).to.equal((i + 2) * 3);
         }
         done();
       })();
@@ -494,20 +493,20 @@ describe("Flow control functions", () => {
 
       (async () => {
         for (let i = 1; i <= 5; ++i) {
-          await put(inputs[0], i);
+          await inputs[0].put(i);
         }
       })();
 
       (async () => {
         for (let i = 1; i <= 3; ++i) {
-          await put(inputs[1], i);
+          await inputs[1].put(i);
         }
-        close(inputs[1]);
+        inputs[1].close();
       })();
 
       (async () => {
         for (let i = 1; i <= 5; ++i) {
-          await put(inputs[2], i);
+          await inputs[2].put(i);
         }
       })();
 

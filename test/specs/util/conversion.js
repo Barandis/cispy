@@ -1,36 +1,36 @@
 import { expect } from "../../helper";
 
-import { chan, close, put, take, takeAsync, utils } from "api";
+import { chan, utils } from "api";
 
 const { reduce, onto, into } = utils;
 
 async function fillChannel(channel, count, cl) {
   for (let i = 1; i <= count; ++i) {
-    await put(channel, i);
+    await channel.put(i);
   }
   if (cl) {
-    close(channel);
+    channel.close();
   }
 }
 
 async function join(num, end, done) {
   for (let i = 0; i < num; ++i) {
-    await take(end);
+    await end.take();
   }
   done();
 }
 
 async function expectChannel(channel, expected, end, start) {
   if (start) {
-    await take(start);
+    await start.take();
   }
   const values = [];
   for (let i = 0, count = expected.length; i < count; ++i) {
-    values.push(await take(channel));
+    values.push(await channel.take());
   }
   expect(values).to.deep.equal(expected);
   if (end) {
-    await put(end);
+    await end.put();
   }
 }
 
@@ -42,7 +42,7 @@ describe("Channel conversion functions", () => {
 
       fillChannel(input, 5, true);
 
-      takeAsync(output, value => {
+      output.takeAsync(value => {
         expect(value).to.equal(15);
         expect(output.closed).to.be.true;
         done();
@@ -62,7 +62,7 @@ describe("Channel conversion functions", () => {
 
       fillChannel(input, 5, true);
 
-      takeAsync(output, value => {
+      output.takeAsync(value => {
         expect(value).to.deep.equal([1, 2, 3, 4, 5]);
         expect(output.closed).to.be.true;
         done();
@@ -71,14 +71,14 @@ describe("Channel conversion functions", () => {
   });
 
   describe("onto", () => {
-    it("puts the values from an array onto a channel", done => {
+    it("sends the values from an array onto a channel", done => {
       const output = chan();
       const array = [1, 2, 3, 4, 5];
       const ctrl = chan();
 
       (async () => {
-        await put(output, -1);
-        await put(output, 0);
+        await output.put(-1);
+        await output.put(0);
         onto(output, array);
       })();
 
@@ -101,12 +101,12 @@ describe("Channel conversion functions", () => {
       const output = into([1, 2, 3, 4, 5], input);
 
       (async () => {
-        await put(input, 6);
-        await put(input, 7);
-        close(input);
+        await input.put(6);
+        await input.put(7);
+        input.close();
       })();
 
-      takeAsync(output, value => {
+      output.takeAsync(value => {
         expect(value).to.deep.equal([1, 2, 3, 4, 5, 6, 7]);
         expect(output.closed).to.be.true;
         done();
@@ -118,12 +118,12 @@ describe("Channel conversion functions", () => {
       const output = into(input);
 
       (async () => {
-        await put(input, 6);
-        await put(input, 7);
-        close(input);
+        await input.put(6);
+        await input.put(7);
+        input.close();
       })();
 
-      takeAsync(output, value => {
+      output.takeAsync(value => {
         expect(value).to.deep.equal([6, 7]);
         expect(output.closed).to.be.true;
         done();

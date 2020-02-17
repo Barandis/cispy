@@ -22,16 +22,7 @@
 import { expect } from "../../helper";
 import sinon from "sinon";
 
-import {
-  chan,
-  fixedBuffer,
-  putAsync,
-  takeAsync,
-  sleep,
-  close,
-  CLOSED,
-  utils,
-} from "api";
+import { chan, fixedBuffer, sleep, CLOSED, utils } from "api";
 
 const { debounce, throttle } = utils;
 
@@ -44,9 +35,9 @@ describe("Channel timing functions", () => {
       const output = debounce(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
 
-      putAsync(input, 1729);
+      input.putAsync(1729);
 
-      takeAsync(output, value => {
+      output.takeAsync(value => {
         expect(value).to.equal(1729);
         spy();
       });
@@ -64,11 +55,11 @@ describe("Channel timing functions", () => {
       const input = chan();
       const output = debounce(input, 100);
 
-      takeAsync(output, value => {
+      output.takeAsync(value => {
         expect(value).to.equal(CLOSED);
       });
 
-      close(input);
+      input.close();
     });
 
     describe("with trailing option", () => {
@@ -82,9 +73,9 @@ describe("Channel timing functions", () => {
       it("holds the input value until the delay expires", async () => {
         const spy = sinon.spy();
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
 
-        takeAsync(output, value => {
+        output.takeAsync(value => {
           expect(value).to.equal(1729);
           spy();
         });
@@ -98,21 +89,21 @@ describe("Channel timing functions", () => {
         expect(spy).to.be.called;
       });
 
-      it("restarts the delay if another value is put on the input channel", async () => {
+      it("restarts the delay if another value is sent to the input channel", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value => {
+        output.takeAsync(value => {
           expect(value).to.equal(1723);
           spy();
         });
 
         expect(spy).not.to.be.called;
-        putAsync(input, 1729);
+        input.putAsync(1729);
 
         await sleep(75);
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1723);
+        input.putAsync(1723);
 
         await sleep(75);
         expect(spy).not.to.be.called;
@@ -133,14 +124,14 @@ describe("Channel timing functions", () => {
       it("returns the input value immediately", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value => {
+        output.takeAsync(value => {
           expect(value).to.equal(1729);
           spy();
         });
 
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep();
 
         expect(spy).to.be.called;
@@ -149,28 +140,28 @@ describe("Channel timing functions", () => {
       it("will not allow another input value through until the delay expires", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value1 => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(3271);
             spy();
           });
         });
 
         expect(spy).not.to.be.called;
-        putAsync(input, 1729);
+        input.putAsync(1729);
         expect(spy).not.to.be.called;
         await sleep(75);
 
-        putAsync(input, 1723);
+        input.putAsync(1723);
         expect(spy).not.to.be.called;
         await sleep(75);
 
-        putAsync(input, 9271);
+        input.putAsync(9271);
         expect(spy).not.to.be.called;
         await sleep(150);
 
-        putAsync(input, 3271);
+        input.putAsync(3271);
         await sleep();
         expect(spy).to.be.called;
       });
@@ -187,40 +178,40 @@ describe("Channel timing functions", () => {
       it("returns the input value immediately", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value => {
+        output.takeAsync(value => {
           expect(value).to.equal(1729);
           spy();
         });
 
         expect(spy).not.to.be.called;
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep();
         expect(spy).to.be.called;
       });
 
       it("does not return a single input value after the delay expires", async () => {
-        takeAsync(output, value1 => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(1723);
           });
         });
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(125);
-        putAsync(input, 1723);
+        input.putAsync(1723);
       });
 
       it("does return a second input value after the delay expires", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value1 => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
           spy();
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(1723);
             spy();
-            takeAsync(output, value3 => {
+            output.takeAsync(value3 => {
               expect(value3).to.equal(9271);
               spy();
             });
@@ -229,18 +220,18 @@ describe("Channel timing functions", () => {
 
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(50);
         expect(spy).to.be.calledOnce;
 
-        putAsync(input, 1723);
+        input.putAsync(1723);
         await sleep(50);
         expect(spy).to.be.calledOnce;
 
         await sleep(75);
         expect(spy).to.be.calledTwice;
 
-        putAsync(input, 9271);
+        input.putAsync(9271);
         await sleep();
         expect(spy).to.be.calledThrice;
       });
@@ -257,26 +248,26 @@ describe("Channel timing functions", () => {
       it("interrupts the debounce delay after maxDelay elapses", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value => {
+        output.takeAsync(value => {
           expect(value).to.equal(1729);
           spy();
         });
 
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(75);
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(75);
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(75);
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(75);
         expect(spy).to.be.called;
       });
@@ -284,10 +275,10 @@ describe("Channel timing functions", () => {
       it("restarts the maxDelay if the delay is allowed to elapse", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value1 => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
           spy();
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(1729);
             spy();
           });
@@ -295,23 +286,23 @@ describe("Channel timing functions", () => {
 
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(150);
         expect(spy).to.be.calledOnce;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(75);
         expect(spy).to.be.calledOnce;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(75);
         expect(spy).to.be.calledOnce;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(75);
         expect(spy).to.be.calledOnce;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(75);
         expect(spy).to.be.calledTwice;
       });
@@ -326,19 +317,19 @@ describe("Channel timing functions", () => {
         output = debounce(input, 100, { cancel });
       });
 
-      it("cancels debouncing and closes the output channel if a value is put onto the cancel channel", async () => {
-        takeAsync(output, value1 => {
+      it("cancels debouncing and closes the output channel if a value is send to the cancel channel", async () => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(CLOSED);
           });
         });
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(125);
-        putAsync(input, 1723);
+        input.putAsync(1723);
         await sleep(50);
-        putAsync(cancel);
+        cancel.putAsync();
       });
     });
   });
@@ -351,13 +342,13 @@ describe("Channel timing functions", () => {
       const output = throttle(input, fixedBuffer(1), 100);
       const spy = sinon.spy();
 
-      takeAsync(output, value => {
+      output.takeAsync(value => {
         expect(value).to.equal(1729);
         spy();
       });
 
       expect(spy).not.to.be.called;
-      putAsync(input, 1729);
+      input.putAsync(1729);
 
       await sleep(75);
       expect(spy).to.be.called;
@@ -367,11 +358,11 @@ describe("Channel timing functions", () => {
       const input = chan();
       const output = throttle(input, 100);
 
-      takeAsync(output, value => {
+      output.takeAsync(value => {
         expect(value).to.equal(CLOSED);
       });
 
-      close(input);
+      input.close();
     });
 
     describe("with leading and trailing options", () => {
@@ -385,37 +376,37 @@ describe("Channel timing functions", () => {
       it("returns the first input value immediately", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value => {
+        output.takeAsync(value => {
           expect(value).to.equal(1729);
           spy();
         });
 
         expect(spy).not.to.be.called;
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep();
         expect(spy).to.be.called;
       });
 
       it("does not return a single input value after the delay expires", async () => {
-        takeAsync(output, value1 => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(1723);
           });
         });
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(125);
-        putAsync(input, 1723);
+        input.putAsync(1723);
       });
 
       it("does return a second input value after the delay expires", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value1 => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
           spy();
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(1723);
             spy();
           });
@@ -423,11 +414,11 @@ describe("Channel timing functions", () => {
 
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(50);
         expect(spy).to.be.calledOnce;
 
-        putAsync(input, 1723);
+        input.putAsync(1723);
         await sleep(25);
         expect(spy).to.be.calledOnce;
 
@@ -438,16 +429,16 @@ describe("Channel timing functions", () => {
       it("restarts the timer without waiting for a new initial input", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value1 => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
           spy();
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(1723);
             spy();
-            takeAsync(output, value3 => {
+            output.takeAsync(value3 => {
               expect(value3).to.equal(9271);
               spy();
-              takeAsync(output, value4 => {
+              output.takeAsync(value4 => {
                 expect(value4).to.equal(3271);
                 spy();
               });
@@ -455,21 +446,21 @@ describe("Channel timing functions", () => {
           });
         });
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(50);
         expect(spy).to.be.calledOnce;
 
-        putAsync(input, 1723);
+        input.putAsync(1723);
         expect(spy).to.be.calledOnce;
 
         await sleep(75);
         expect(spy).to.be.calledTwice;
-        putAsync(input, 9271);
+        input.putAsync(9271);
         expect(spy).to.be.calledTwice;
 
         await sleep(100);
         expect(spy).to.be.calledThrice;
-        putAsync(input, 3271);
+        input.putAsync(3271);
         expect(spy).to.be.calledThrice;
 
         await sleep(100);
@@ -488,13 +479,13 @@ describe("Channel timing functions", () => {
       it("returns the first value immediately", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value => {
+        output.takeAsync(value => {
           expect(value).to.equal(1729);
           spy();
         });
 
         expect(spy).not.to.be.called;
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep();
         expect(spy).to.be.called;
       });
@@ -502,28 +493,28 @@ describe("Channel timing functions", () => {
       it("drops any input that is put before the delay elapses", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value1 => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
           spy();
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(1729);
             spy();
           });
         });
 
         expect(spy).not.to.be.called;
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(5);
         expect(spy).to.be.calledOnce;
 
         for (let i = 0; i < 5; ++i) {
-          putAsync(input, 9999);
+          input.putAsync(9999);
           await sleep(10);
           expect(spy).to.be.calledOnce;
         }
 
         await sleep(75);
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep();
         expect(spy).to.be.calledTwice;
       });
@@ -540,13 +531,13 @@ describe("Channel timing functions", () => {
       it("returns a single value after the delay has elapsed", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value => {
+        output.takeAsync(value => {
           expect(value).to.equal(1729);
           spy();
         });
 
         expect(spy).not.to.be.called;
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep();
         expect(spy).not.to.be.called;
 
@@ -560,25 +551,25 @@ describe("Channel timing functions", () => {
       it("returns only the last input to happen before the delay has elapsed", async () => {
         const spy = sinon.spy();
 
-        takeAsync(output, value => {
+        output.takeAsync(value => {
           expect(value).to.equal(1729);
           spy();
         });
 
         expect(spy).not.to.be.called;
-        putAsync(input, 1723);
+        input.putAsync(1723);
         await sleep(25);
         expect(spy).not.to.be.called;
 
-        putAsync(input, 9271);
+        input.putAsync(9271);
         await sleep(25);
         expect(spy).not.to.be.called;
 
-        putAsync(input, 3271);
+        input.putAsync(3271);
         await sleep(25);
         expect(spy).not.to.be.called;
 
-        putAsync(input, 1729);
+        input.putAsync(1729);
         await sleep(5);
         expect(spy).not.to.be.called;
 
@@ -596,18 +587,18 @@ describe("Channel timing functions", () => {
         output = throttle(input, 100, { cancel });
       });
 
-      it("cancels throttling and closes the output channel if a value is placed onto the cancel channel", async () => {
-        takeAsync(output, value1 => {
+      it("cancels throttling and closes the output channel if a value is sent to the cancel channel", async () => {
+        output.takeAsync(value1 => {
           expect(value1).to.equal(1729);
-          takeAsync(output, value2 => {
+          output.takeAsync(value2 => {
             expect(value2).to.equal(CLOSED);
           });
         });
 
-        putAsync(input, 1729);
-        putAsync(input, 1723);
+        input.putAsync(1729);
+        input.putAsync(1723);
         await sleep(50);
-        putAsync(cancel);
+        cancel.putAsync();
       });
     });
   });
