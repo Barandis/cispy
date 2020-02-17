@@ -6,9 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 ## Changed
 - the functions `put`, `take`, `putAsync`, `takeAsync`, and `close` have been replaced with equivalently named member functions on the channel object (the one that is returned by `chan`). These functions have the same signature except that, since they are channel member functions, the first argument (the channel) is no longer necessary.
+- the functions `alts` and `altsAsync` are now named `select` and `selectAsync`.
 
 ## Removed
-- the function `timeout` has been removed. To create a timeout channel, use `chan` as normal but include the new `timeout` option.
+- the function `timeout`. To create a timeout channel, use `chan` as normal but include the new `timeout` option.
 - automated release. Just too many problems making it work right. I continue to use semantic versioning and commitizen, but I'll manage the releases myself.
 - the dev release. Not much need for it, really. package.json now points to the minified file with `main`.
 

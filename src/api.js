@@ -35,7 +35,7 @@ export {
   EMPTY,
 } from "modules/buffers";
 export { chan, CLOSED, DEFAULT } from "modules/channel";
-export { altsAsync, alts, sleep, go } from "modules/ops";
+export { selectAsync, select, sleep, go } from "modules/ops";
 export {
   config,
   SET_IMMEDIATE,
