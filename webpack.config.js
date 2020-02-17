@@ -1,8 +1,11 @@
+const webpack = require("webpack");
+const fs = require("fs");
 const path = require("path");
 
+const banner = fs.readFileSync(path.resolve(__dirname, "LICENSE"), "utf8");
+
 module.exports = {
-  mode: "development",
-  devtool: "none",
+  mode: "production",
   entry: "./src/api.js",
   output: {
     path: path.join(__dirname, "dist"),
@@ -10,6 +13,7 @@ module.exports = {
     library: "cispy",
     libraryTarget: "umd",
   },
+  plugins: [new webpack.BannerPlugin({ banner, entryOnly: true })],
   module: {
     rules: [
       {
