@@ -34,7 +34,7 @@ export {
   dropping as droppingBuffer,
   EMPTY,
 } from "modules/buffers";
-export { chan, timeout, CLOSED, DEFAULT } from "modules/channel";
+export { chan, CLOSED, DEFAULT } from "modules/channel";
 export { altsAsync, alts, sleep, go } from "modules/ops";
 export {
   config,

@@ -28,7 +28,7 @@
  * @private
  */
 
-import { chan, timeout, CLOSED } from "../channel";
+import { chan, CLOSED } from "../channel";
 import { alts } from "../ops";
 
 function isNumber(x) {
@@ -137,10 +137,10 @@ export function debounce(src, buffer, delay, options) {
         }
 
         const timing = timer.timeout;
-        timer = timeout(del);
+        timer = chan(0, { timeout: del });
 
         if (!timing && maxDelay > 0) {
-          max = timeout(maxDelay);
+          max = chan(0, { timeout: maxDelay });
         }
 
         if (leading) {
@@ -261,7 +261,7 @@ export function throttle(src, buffer, delay, options) {
 
         const timing = timer.timeout;
         if (!timing) {
-          timer = timeout(del);
+          timer = chan(0, { timeout: del });
         }
 
         if (leading) {
@@ -274,7 +274,7 @@ export function throttle(src, buffer, delay, options) {
           current = value;
         }
       } else if (trailing && current !== CLOSED) {
-        timer = timeout(del);
+        timer = chan(0, { timeout: del });
         await dest.put(current);
         current = CLOSED;
       } else {

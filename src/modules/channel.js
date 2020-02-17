@@ -990,6 +990,9 @@ const bufferReducer = {
  *     they were in the list of operations passed to `alts` but were not chosen
  *     to run. This provides a chance for a very minor performance tweak and is
  *     best left alone.
+ * @param {number|null} [options.timeout=null] The number of milliseconds before
+ *     this channel will be automatically closed. A value of `null` indicates
+ *     that the channel will not be automatically closed.
  * @param {number} [options.maxQueued=1024] The maximum number of operations
  *     that can be queued up at the same time. This prevents infinite loops from
  *     accidentally eating up all of the available memory.
@@ -1002,6 +1005,7 @@ export function chan(
     handler = undefined,
     maxDirty = MAX_DIRTY,
     maxQueued = MAX_QUEUED,
+    timeout = null,
   } = {},
 ) {
   const buf = buffer === 0 ? null : buffer;
@@ -1015,27 +1019,11 @@ export function chan(
     handler,
   );
 
-  return channel(b, xf, false, maxDirty, maxQueued);
-}
+  const isTimeout = timeout !== null;
 
-/**
- * **Creates a new unbuffered channel that closes after some amount of time.**
- *
- * This channel is able to be used for putting and taking as normal, but it will
- * close after the number of milliseconds in its `delay` parameter has passed.
- * For that reason it's not really intended to be used for putting and taking.
- * Its primary purpose is to be a channel passed to
- * `{@link module:cispy~Cispy.alts|alts}` to place a time limit on how long its
- * process will block.
- *
- * @memberOf module:cispy~Cispy
- * @param {number} delay The number of milliseconds to keep the new channel
- *     open. After that much time passes, the channel will close automatically.
- * @return {module:cispy/channel~Channel} A new channel that automatically
- * closes after the delay completes.
- */
-export function timeout(delay) {
-  const ch = channel(null, wrapTransformer(bufferReducer), true);
-  setTimeout(() => ch.close(), delay);
+  const ch = channel(b, xf, isTimeout, maxDirty, maxQueued);
+  if (isTimeout) {
+    setTimeout(() => ch.close(), timeout);
+  }
   return ch;
 }

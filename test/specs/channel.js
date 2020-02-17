@@ -3,7 +3,7 @@ import { expect } from "../helper";
 import sinon from "sinon";
 
 import { fixed, dropping, sliding } from "modules/buffers";
-import { chan, timeout, CLOSED } from "modules/channel";
+import { chan, CLOSED } from "modules/channel";
 import { config, SET_TIMEOUT } from "modules/dispatcher";
 import { go, sleep, altsAsync } from "modules/ops";
 
@@ -448,7 +448,7 @@ describe("Channel", () => {
     });
   });
 
-  describe("timeout", () => {
+  describe("timeout channels", () => {
     let clock;
 
     before(() => config({ dispatchMethod: SET_TIMEOUT }));
@@ -458,7 +458,7 @@ describe("Channel", () => {
 
     it("creates a channel that closes after a certain amount of time", () => {
       const spy = sinon.spy();
-      const ch = timeout(500);
+      const ch = chan(0, { timeout: 500 });
 
       ch.takeAsync(value => {
         expect(value).to.equal(CLOSED);
@@ -471,12 +471,12 @@ describe("Channel", () => {
     });
 
     it("marks itself as a timeout channel", () => {
-      expect(timeout(0).timeout).to.be.true;
+      expect(chan(0, { timeout: 0 }).timeout).to.be.true;
     });
 
     it("is useful in limiting how long an alts call will wait", () => {
       const spy = sinon.spy();
-      const chs = [chan(), chan(), timeout(500)];
+      const chs = [chan(), chan(), chan(0, { timeout: 500 })];
 
       altsAsync(chs, () => {
         spy();
