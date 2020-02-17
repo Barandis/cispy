@@ -55,7 +55,7 @@
  * @private
  */
 
-import { queue as q, EMPTY } from "./buffers";
+import { queue as q, EMPTY } from "modules/buffers";
 const queue = q();
 
 /**

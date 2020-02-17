@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## Changed
 - the functions `put`, `take`, `putAsync`, `takeAsync`, and `close` have been replaced with equivalently named member functions on the channel object (the one that is returned by `chan`). These functions have the same signature except that, since they are channel member functions, the first argument (the channel) is no longer necessary.
 - the functions `alts` and `altsAsync` are now named `select` and `selectAsync`.
+- the arrangement of the API. The package now has several top-level objects: `Channel`, which does channel creation and channel-related constants; `Channels`, which covers everything that works with multiple channels (this is the entire old `util` package plus `select` and `selectAsync`), `Process`, which has functions that modify the running of async functions (`go` and `sleep`), and `Buffer` and `Dispatcher` which contain the expected functions.
+- the name of the buffer creation functions. Since they're now in their own little package, the `Buffer` portion has been removed from their names as redundant, and they are now `fixed`, `dropping`, and `sliding`.
 
 ## Removed
 - the function `timeout`. To create a timeout channel, use `chan` as normal but include the new `timeout` option.

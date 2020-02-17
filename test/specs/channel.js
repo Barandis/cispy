@@ -5,7 +5,8 @@ import sinon from "sinon";
 import { fixed, dropping, sliding } from "modules/buffers";
 import { chan, CLOSED } from "modules/channel";
 import { config, SET_TIMEOUT } from "modules/dispatcher";
-import { go, sleep, selectAsync } from "modules/ops";
+import { go, sleep } from "modules/process";
+import { selectAsync } from "modules/channels";
 
 import { compose, protocols as p, transducers as t } from "xduce";
 

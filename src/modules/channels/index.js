@@ -20,17 +20,77 @@
  * SOFTWARE.
  */
 
+import { box, isBox, DEFAULT } from "modules/channel";
+export { reduce, onto, into } from "modules/channels/conversion";
+export {
+  pipe,
+  partition,
+  merge,
+  split,
+  tap,
+  untap,
+  untapAll,
+  map,
+} from "modules/channels/flow";
+export { debounce, throttle } from "modules/channels/timing";
+
 /**
- * Provides basic channel operations for puts, takes, and alts. These operations
- * are not dependent upon the way channels are accessed; i.e., they are
- * independent of processes, generators, and promises. They require the use of
- * only the channel itself.
+ * A series of functions meant to operate on the channels that the rest of this
+ * library creates and manages.
  *
- * @module cispy/ops
- * @private
+ * All of the functions that are here cannot be done with transducers because of
+ * the limitations on transducers themselves. Thus, you will not find filter or
+ * chunk or take here, as those functions can be done with transducers. (You
+ * will find a map here, but this one maps multiple channels into one, which
+ * cannot be done with transducers.)
+ *
+ * @module cispy/utils
  */
 
-import { box, isBox, chan, DEFAULT } from "./channel";
+/**
+ * A set of utility functions using processes to work with channels.
+ *
+ * These are all accessed through the `cispy.utils` namespace; e.g.,
+ * `{@link module:cispy/utils~CispyUtils.reduce|reduce}` can be called like
+ * this:
+ *
+ * ```
+ * const output = cispy.utils.reduce((acc, value) => acc + value, ch, 0);
+ * ```
+ *
+ * @namespace CispyUtils
+ */
+
+/**
+ * A function used to reduce a collection of values into a single value via a
+ * reducer function.
+ *
+ * @callback reducer
+ * @param {*} acc The accumulated value from the prior reduction step. If this
+ *     is the first reduction step, this will be set to some initial value
+ *     (either an explicit value or the first value of the collection).
+ * @param {*} value The next value of the collection.
+ * @return {*} The result of reducing the next value into the current
+ * accumulated value.
+ */
+
+/**
+ * A function that tests a single input argument, returning `true` or `false`
+ * according to whether the argument passed the test.
+ *
+ * @callback predicate
+ * @param {*} value The value to test.
+ * @return {boolean} Whether or not the value passed the test.
+ */
+
+/**
+ * A function that takes a number of values and transforms them into a different
+ * value.
+ *
+ * @callback mapper
+ * @param {...*} inputs The input values.
+ * @return {*} The output value, calculated based on the input values.
+ */
 
 /**
  * These two handlers are used by channels to track execution of instructions
@@ -294,57 +354,4 @@ export function select(ops, options = {}) {
   return new Promise(resolve => {
     selectAsync(ops, resolve, options);
   });
-}
-
-/**
- * **Blocks the process for the specified time (in milliseconds) and then
- * unblocks it.**
- *
- * This implements a delay, but one that's superior to other kinds of delays
- * (`setTimeout`, etc.) because it blocks the process and allows the dispatcher
- * to allow other processes to run while this one waits. The default delay is 0,
- * which will release the process to allow others to run and then immediately
- * re-queue it.
- *
- * This function *must* be called from within an `async` function and as part of
- * an `await` expression.
- *
- * When this function completes and its process unblocks, the `await` expression
- * doesn't take on any meaningful value. The purpose of this function is simply
- * to delay, not to communicate any data.
- *
- * @memberOf module:cispy~Cispy
- * @param {number} [delay=0] the number of milliseconds that the process will
- *     block for. At the end of that time, the process is again eligible to be
- *     run by the dispatcher again. If this is missing or set to `0`, the
- *     process will cede execution to the next one but immediately requeue
- *     itself to be run again.
- * @return {Promise} A promise that resolves with no meaningful result when the
- * time has elapsed.
- */
-export function sleep(delay = 0) {
-  return new Promise(resolve => {
-    const ch = chan();
-    setTimeout(() => ch.close(), delay);
-    ch.takeAsync(resolve);
-  });
-}
-
-/**
- * **Invokes an async function acting as a process.**
- *
- * This is purely a convenience function, driven by the fact that it's necessary
- * to use an IIFE to invoke an inline async function, and that's not very
- * aesthetically pleasing. It does no more than invoke the passed function, but
- * that at least releases us from the need to put the empty parentheses after
- * the function definition.
- *
- * @memberOf module:cispy~Cispy
- * @param {function} fn The async function being used as a process.
- * @param {...*} args Arguments that are sent to the async function when it's
- * invoked.
- * @return {Promise} The promise returned by the async function.
- */
-export function go(fn, ...args) {
-  return fn(...args);
 }

@@ -1,8 +1,9 @@
 import { expect } from "../../helper";
 
-import { chan, utils } from "api";
+import { Channel, Channels } from "api";
 
-const { reduce, onto, into } = utils;
+const { chan } = Channel;
+const { reduce, onto, into } = Channels;
 
 async function fillChannel(channel, count, cl) {
   for (let i = 1; i <= count; ++i) {

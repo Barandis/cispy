@@ -58,9 +58,9 @@
  * @module cispy/channel
  */
 
-import { queue, fixed, EMPTY } from "./buffers";
-import { dispatch } from "./dispatcher";
-import { protocols as p } from "./protocol";
+import { queue, fixed, EMPTY } from "modules/buffers";
+import { dispatch } from "modules/dispatcher";
+import { protocols as p } from "modules/protocol";
 
 /**
  * The maximum number of dirty operations that can be queued on a channel before

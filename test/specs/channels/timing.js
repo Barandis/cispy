@@ -22,9 +22,11 @@
 import { expect } from "../../helper";
 import sinon from "sinon";
 
-import { chan, fixedBuffer, sleep, CLOSED, utils } from "api";
-
-const { debounce, throttle } = utils;
+import { Channel, Channels, Buffer, Process } from "api";
+const { chan, CLOSED } = Channel;
+const { debounce, throttle } = Channels;
+const { fixed } = Buffer;
+const { sleep } = Process;
 
 describe("Channel timing functions", () => {
   describe("debounce", function() {
@@ -32,7 +34,7 @@ describe("Channel timing functions", () => {
 
     it("can accept a buffer value for the output channel", async () => {
       const input = chan();
-      const output = debounce(input, fixedBuffer(1), 100);
+      const output = debounce(input, fixed(1), 100);
       const spy = sinon.spy();
 
       input.putAsync(1729);
@@ -339,7 +341,7 @@ describe("Channel timing functions", () => {
 
     it("can accept a buffer value for the output channel", async () => {
       const input = chan();
-      const output = throttle(input, fixedBuffer(1), 100);
+      const output = throttle(input, fixed(1), 100);
       const spy = sinon.spy();
 
       output.takeAsync(value => {

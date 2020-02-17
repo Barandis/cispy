@@ -28,8 +28,8 @@
  * @private
  */
 
-import { chan, CLOSED } from "../channel";
-import { select } from "../ops";
+import { chan, CLOSED } from "modules/channel";
+import { select } from "modules/channels";
 
 function isNumber(x) {
   return Object.prototype.toString.call(x) === "[object Number]" && isFinite(x);

@@ -4,7 +4,8 @@ import { expect } from "../helper";
 import sinon from "sinon";
 
 import { chan, CLOSED, DEFAULT } from "modules/channel";
-import { select, sleep } from "modules/ops";
+import { select } from "modules/channels";
+import { sleep } from "modules/process";
 import { config, SET_TIMEOUT } from "modules/dispatcher";
 
 async function cycle() {
@@ -39,7 +40,7 @@ describe("Channel operations", () => {
     });
   });
 
-  describe("receive", () => {
+  describe("take", () => {
     it("returns a value that was sent to a channel", done => {
       const ch = chan();
 
@@ -111,7 +112,7 @@ describe("Channel operations", () => {
     });
   });
 
-  describe("send", () => {
+  describe("put", () => {
     it("sends a value to a channel for receive", done => {
       const ch = chan();
 
@@ -222,7 +223,7 @@ describe("Channel operations", () => {
     });
   });
 
-  describe("alts", () => {
+  describe("select", () => {
     function numTrue(array) {
       return array.filter(x => x).length;
     }
@@ -414,7 +415,7 @@ describe("Channel operations", () => {
     });
   });
 
-  describe("receiveOrThrow", () => {
+  describe("takeOrThrow", () => {
     it("acts like a receive if no error object is received from the channel", done => {
       const ch = chan();
       ch.put(1729);

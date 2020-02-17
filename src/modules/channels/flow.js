@@ -35,8 +35,8 @@
  * @private
  */
 
-import { chan, CLOSED } from "../channel";
-import { select } from "../ops";
+import { chan, CLOSED } from "modules/channel";
+import { select } from "modules/channels";
 
 const protocols = {
   taps: Symbol("multitap/taps"),

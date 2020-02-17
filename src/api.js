@@ -28,22 +28,35 @@
  * @module cispy
  */
 
-export {
-  fixed as fixedBuffer,
-  sliding as slidingBuffer,
-  dropping as droppingBuffer,
-  EMPTY,
-} from "modules/buffers";
-export { chan, CLOSED, DEFAULT } from "modules/channel";
-export { selectAsync, select, sleep, go } from "modules/ops";
-export {
+import { fixed, sliding, dropping, EMPTY } from "modules/buffers";
+import { chan, CLOSED, DEFAULT } from "modules/channel";
+import { sleep, go } from "modules/process";
+import {
   config,
   SET_IMMEDIATE,
   MESSAGE_CHANNEL,
   SET_TIMEOUT,
 } from "modules/dispatcher";
+import * as c from "modules/channels";
 
-import * as u from "modules/utils";
+export const Buffer = {
+  fixed,
+  sliding,
+  dropping,
+  EMPTY,
+};
+export const Channel = {
+  chan,
+  CLOSED,
+  DEFAULT,
+};
+export const Process = { sleep, go };
+export const Dispatcher = {
+  config,
+  SET_IMMEDIATE,
+  MESSAGE_CHANNEL,
+  SET_TIMEOUT,
+};
 
 /**
  * **A set of utility functions for working with channels.**
@@ -54,7 +67,7 @@ import * as u from "modules/utils";
  * @type {module:cispy/util~CispyUtils}
  * @memberOf module:cispy~Cispy
  */
-export const utils = u;
+export const Channels = c;
 
 /**
  * The core namespace under which all of the main functions reside in the API.

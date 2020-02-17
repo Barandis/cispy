@@ -1,18 +1,12 @@
 /* eslint-disable max-lines */
 
 import { expect } from "../../helper";
+import { Channel, Buffer, Process, Channels } from "api";
 
-import {
-  chan,
-  CLOSED,
-  fixedBuffer,
-  droppingBuffer,
-  slidingBuffer,
-  sleep,
-  utils,
-} from "api";
-
-const { pipe, partition, merge, split, tap, untap, untapAll, map } = utils;
+const { chan, CLOSED } = Channel;
+const { fixed, dropping, sliding } = Buffer;
+const { sleep } = Process;
+const { pipe, partition, merge, split, tap, untap, untapAll, map } = Channels;
 
 const even = x => x % 2 === 0;
 const sum3 = (a, b, c) => a + b + c;
@@ -153,12 +147,7 @@ describe("Flow control functions", () => {
 
     it("accepts buffers to back the output channels", done => {
       const input = chan();
-      const [evens, odds] = partition(
-        even,
-        input,
-        slidingBuffer(3),
-        droppingBuffer(3),
-      );
+      const [evens, odds] = partition(even, input, sliding(3), dropping(3));
       const start = chan();
       const end = chan();
 
@@ -225,7 +214,7 @@ describe("Flow control functions", () => {
 
     it("accepts a buffer to back the output channel", done => {
       const inputs = [chan(), chan(), chan()];
-      const output = merge(inputs, slidingBuffer(3));
+      const output = merge(inputs, sliding(3));
 
       fillChannelWith(inputs[0], [0, 1, 2, 3, 4]);
       fillChannelWith(inputs[1], [5, 6, 7, 8, 9]);
@@ -292,12 +281,7 @@ describe("Flow control functions", () => {
 
     it("can accept a series of output buffers", done => {
       const input = chan();
-      const outputs = split(
-        input,
-        fixedBuffer(5),
-        droppingBuffer(3),
-        slidingBuffer(3),
-      );
+      const outputs = split(input, fixed(5), dropping(3), sliding(3));
       const start = chan();
       const end = chan();
 
@@ -470,7 +454,7 @@ describe("Flow control functions", () => {
 
     it("accepts a buffer to back th eoutput channel", done => {
       const inputs = [chan(5), chan(5), chan(5)];
-      const output = map(sum3, inputs, slidingBuffer(3));
+      const output = map(sum3, inputs, sliding(3));
 
       fillChannel(inputs[0], 5);
       fillChannel(inputs[1], 5);

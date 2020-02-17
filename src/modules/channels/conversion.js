@@ -28,7 +28,7 @@
  * @private
  */
 
-import { chan, CLOSED } from "../channel";
+import { chan, CLOSED } from "modules/channel";
 
 /**
  * **Creates a single value from a channel by running its values through a
