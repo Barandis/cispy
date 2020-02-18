@@ -109,9 +109,10 @@ function generateKey(name) {
  * @type {module:cispy/protocols~protocolMap}
  */
 export const protocols = {
-  // Since this one is built in, it already has a custom Symbol property, so we
+  // Since these are built in, they already have custom Symbol properties, so we
   // don't need to generate a symbol for a key when symbols are supported.
   iterator: symbol ? Symbol.iterator : "@@iterator",
+  asyncIterator: symbol ? Symbol.asyncIterator : "@@asyncIterator",
 
   // Reduction protocols
   init: generateKey("transducer/init"),

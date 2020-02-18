@@ -341,6 +341,16 @@ function channel(
       return !!timeout;
     },
 
+    [p.asyncIterator]: async function* iterator() {
+      for (;;) {
+        const value = await this.take();
+        if (value === CLOSED) {
+          break;
+        }
+        yield value;
+      }
+    },
+
     /**
      * Sends a value onto this channel. The specified handler is used to control
      * whether the send is active and what to do after the send completes. A

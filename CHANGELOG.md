@@ -4,13 +4,16 @@ All notable changes to the library will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## Changed
-- the functions `put`, `take`, `putAsync`, `takeAsync`, and `close` have been replaced with equivalently named member functions on the channel object (the one that is returned by `chan`). These functions have the same signature except that, since they are channel member functions, the first argument (the channel) is no longer necessary.
+### Added
+- async iterator for the channel object. Channels can now take part in `for await...of` statements.
+
+### Changed
+- the functions `put`, `take`, `putAsync`, `takeAsync`, and `close` have been replaced with equivalently named member functions on the channel object (the one that is returned by `chan`). These functions have the same signature except that, since they are channel member functions, the first argument (the channel) is no longer necessary. This change was necessary in order to have a channel object that could be iterated over.
 - the functions `alts` and `altsAsync` are now named `select` and `selectAsync`.
 - the arrangement of the API. The package now has several top-level objects: `Channel`, which does channel creation and channel-related constants; `Channels`, which covers everything that works with multiple channels (this is the entire old `util` package plus `select` and `selectAsync`), `Process`, which has functions that modify the running of async functions (`go` and `sleep`), and `Buffer` and `Dispatcher` which contain the expected functions.
 - the name of the buffer creation functions. Since they're now in their own little package, the `Buffer` portion has been removed from their names as redundant, and they are now `fixed`, `dropping`, and `sliding`.
 
-## Removed
+### Removed
 - the function `timeout`. To create a timeout channel, use `chan` as normal but include the new `timeout` option.
 - automated release. Just too many problems making it work right. I continue to use semantic versioning and commitizen, but I'll manage the releases myself.
 - the dev release. Not much need for it, really. package.json now points to the minified file with `main`.

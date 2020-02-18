@@ -577,4 +577,23 @@ describe("Channel", () => {
       });
     });
   });
+
+  describe("async iterator", () => {
+    it("returns values put to the channel one at a time until the channel closes", async () => {
+      const ch = chan();
+
+      go(async () => {
+        for (let i = 0; i < 5; i++) {
+          await ch.put(i);
+        }
+        ch.close();
+      });
+
+      let index = 0;
+      for await (const value of ch) {
+        expect(value).to.equal(index++);
+      }
+      expect(index).to.equal(5);
+    });
+  });
 });
