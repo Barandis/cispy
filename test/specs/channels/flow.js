@@ -1,12 +1,7 @@
 /* eslint-disable max-lines */
 
 import { expect } from "../../helper";
-import { Channel, Buffer, Process, Channels } from "api";
-
-const { chan, CLOSED } = Channel;
-const { fixed, dropping, sliding } = Buffer;
-const { sleep } = Process;
-const { pipe, partition, merge, split, tap, untap, untapAll, map } = Channels;
+import { go, chan, CLOSED, sleep, Buffer, Channel } from "api";
 
 const even = x => x % 2 === 0;
 const sum3 = (a, b, c) => a + b + c;
@@ -54,29 +49,29 @@ describe("Flow control functions", () => {
   describe("pipe", () => {
     it("feeds all of the values from one channel to another", done => {
       const input = chan();
-      const output = pipe(input, chan());
+      const output = Channel.pipe(input, chan());
 
-      (async () => {
+      go(async () => {
         expect(await output.take()).to.equal(1729);
         expect(await output.take()).to.equal(2317);
         done();
-      })();
+      });
 
-      (async () => {
+      go(async () => {
         await input.put(1729);
         await input.put(2317);
-      })();
+      });
     });
 
     it("closes the output channel when the input channel closes", done => {
       const input = chan();
       const output = chan();
-      pipe(input, output);
+      Channel.pipe(input, output);
 
-      (async () => {
+      go(async () => {
         expect(await output.take()).to.equal(CLOSED);
         done();
-      })();
+      });
 
       input.close();
     });
@@ -84,19 +79,19 @@ describe("Flow control functions", () => {
     it("keeps the output channel open with keepOpen", done => {
       const input = chan();
       const output = chan();
-      pipe(input, output, true);
+      Channel.pipe(input, output, true);
 
-      (async () => {
+      go(async () => {
         expect(await output.take()).to.equal(1729);
         done();
-      })();
+      });
 
-      (async () => {
+      go(async () => {
         input.close();
         // This ensures that the take happens AFTER the close but BEFORE the put
         await sleep();
         await await output.put(1729);
-      })();
+      });
     });
 
     it("breaks the pipe when the output channel closes", done => {
@@ -104,37 +99,37 @@ describe("Flow control functions", () => {
       const output = chan();
       const start = chan();
       const finished = chan();
-      pipe(input, output);
+      Channel.pipe(input, output);
 
-      (async () => {
+      go(async () => {
         // First put to soon-to-be closed channel and is lost
         await input.put(1729);
         // Signal second process to close channel
         await start.put();
         // Second put taken by third process
         await input.put(2317);
-      })();
+      });
 
-      (async () => {
+      go(async () => {
         await start.take();
         // Close the output, break the pipe
         output.close();
         // Signal the third process to take input
         await finished.put();
-      })();
+      });
 
-      (async () => {
+      go(async () => {
         await finished.take();
         expect(await input.take()).to.equal(2317);
         done();
-      })();
+      });
     });
   });
 
   describe("partition", () => {
     it("creates two output channels, splitting them by predicate", done => {
       const input = chan();
-      const [evens, odds] = partition(even, input);
+      const [evens, odds] = Channel.partition(even, input);
       const ctrl = chan();
 
       fillChannel(input, 10);
@@ -147,18 +142,23 @@ describe("Flow control functions", () => {
 
     it("accepts buffers to back the output channels", done => {
       const input = chan();
-      const [evens, odds] = partition(even, input, sliding(3), dropping(3));
+      const [evens, odds] = Channel.partition(
+        even,
+        input,
+        Buffer.sliding(3),
+        Buffer.dropping(3),
+      );
       const start = chan();
       const end = chan();
 
-      (async () => {
+      go(async () => {
         for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
           await input.put(i);
           await sleep();
         }
         await start.put();
         await start.put();
-      })();
+      });
 
       expectChannel(evens, [6, 8, 10], end, start);
       expectChannel(odds, [1, 3, 5], end, start);
@@ -168,39 +168,39 @@ describe("Flow control functions", () => {
 
     it("closes the output channels when the input channel is closed", done => {
       const input = chan();
-      const [evens, odds] = partition(even, input);
+      const [evens, odds] = Channel.partition(even, input);
       const end = chan();
 
-      (async () => {
+      go(async () => {
         expect(await evens.take()).to.equal(CLOSED);
         await end.put();
-      })();
+      });
 
-      (async () => {
+      go(async () => {
         expect(await odds.take()).to.equal(CLOSED);
         await end.put();
-      })();
+      });
 
-      (async () => {
+      go(async () => {
         input.close();
         await end.take();
         await end.take();
         done();
-      })();
+      });
     });
   });
 
   describe("merge", () => {
     it("combines several input channels into one output channel", done => {
       const inputs = [chan(), chan(), chan()];
-      const output = merge(inputs);
+      const output = Channel.merge(inputs);
       const values = Array(15).fill(false);
 
       fillChannelWith(inputs[0], [0, 1, 2, 3, 4]);
       fillChannelWith(inputs[1], [5, 6, 7, 8, 9]);
       fillChannelWith(inputs[2], [10, 11, 12, 13, 14]);
 
-      (async () => {
+      go(async () => {
         for (let i = 0; i < 15; ++i) {
           await sleep();
           const index = await output.take();
@@ -209,18 +209,18 @@ describe("Flow control functions", () => {
         }
         expect(values.every(x => x)).to.be.true;
         done();
-      })();
+      });
     });
 
     it("accepts a buffer to back the output channel", done => {
       const inputs = [chan(), chan(), chan()];
-      const output = merge(inputs, sliding(3));
+      const output = Channel.merge(inputs, Buffer.sliding(3));
 
       fillChannelWith(inputs[0], [0, 1, 2, 3, 4]);
       fillChannelWith(inputs[1], [5, 6, 7, 8, 9]);
       fillChannelWith(inputs[2], [10, 11, 12, 13, 14]);
 
-      (async () => {
+      go(async () => {
         await sleep();
         await sleep();
         for (let i = 0; i < 3; ++i) {
@@ -229,28 +229,28 @@ describe("Flow control functions", () => {
           );
         }
         done();
-      })();
+      });
     });
 
     it("closes the output when all inputs have been closed", done => {
       const inputs = [chan(), chan(), chan()];
-      const output = merge(inputs);
+      const output = Channel.merge(inputs);
 
       for (const ch of inputs) {
         ch.close();
       }
 
-      (async () => {
+      go(async () => {
         expect(await output.take()).to.equal(CLOSED);
         done();
-      })();
+      });
     });
   });
 
   describe("split", () => {
     it("splits the input into some number of outputs", done => {
       const input = chan();
-      const outputs = split(input, 3);
+      const outputs = Channel.split(input, 3);
       const ctrl = chan();
 
       expect(outputs.length).to.equal(3);
@@ -266,7 +266,7 @@ describe("Flow control functions", () => {
 
     it("defaults to two unbuffered outputs", done => {
       const input = chan();
-      const outputs = split(input);
+      const outputs = Channel.split(input);
       const ctrl = chan();
 
       expect(outputs.length).to.equal(2);
@@ -281,18 +281,23 @@ describe("Flow control functions", () => {
 
     it("can accept a series of output buffers", done => {
       const input = chan();
-      const outputs = split(input, fixed(5), dropping(3), sliding(3));
+      const outputs = Channel.split(
+        input,
+        Buffer.fixed(5),
+        Buffer.dropping(3),
+        Buffer.sliding(3),
+      );
       const start = chan();
       const end = chan();
 
-      (async () => {
+      go(async () => {
         for (let i = 1; i <= 5; ++i) {
           await input.put(i);
         }
         await start.put();
         await start.put();
         await start.put();
-      })();
+      });
 
       expectChannel(outputs[0], [1, 2, 3, 4, 5], end, start);
       expectChannel(outputs[1], [1, 2, 3], end, start);
@@ -303,9 +308,9 @@ describe("Flow control functions", () => {
 
     it("closes all output when the input closes", done => {
       const input = chan();
-      const outputs = split(input, 3);
+      const outputs = Channel.split(input, 3);
 
-      (async () => {
+      go(async () => {
         input.close();
         await sleep();
         await sleep();
@@ -313,7 +318,7 @@ describe("Flow control functions", () => {
           expect(outputs[i].closed).to.be.true;
         }
         done();
-      })();
+      });
     });
   });
 
@@ -321,7 +326,7 @@ describe("Flow control functions", () => {
     describe("tap", () => {
       it("taps the input and directs values to the tapper", done => {
         const input = chan();
-        const output = tap(input);
+        const output = Channel.tap(input);
         const ctrl = chan();
 
         fillChannel(input, 5);
@@ -331,7 +336,11 @@ describe("Flow control functions", () => {
 
       it("can tap the input multiple times", done => {
         const input = chan();
-        const outputs = [tap(input), tap(input), tap(input)];
+        const outputs = [
+          Channel.tap(input),
+          Channel.tap(input),
+          Channel.tap(input),
+        ];
         const ctrl = chan();
 
         fillChannel(input, 5);
@@ -347,8 +356,8 @@ describe("Flow control functions", () => {
         const input = chan();
         const output = chan();
         const ctrl = chan();
-        tap(input, output);
-        tap(input, output);
+        Channel.tap(input, output);
+        Channel.tap(input, output);
 
         fillChannel(input, 5);
         expectChannel(output, [1, 2, 3, 4, 5], ctrl);
@@ -357,7 +366,7 @@ describe("Flow control functions", () => {
 
       it("will not close tapping channels when tapped channel is closed", () => {
         const input = chan();
-        const outputs = [tap(input), tap(input)];
+        const outputs = [Channel.tap(input), Channel.tap(input)];
 
         input.close();
         expect(outputs[0].closed).to.be.false;
@@ -368,38 +377,42 @@ describe("Flow control functions", () => {
     describe("untap", () => {
       it("will remove the tap of a tapping channel", done => {
         const input = chan();
-        const outputs = [tap(input), tap(input), tap(input)];
+        const outputs = [
+          Channel.tap(input),
+          Channel.tap(input),
+          Channel.tap(input),
+        ];
         const ctrl = chan();
 
-        untap(input, outputs[1]);
+        Channel.untap(input, outputs[1]);
 
         fillChannel(input, 5);
         expectChannel(outputs[0], [1, 2, 3, 4, 5], ctrl);
         expectChannel(outputs[2], [1, 2, 3, 4, 5], ctrl);
 
-        (async () => {
+        go(async () => {
           for (let i = 1; i <= 5; ++i) {
             expect(await outputs[1].take()).to.equal(-i);
           }
           done();
-        })();
+        });
 
-        (async () => {
+        go(async () => {
           await ctrl.take();
           await ctrl.take();
           for (let i = 1; i <= 5; ++i) {
             await outputs[1].put(-i);
           }
-        })();
+        });
       });
 
       it("will not untap a channel that isn't tapping", done => {
         const input = chan();
-        const output1 = tap(input);
+        const output1 = Channel.tap(input);
         const output2 = chan();
         const ctrl = chan();
 
-        untap(input, output2);
+        Channel.untap(input, output2);
 
         fillChannel(input, 5);
         expectChannel(output1, [1, 2, 3, 4, 5], ctrl);
@@ -408,10 +421,10 @@ describe("Flow control functions", () => {
 
       it("restores normal operation to the tapped channel if the last tap is removed", done => {
         const input = chan();
-        const output = tap(input);
+        const output = Channel.tap(input);
         const ctrl = chan();
 
-        untap(input, output);
+        Channel.untap(input, output);
 
         fillChannel(input, 5);
         fillChannelWith(output, [-1, -2, -3, -4, -5]);
@@ -426,10 +439,10 @@ describe("Flow control functions", () => {
       it("removes all taps from the tapped channel", done => {
         const input = chan();
         const ctrl = chan();
-        tap(input);
-        tap(input);
-        tap(input);
-        untapAll(input);
+        Channel.tap(input);
+        Channel.tap(input);
+        Channel.tap(input);
+        Channel.untapAll(input);
 
         fillChannel(input, 5);
         expectChannel(input, [1, 2, 3, 4, 5], ctrl);
@@ -441,7 +454,7 @@ describe("Flow control functions", () => {
   describe("map", () => {
     it("combines multiple channels into one through a mapping function", done => {
       const inputs = [chan(), chan(), chan()];
-      const output = map(sum3, inputs);
+      const output = Channel.map(sum3, inputs);
       const ctrl = chan();
 
       fillChannel(inputs[0], 5);
@@ -454,45 +467,45 @@ describe("Flow control functions", () => {
 
     it("accepts a buffer to back th eoutput channel", done => {
       const inputs = [chan(5), chan(5), chan(5)];
-      const output = map(sum3, inputs, sliding(3));
+      const output = Channel.map(sum3, inputs, Buffer.sliding(3));
 
       fillChannel(inputs[0], 5);
       fillChannel(inputs[1], 5);
       fillChannel(inputs[2], 5);
 
-      (async () => {
+      go(async () => {
         await sleep();
         await sleep();
         for (let i = 1; i <= 3; ++i) {
           expect(await output.take()).to.equal((i + 2) * 3);
         }
         done();
-      })();
+      });
     });
 
     it("closes the output when the first input closes", done => {
       const inputs = [chan(), chan(), chan()];
-      const output = map(sum3, inputs);
+      const output = Channel.map(sum3, inputs);
       const ctrl = chan();
 
-      (async () => {
+      go(async () => {
         for (let i = 1; i <= 5; ++i) {
           await inputs[0].put(i);
         }
-      })();
+      });
 
-      (async () => {
+      go(async () => {
         for (let i = 1; i <= 3; ++i) {
           await inputs[1].put(i);
         }
         inputs[1].close();
-      })();
+      });
 
-      (async () => {
+      go(async () => {
         for (let i = 1; i <= 5; ++i) {
           await inputs[2].put(i);
         }
-      })();
+      });
 
       expectChannel(output, [3, 6, 9, CLOSED, CLOSED], ctrl);
       join(1, ctrl, done);

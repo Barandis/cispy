@@ -22,11 +22,7 @@
 import { expect } from "../../helper";
 import sinon from "sinon";
 
-import { Channel, Channels, Buffer, Process } from "api";
-const { chan, CLOSED } = Channel;
-const { debounce, throttle } = Channels;
-const { fixed } = Buffer;
-const { sleep } = Process;
+import { chan, sleep, CLOSED, Channel, Buffer } from "api";
 
 describe("Channel timing functions", () => {
   describe("debounce", function() {
@@ -34,7 +30,7 @@ describe("Channel timing functions", () => {
 
     it("can accept a buffer value for the output channel", async () => {
       const input = chan();
-      const output = debounce(input, fixed(1), 100);
+      const output = Channel.debounce(input, Buffer.fixed(1), 100);
       const spy = sinon.spy();
 
       input.putAsync(1729);
@@ -55,7 +51,7 @@ describe("Channel timing functions", () => {
 
     it("closes the output channel when the input channel closes", async () => {
       const input = chan();
-      const output = debounce(input, 100);
+      const output = Channel.debounce(input, 100);
 
       output.takeAsync(value => {
         expect(value).to.equal(CLOSED);
@@ -69,7 +65,7 @@ describe("Channel timing functions", () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100);
+        output = Channel.debounce(input, 100);
       });
 
       it("holds the input value until the delay expires", async () => {
@@ -120,7 +116,10 @@ describe("Channel timing functions", () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100, { leading: true, trailing: false });
+        output = Channel.debounce(input, 100, {
+          leading: true,
+          trailing: false,
+        });
       });
 
       it("returns the input value immediately", async () => {
@@ -174,7 +173,7 @@ describe("Channel timing functions", () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100, { leading: true });
+        output = Channel.debounce(input, 100, { leading: true });
       });
 
       it("returns the input value immediately", async () => {
@@ -244,7 +243,7 @@ describe("Channel timing functions", () => {
 
       beforeEach(() => {
         input = chan();
-        output = debounce(input, 100, { maxDelay: 250 });
+        output = Channel.debounce(input, 100, { maxDelay: 250 });
       });
 
       it("interrupts the debounce delay after maxDelay elapses", async () => {
@@ -316,7 +315,7 @@ describe("Channel timing functions", () => {
       beforeEach(() => {
         input = chan();
         cancel = chan();
-        output = debounce(input, 100, { cancel });
+        output = Channel.debounce(input, 100, { cancel });
       });
 
       it("cancels debouncing and closes the output channel if a value is send to the cancel channel", async () => {
@@ -341,7 +340,7 @@ describe("Channel timing functions", () => {
 
     it("can accept a buffer value for the output channel", async () => {
       const input = chan();
-      const output = throttle(input, fixed(1), 100);
+      const output = Channel.throttle(input, Buffer.fixed(1), 100);
       const spy = sinon.spy();
 
       output.takeAsync(value => {
@@ -358,7 +357,7 @@ describe("Channel timing functions", () => {
 
     it("closes the output channel when the input channel closes", async () => {
       const input = chan();
-      const output = throttle(input, 100);
+      const output = Channel.throttle(input, 100);
 
       output.takeAsync(value => {
         expect(value).to.equal(CLOSED);
@@ -372,7 +371,7 @@ describe("Channel timing functions", () => {
 
       beforeEach(() => {
         input = chan();
-        output = throttle(input, 100);
+        output = Channel.throttle(input, 100);
       });
 
       it("returns the first input value immediately", async () => {
@@ -475,7 +474,7 @@ describe("Channel timing functions", () => {
 
       beforeEach(() => {
         input = chan();
-        output = throttle(input, 100, { trailing: false });
+        output = Channel.throttle(input, 100, { trailing: false });
       });
 
       it("returns the first value immediately", async () => {
@@ -527,7 +526,7 @@ describe("Channel timing functions", () => {
 
       beforeEach(() => {
         input = chan();
-        output = throttle(input, 100, { leading: false });
+        output = Channel.throttle(input, 100, { leading: false });
       });
 
       it("returns a single value after the delay has elapsed", async () => {
@@ -586,7 +585,7 @@ describe("Channel timing functions", () => {
       beforeEach(() => {
         input = chan();
         cancel = chan();
-        output = throttle(input, 100, { cancel });
+        output = Channel.throttle(input, 100, { cancel });
       });
 
       it("cancels throttling and closes the output channel if a value is sent to the cancel channel", async () => {

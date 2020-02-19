@@ -1,9 +1,6 @@
 import { expect } from "../../helper";
 
-import { Channel, Channels } from "api";
-
-const { chan } = Channel;
-const { reduce, onto, into } = Channels;
+import { go, chan, Channel } from "api";
 
 async function fillChannel(channel, count, cl) {
   for (let i = 1; i <= count; ++i) {
@@ -39,7 +36,7 @@ describe("Channel conversion functions", () => {
   describe("reduce", () => {
     it("creates a one-value channel with the reduction value of the input channel", done => {
       const input = chan();
-      const output = reduce((acc, input) => acc + input, input, 0);
+      const output = Channel.reduce((acc, input) => acc + input, input, 0);
 
       fillChannel(input, 5, true);
 
@@ -52,7 +49,7 @@ describe("Channel conversion functions", () => {
 
     it("works to collapse channels into arrays", done => {
       const input = chan();
-      const output = reduce(
+      const output = Channel.reduce(
         (acc, input) => {
           acc.push(input);
           return acc;
@@ -77,18 +74,18 @@ describe("Channel conversion functions", () => {
       const array = [1, 2, 3, 4, 5];
       const ctrl = chan();
 
-      (async () => {
+      go(async () => {
         await output.put(-1);
         await output.put(0);
-        onto(output, array);
-      })();
+        Channel.onto(output, array);
+      });
 
       expectChannel(output, [-1, 0, 1, 2, 3, 4, 5], ctrl);
       join(1, ctrl, done);
     });
 
     it("defaults to a new channel if given only an array", done => {
-      const output = onto([1, 2, 3, 4, 5]);
+      const output = Channel.onto([1, 2, 3, 4, 5]);
       const ctrl = chan();
 
       expectChannel(output, [1, 2, 3, 4, 5], ctrl);
@@ -99,13 +96,13 @@ describe("Channel conversion functions", () => {
   describe("into", () => {
     it("returns a channel with an array containing the input channel values", done => {
       const input = chan();
-      const output = into([1, 2, 3, 4, 5], input);
+      const output = Channel.into([1, 2, 3, 4, 5], input);
 
-      (async () => {
+      go(async () => {
         await input.put(6);
         await input.put(7);
         input.close();
-      })();
+      });
 
       output.takeAsync(value => {
         expect(value).to.deep.equal([1, 2, 3, 4, 5, 6, 7]);
@@ -116,13 +113,13 @@ describe("Channel conversion functions", () => {
 
     it("will create a new array if none is supplied", done => {
       const input = chan();
-      const output = into(input);
+      const output = Channel.into(input);
 
-      (async () => {
+      go(async () => {
         await input.put(6);
         await input.put(7);
         input.close();
-      })();
+      });
 
       output.takeAsync(value => {
         expect(value).to.deep.equal([6, 7]);

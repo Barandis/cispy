@@ -90,10 +90,10 @@
         return r;
       }),
         n.d(e, "d", function() {
-          return i;
+          return u;
         }),
         n.d(e, "e", function() {
-          return u;
+          return i;
         }),
         n.d(e, "c", function() {
           return a;
@@ -106,10 +106,10 @@
         });
       const r = Symbol("EMPTY"),
         o = Symbol("BUFFER");
-      function i(t) {
+      function u(t) {
         return Object.getOwnPropertySymbols(t).includes(o);
       }
-      function u() {
+      function i() {
         return {
           store: [],
           pointer: 0,
@@ -144,7 +144,7 @@
         };
       }
       function c(t) {
-        const e = u();
+        const e = i();
         return {
           get queue() {
             return e;
@@ -211,10 +211,10 @@
       "use strict";
       (function(t) {
         n.d(e, "b", function() {
-          return i;
+          return u;
         }),
           n.d(e, "a", function() {
-            return u;
+            return i;
           }),
           n.d(e, "c", function() {
             return c;
@@ -227,10 +227,10 @@
           });
         var r = n(0);
         const o = Object(r.e)(),
-          i = Symbol("SET_IMMEDIATE"),
-          u = Symbol("MESSAGE_CHANNEL"),
+          u = Symbol("SET_IMMEDIATE"),
+          i = Symbol("MESSAGE_CHANNEL"),
           c = Symbol("SET_TIMEOUT"),
-          a = { batchSize: 1024, dispatchMethod: i };
+          a = { batchSize: 1024, dispatchMethod: u };
         let s = p();
         function f(t) {
           for (const e in a)
@@ -243,24 +243,24 @@
           switch (
             (function() {
               switch (a.dispatchMethod) {
-                case u:
-                  return "undefined" != typeof MessageChannel ? u : c;
+                case i:
+                  return "undefined" != typeof MessageChannel ? i : c;
                 case c:
                   return c;
                 default:
                   return void 0 !== t
-                    ? i
-                    : "undefined" != typeof MessageChannel
                     ? u
+                    : "undefined" != typeof MessageChannel
+                    ? i
                     : c;
               }
             })()
           ) {
-            case i:
+            case u:
               return () => {
                 (d && l) || ((d = !0), t(h));
               };
-            case u: {
+            case i: {
               const t = new MessageChannel();
               return (
                 (t.port1.onmessage = () => h()),
@@ -328,24 +328,24 @@
         var e, n;
         function o(e, n) {
           try {
-            var u = t[e](n),
-              c = u.value,
+            var i = t[e](n),
+              c = i.value,
               a = c instanceof r;
             Promise.resolve(a ? c.wrapped : c).then(
               function(t) {
                 a
                   ? o("return" === e ? "return" : "next", t)
-                  : i(u.done ? "return" : "normal", t);
+                  : u(i.done ? "return" : "normal", t);
               },
               function(t) {
                 o("throw", t);
               },
             );
           } catch (t) {
-            i("throw", t);
+            u("throw", t);
           }
         }
-        function i(t, r) {
+        function u(t, r) {
           switch (t) {
             case "return":
               e.resolve({ value: r, done: !0 });
@@ -359,8 +359,8 @@
           (e = e.next) ? o(e.key, e.arg) : (n = null);
         }
         (this._invoke = function(t, r) {
-          return new Promise(function(i, u) {
-            var c = { key: t, arg: r, resolve: i, reject: u, next: null };
+          return new Promise(function(u, i) {
+            var c = { key: t, arg: r, resolve: u, reject: i, next: null };
             n ? (n = n.next = c) : ((e = n = c), o(t, r));
           });
         }),
@@ -389,20 +389,20 @@
             ("undefined" != typeof self && self) ||
             window,
           o = Function.prototype.apply;
-        function i(t, e) {
+        function u(t, e) {
           (this._id = t), (this._clearFn = e);
         }
         (e.setTimeout = function() {
-          return new i(o.call(setTimeout, r, arguments), clearTimeout);
+          return new u(o.call(setTimeout, r, arguments), clearTimeout);
         }),
           (e.setInterval = function() {
-            return new i(o.call(setInterval, r, arguments), clearInterval);
+            return new u(o.call(setInterval, r, arguments), clearInterval);
           }),
           (e.clearTimeout = e.clearInterval = function(t) {
             t && t.close();
           }),
-          (i.prototype.unref = i.prototype.ref = function() {}),
-          (i.prototype.close = function() {
+          (u.prototype.unref = u.prototype.ref = function() {}),
+          (u.prototype.close = function() {
             this._clearFn.call(r, this._id);
           }),
           (e.enroll = function(t, e) {
@@ -437,8 +437,8 @@
           if (!t.setImmediate) {
             var r,
               o,
-              i,
               u,
+              i,
               c,
               a = 1,
               s = {},
@@ -467,11 +467,11 @@
                     }
                   })()
                 ? t.MessageChannel
-                  ? (((i = new MessageChannel()).port1.onmessage = function(t) {
+                  ? (((u = new MessageChannel()).port1.onmessage = function(t) {
                       h(t.data);
                     }),
                     (r = function(t) {
-                      i.port2.postMessage(t);
+                      u.port2.postMessage(t);
                     }))
                   : l && "onreadystatechange" in l.createElement("script")
                   ? ((o = l.documentElement),
@@ -488,18 +488,18 @@
                   : (r = function(t) {
                       setTimeout(h, 0, t);
                     })
-                : ((u = "setImmediate$" + Math.random() + "$"),
+                : ((i = "setImmediate$" + Math.random() + "$"),
                   (c = function(e) {
                     e.source === t &&
                       "string" == typeof e.data &&
-                      0 === e.data.indexOf(u) &&
-                      h(+e.data.slice(u.length));
+                      0 === e.data.indexOf(i) &&
+                      h(+e.data.slice(i.length));
                   }),
                   t.addEventListener
                     ? t.addEventListener("message", c, !1)
                     : t.attachEvent("onmessage", c),
                   (r = function(e) {
-                    t.postMessage(u + e, "*");
+                    t.postMessage(i + e, "*");
                   })),
               (d.setImmediate = function(t) {
                 "function" != typeof t && (t = new Function("" + t));
@@ -557,15 +557,15 @@
       var n,
         r,
         o = (t.exports = {});
-      function i() {
+      function u() {
         throw new Error("setTimeout has not been defined");
       }
-      function u() {
+      function i() {
         throw new Error("clearTimeout has not been defined");
       }
       function c(t) {
         if (n === setTimeout) return setTimeout(t, 0);
-        if ((n === i || !n) && setTimeout)
+        if ((n === u || !n) && setTimeout)
           return (n = setTimeout), setTimeout(t, 0);
         try {
           return n(t, 0);
@@ -579,14 +579,14 @@
       }
       !(function() {
         try {
-          n = "function" == typeof setTimeout ? setTimeout : i;
+          n = "function" == typeof setTimeout ? setTimeout : u;
         } catch (t) {
-          n = i;
+          n = u;
         }
         try {
-          r = "function" == typeof clearTimeout ? clearTimeout : u;
+          r = "function" == typeof clearTimeout ? clearTimeout : i;
         } catch (t) {
-          r = u;
+          r = i;
         }
       })();
       var a,
@@ -610,7 +610,7 @@
             (f = !1),
             (function(t) {
               if (r === clearTimeout) return clearTimeout(t);
-              if ((r === u || !r) && clearTimeout)
+              if ((r === i || !r) && clearTimeout)
                 return (r = clearTimeout), clearTimeout(t);
               try {
                 r(t);
@@ -674,53 +674,53 @@
       var r = {};
       n.r(r),
         n.d(r, "reduce", function() {
-          return q;
-        }),
-        n.d(r, "onto", function() {
-          return M;
-        }),
-        n.d(r, "into", function() {
           return _;
         }),
-        n.d(r, "pipe", function() {
+        n.d(r, "onto", function() {
+          return P;
+        }),
+        n.d(r, "into", function() {
           return C;
         }),
-        n.d(r, "partition", function() {
+        n.d(r, "pipe", function() {
           return D;
         }),
-        n.d(r, "merge", function() {
-          return L;
-        }),
-        n.d(r, "split", function() {
+        n.d(r, "partition", function() {
           return F;
         }),
-        n.d(r, "tap", function() {
+        n.d(r, "merge", function() {
           return N;
         }),
-        n.d(r, "untap", function() {
+        n.d(r, "split", function() {
           return z;
         }),
-        n.d(r, "untapAll", function() {
+        n.d(r, "tap", function() {
           return U;
         }),
-        n.d(r, "map", function() {
+        n.d(r, "untap", function() {
           return $;
         }),
-        n.d(r, "debounce", function() {
+        n.d(r, "untapAll", function() {
+          return Q;
+        }),
+        n.d(r, "map", function() {
           return B;
         }),
-        n.d(r, "throttle", function() {
-          return G;
-        }),
-        n.d(r, "selectAsync", function() {
+        n.d(r, "debounce", function() {
           return H;
         }),
-        n.d(r, "select", function() {
+        n.d(r, "throttle", function() {
           return Y;
+        }),
+        n.d(r, "selectAsync", function() {
+          return R;
+        }),
+        n.d(r, "select", function() {
+          return J;
         });
       var o = n(0),
-        i = n(4),
-        u = n.n(i),
+        u = n(4),
+        i = n.n(u),
         c = n(5),
         a = n.n(c),
         s = n(1);
@@ -754,7 +754,7 @@
           commit: () => t,
         };
       }
-      function j(t, e, n = !1, r = 64, i = 1024) {
+      function j(t, e, n = !1, r = 64, u = 1024) {
         const c = Object(o.e)(),
           f = Object(o.e)();
         let l = 0,
@@ -773,7 +773,7 @@
           [d]:
             ((g = a()(function*() {
               for (;;) {
-                const t = yield u()(this.take());
+                const t = yield i()(this.take());
                 if (t === v) break;
                 yield t;
               }
@@ -781,12 +781,12 @@
             function() {
               return g.apply(this, arguments);
             }),
-          handlePut(n, u) {
+          handlePut(n, i) {
             if (n === v) throw Error("Cannot send CLOSED to a channel");
-            if (y) return u.commit(), T(!1);
+            if (y) return i.commit(), T(!1);
             let a, l;
             if (t && !t.full) {
-              u.commit();
+              i.commit();
               const r = w(e[h](t, n));
               for (; 0 !== t.count && ((a = c.dequeue()), a !== o.a); )
                 if (a.active) {
@@ -799,69 +799,69 @@
             for (; (a = c.dequeue()), a !== o.a; )
               if (a.active)
                 return (
-                  u.commit(),
+                  i.commit(),
                   (l = a.commit()),
                   l && Object(s.e)(() => l(n)),
                   T(!0)
                 );
             if (
               (p > r ? (f.filter(t => t.handler.active), (p = 0)) : p++,
-              f.count >= i)
+              f.count >= u)
             )
               throw Error(
-                `No more than ${i} pending sends are allowed on a single channel`,
+                `No more than ${u} pending sends are allowed on a single channel`,
               );
             return (
               f.enqueue(
                 (function(t, e) {
                   return { handler: t, value: e, box: b };
-                })(u, n),
+                })(i, n),
               ),
               null
             );
           },
           handleTake(n) {
-            let u, a, d;
+            let i, a, d;
             if (t && t.count > 0) {
               n.commit();
               const r = t.remove();
-              for (; !t.full && ((u = f.dequeue()), u !== o.a); )
-                (a = u.handler),
+              for (; !t.full && ((i = f.dequeue()), i !== o.a); )
+                (a = i.handler),
                   a.active &&
                     ((d = a.commit()),
                     d && Object(s.e)(() => d(!0)),
-                    w(e[h](t, u.value)) && this.close());
+                    w(e[h](t, i.value)) && this.close());
               return T(r);
             }
-            for (; (u = f.dequeue()), u !== o.a; )
-              if (((a = u.handler), a.active))
+            for (; (i = f.dequeue()), i !== o.a; )
+              if (((a = i.handler), a.active))
                 return (
-                  (d = a.commit()), d && Object(s.e)(() => d(!0)), T(u.value)
+                  (d = a.commit()), d && Object(s.e)(() => d(!0)), T(i.value)
                 );
             if (y) return n.commit(), T(v);
             if (
-              (l > r ? (c.filter(t => t.active), (l = 0)) : l++, c.count >= i)
+              (l > r ? (c.filter(t => t.active), (l = 0)) : l++, c.count >= u)
             )
               throw Error(
-                `No more than ${i} pending receives are allowed on a single channel`,
+                `No more than ${u} pending receives are allowed on a single channel`,
               );
             return c.enqueue(n), null;
           },
           close() {
             if (y) return;
-            let n, r, i;
+            let n, r, u;
             if (((y = !0), t))
               for (e[m](t); 0 !== t.count && ((n = c.dequeue()), n !== o.a); )
                 if (n.active) {
-                  i = n.commit();
+                  u = n.commit();
                   const e = t.remove();
-                  i && Object(s.e)(() => i(e));
+                  u && Object(s.e)(() => u(e));
                 }
             for (; (n = c.dequeue()), n !== o.a; )
-              n.active && ((i = n.commit()), i && Object(s.e)(() => i(v)));
+              n.active && ((u = n.commit()), u && Object(s.e)(() => u(v)));
             for (; (r = f.dequeue()), r !== o.a; )
               r.handler.active &&
-                ((i = r.handler.commit()), i && Object(s.e)(() => i(!1)));
+                ((u = r.handler.commit()), u && Object(s.e)(() => u(!1)));
           },
           putAsync(t, e = () => {}) {
             const n = this.handlePut(t, k(e));
@@ -927,29 +927,29 @@
         const {
           buf: n,
           transducer: r,
-          handler: i,
-          maxDirty: u,
+          handler: u,
+          maxDirty: i,
           maxQueued: c,
           timeout: a,
         } = (function(t, e, n) {
-          let r, i;
+          let r, u;
           t
             ? "number" == typeof t
-              ? ((r = Object(o.c)(t)), (i = e))
+              ? ((r = Object(o.c)(t)), (u = e))
               : Object(o.d)(t)
-              ? ((r = t), (i = e))
-              : ((r = null), (i = t))
-            : ((r = null), (i = e));
+              ? ((r = t), (u = e))
+              : ((r = null), (u = t))
+            : ((r = null), (u = e));
           const {
-            transducer: u,
+            transducer: i,
             handler: c,
             maxDirty: a,
             maxQueued: s,
             timeout: f,
-          } = Object.assign({}, n, i);
+          } = Object.assign({}, n, u);
           return {
             buf: r,
-            transducer: u,
+            transducer: i,
             handler: c,
             maxDirty: a,
             maxQueued: s,
@@ -958,10 +958,19 @@
         })(t, e, { maxDirty: 64, maxQueued: 1024 });
         if (r && !n) throw Error("Only buffered channels can use transformers");
         const s = "number" == typeof a,
-          f = j(n, S(r ? r(A) : A, i), s, u, c);
+          f = j(n, S(r ? r(A) : A, u), s, i, c);
         return s && setTimeout(() => f.close(), a), f;
       }
-      function q(t, e, n) {
+      function q(t = 0) {
+        return new Promise(e => {
+          const n = I();
+          setTimeout(() => n.close(), t), n.takeAsync(e);
+        });
+      }
+      function M(t, ...e) {
+        return t(...e);
+      }
+      function _(t, e, n) {
         const r = I();
         return (
           (async function() {
@@ -975,7 +984,7 @@
           r
         );
       }
-      function M(t, e) {
+      function P(t, e) {
         const [n, r] = Array.isArray(t) ? [I(t.length), t] : [t, e];
         return (
           (async function() {
@@ -985,12 +994,12 @@
           n
         );
       }
-      function _(t, e) {
+      function C(t, e) {
         const [n, r] = Array.isArray(t) ? [t, e] : [[], t];
-        return q((t, e) => (t.push(e), t), r, n.slice());
+        return _((t, e) => (t.push(e), t), r, n.slice());
       }
-      const P = { taps: Symbol("multitap/taps") };
-      function C(t, e, n) {
+      const L = { taps: Symbol("multitap/taps") };
+      function D(t, e, n) {
         return (
           (async function() {
             for (;;) {
@@ -1005,30 +1014,30 @@
           e
         );
       }
-      function D(t, e, n = 0, r = 0) {
+      function F(t, e, n = 0, r = 0) {
         const o = I(n),
-          i = I(r);
+          u = I(r);
         return (
           (async function() {
             for (;;) {
               const n = await e.take();
               if (n === v) {
-                o.close(), i.close();
+                o.close(), u.close();
                 break;
               }
-              await (t(n) ? o : i).put(n);
+              await (t(n) ? o : u).put(n);
             }
           })(),
-          [o, i]
+          [o, u]
         );
       }
-      function L(t, e = 0) {
+      function N(t, e = 0) {
         const n = I(e),
           r = t.slice();
         return (
           (async function() {
             for (; 0 !== r.length; ) {
-              const { value: t, channel: e } = await Y(r);
+              const { value: t, channel: e } = await J(r);
               if (t !== v) await n.put(t);
               else {
                 const t = r.indexOf(e);
@@ -1040,7 +1049,7 @@
           n
         );
       }
-      function F(t, ...e) {
+      function z(t, ...e) {
         const n = [];
         let r = 0 === e.length ? [2] : e;
         if (
@@ -1055,10 +1064,10 @@
         }
         var o;
         for (const t of r) n.push(I(t));
-        const i = I();
-        let u = 0;
+        const u = I();
+        let i = 0;
         function c() {
-          0 == --u && i.putAsync();
+          0 == --i && u.putAsync();
         }
         return (
           (async function() {
@@ -1068,19 +1077,19 @@
                 for (const t of n) t.close();
                 break;
               }
-              u = n.length;
+              i = n.length;
               for (const t of n) t.putAsync(e, c);
-              await i.take();
+              await u.take();
             }
           })(),
           n
         );
       }
-      function N(t, e = I()) {
+      function U(t, e = I()) {
         return (
-          t[P.taps] ||
+          t[L.taps] ||
             (function(t) {
-              Object.defineProperty(t, P.taps, {
+              Object.defineProperty(t, L.taps, {
                 configurable: !0,
                 writable: !0,
                 value: [],
@@ -1093,46 +1102,46 @@
               !(async function() {
                 for (;;) {
                   const o = await t.take();
-                  if (o === v || 0 === t[P.taps].length) {
-                    delete t[P.taps];
+                  if (o === v || 0 === t[L.taps].length) {
+                    delete t[L.taps];
                     break;
                   }
-                  n = t[P.taps].length;
-                  for (const e of t[P.taps]) e.putAsync(o, r);
+                  n = t[L.taps].length;
+                  for (const e of t[L.taps]) e.putAsync(o, r);
                   await e.take();
                 }
               })();
             })(t),
-          ~t[P.taps].indexOf(e) || t[P.taps].push(e),
+          ~t[L.taps].indexOf(e) || t[L.taps].push(e),
           e
         );
       }
-      function z(t, e) {
-        const n = t[P.taps];
+      function $(t, e) {
+        const n = t[L.taps];
         if (n) {
           const r = n.indexOf(e);
           -1 !== r && (n.splice(r, 1), 0 === n.length && t.putAsync());
         }
       }
-      function U(t) {
-        t[P.taps] && ((t[P.taps] = []), t.putAsync());
+      function Q(t) {
+        t[L.taps] && ((t[L.taps] = []), t.putAsync());
       }
-      function $(t, e, n = 0) {
+      function B(t, e, n = 0) {
         const r = I(n),
           o = e.length,
-          i = [],
           u = [],
+          i = [],
           c = I();
         let a;
         for (let t = 0; t < o; ++t)
-          u[t] = (t => e => {
-            (i[t] = e), 0 == --a && c.putAsync(i.slice());
+          i[t] = (t => e => {
+            (u[t] = e), 0 == --a && c.putAsync(u.slice());
           })(t);
         return (
           (async function() {
             for (;;) {
               a = o;
-              for (let t = 0; t < o; ++t) e[t].takeAsync(u[t]);
+              for (let t = 0; t < o; ++t) e[t].takeAsync(i[t]);
               const n = await c.take();
               for (const t of n) if (t === v) return void r.close();
               await r.put(t(...n));
@@ -1141,17 +1150,17 @@
           r
         );
       }
-      function Q(t) {
+      function G(t) {
         return (
           "[object Number]" === Object.prototype.toString.call(t) && isFinite(t)
         );
       }
-      function B(t, e, n, r) {
+      function H(t, e, n, r) {
         const o = { leading: !1, trailing: !0, maxDelay: 0, cancel: I() },
-          i = Q(n) ? e : 0,
-          u = Q(n) ? n : e,
-          c = Object.assign(o, (Q(n) ? r : n) || {}),
-          a = I(i),
+          u = G(n) ? e : 0,
+          i = G(n) ? n : e,
+          c = Object.assign(o, (G(n) ? r : n) || {}),
+          a = I(u),
           { leading: s, trailing: f, maxDelay: l, cancel: d } = c;
         return (
           (async function() {
@@ -1159,18 +1168,18 @@
               n = I(),
               r = v;
             for (;;) {
-              const { value: o, channel: i } = await Y([t, e, n, d]);
-              if (i === d) {
+              const { value: o, channel: u } = await J([t, e, n, d]);
+              if (u === d) {
                 a.close();
                 break;
               }
-              if (i === t) {
+              if (u === t) {
                 if (o === v) {
                   a.close();
                   break;
                 }
                 const t = e.timeout;
-                (e = I(0, { timeout: u })),
+                (e = I(0, { timeout: i })),
                   !t && l > 0 && (n = I(0, { timeout: l })),
                   s ? (t ? (r = o) : await a.put(o)) : f && (r = o);
               } else
@@ -1180,19 +1189,19 @@
           a
         );
       }
-      function G(t, e, n, r) {
+      function Y(t, e, n, r) {
         const o = { leading: !0, trailing: !0, cancel: I() },
-          i = Q(n) ? e : 0,
-          u = Q(n) ? n : e,
-          c = Object.assign(o, (Q(n) ? r : n) || {}),
-          a = I(i),
+          u = G(n) ? e : 0,
+          i = G(n) ? n : e,
+          c = Object.assign(o, (G(n) ? r : n) || {}),
+          a = I(u),
           { leading: s, trailing: f, cancel: l } = c;
         return (
           (async function() {
             let e = I(),
               n = v;
             for (;;) {
-              const { value: r, channel: o } = await Y([t, e, l]);
+              const { value: r, channel: o } = await J([t, e, l]);
               if (o === l) {
                 a.close();
                 break;
@@ -1203,22 +1212,22 @@
                   break;
                 }
                 const t = e.timeout;
-                t || (e = I(0, { timeout: u })),
+                t || (e = I(0, { timeout: i })),
                   s ? (t ? f && (n = r) : await a.put(r)) : f && (n = r);
               } else
                 f && n !== v
-                  ? ((e = I(0, { timeout: u })), await a.put(n), (n = v))
+                  ? ((e = I(0, { timeout: i })), await a.put(n), (n = v))
                   : (e = I());
             }
           })(),
           a
         );
       }
-      function H(t, e, n = {}) {
+      function R(t, e, n = {}) {
         const r = t.length;
         if (0 === r) throw Error("Alts called with no operations");
         const o = !!n.priority,
-          i = o
+          u = o
             ? []
             : (function(t) {
                 const e = [];
@@ -1230,7 +1239,7 @@
                 }
                 return e;
               })(r),
-          u = T(!0);
+          i = T(!0);
         function c(t) {
           return (function(t, e) {
             return {
@@ -1239,69 +1248,72 @@
               },
               commit: () => ((t.value = !1), e),
             };
-          })(u, n => {
+          })(i, n => {
             e({ value: n, channel: t });
           });
         }
         let a;
         for (let n = 0; n < r; ++n) {
-          const r = t[o ? n : i[n]];
-          let u, s;
+          const r = t[o ? n : u[n]];
+          let i, s;
           if (
             (Array.isArray(r)
-              ? (([u, s] = r), (a = u.handlePut(s, c(u))))
-              : ((u = r), (a = u.handleTake(c(u)))),
+              ? (([i, s] = r), (a = i.handlePut(s, c(i))))
+              : ((i = r), (a = i.handleTake(c(i)))),
             O(a))
           ) {
-            e({ value: a.value, channel: u });
+            e({ value: a.value, channel: i });
             break;
           }
         }
         !O(a) &&
           Object.prototype.hasOwnProperty.call(n, "default") &&
-          u.value &&
-          ((u.value = !1), e({ value: n.default, channel: g }));
+          i.value &&
+          ((i.value = !1), e({ value: n.default, channel: g }));
       }
-      function Y(t, e = {}) {
+      function J(t, e = {}) {
         return new Promise(n => {
-          H(t, n, e);
+          R(t, n, e);
         });
       }
       n.d(e, "Buffer", function() {
-        return R;
+        return K;
       }),
         n.d(e, "Channel", function() {
-          return J;
-        }),
-        n.d(e, "Process", function() {
-          return K;
-        }),
-        n.d(e, "Dispatcher", function() {
           return V;
         }),
-        n.d(e, "Channels", function() {
-          return W;
+        n.d(e, "EMPTY", function() {
+          return o.a;
+        }),
+        n.d(e, "chan", function() {
+          return I;
+        }),
+        n.d(e, "CLOSED", function() {
+          return v;
+        }),
+        n.d(e, "DEFAULT", function() {
+          return g;
+        }),
+        n.d(e, "sleep", function() {
+          return q;
+        }),
+        n.d(e, "go", function() {
+          return M;
+        }),
+        n.d(e, "config", function() {
+          return s.d;
+        }),
+        n.d(e, "SET_IMMEDIATE", function() {
+          return s.b;
+        }),
+        n.d(e, "MESSAGE_CHANNEL", function() {
+          return s.a;
+        }),
+        n.d(e, "SET_TIMEOUT", function() {
+          return s.c;
         });
-      const R = { fixed: o.c, sliding: o.f, dropping: o.b, EMPTY: o.a },
-        J = { chan: I, CLOSED: v, DEFAULT: g },
-        K = {
-          sleep: function(t = 0) {
-            return new Promise(e => {
-              const n = I();
-              setTimeout(() => n.close(), t), n.takeAsync(e);
-            });
-          },
-          go: function(t, ...e) {
-            return t(...e);
-          },
-        },
-        V = {
-          config: s.d,
-          SET_IMMEDIATE: s.b,
-          MESSAGE_CHANNEL: s.a,
-          SET_TIMEOUT: s.c,
-        },
-        W = r;
+      const K = { fixed: o.c, sliding: o.f, dropping: o.b },
+        V = r;
     },
   ]);
 });
