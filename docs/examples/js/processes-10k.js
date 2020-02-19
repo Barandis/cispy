@@ -1,6 +1,6 @@
 /* global cispy */
 /* eslint-disable no-constant-condition */
-const { go, chan, timeout, alts, sleep, put } = cispy;
+const { go, sleep, chan, Channel } = cispy;
 
 const width = 100;
 const height = 100;
@@ -15,13 +15,13 @@ let group = 0; // The render group, used to choose a color for queued renders
 function createUi(el) {
   const html = [];
   for (let y = 0; y < height; ++y) {
-    html.push('<tr>');
+    html.push("<tr>");
     for (let x = 0; x < width; ++x) {
       html.push(`<td id="cell-${x + y * width}">0</td>`);
     }
-    html.push('</tr>');
+    html.push("</tr>");
   }
-  el.innerHTML = html.join('');
+  el.innerHTML = html.join("");
 }
 
 // Actually renders changes to the table cells. The queue that
@@ -40,7 +40,7 @@ function render(queue) {
 function renderLoop(rate) {
   // 1000-element buffered channel that will accept 4096 queued operations
   const main = chan(1000, { maxQueued: 4096 });
-  let refresh = timeout(rate);
+  let refresh = chan({ timeout: rate });
   let queue = [];
 
   // The single process that controls the rendering
@@ -49,12 +49,12 @@ function renderLoop(rate) {
     // channel and queues them, pausing to call render() every time
     // the refresh channel times out.
     while (true) {
-      const { value, channel } = await alts([main, refresh]);
+      const { value, channel } = await Channel.select([main, refresh]);
       if (channel === refresh) {
         render(queue);
         await sleep();
         queue = [];
-        refresh = timeout(rate);
+        refresh = chan({ timeout: rate });
       } else {
         queue.push(value);
       }
@@ -64,7 +64,7 @@ function renderLoop(rate) {
   return main;
 }
 
-createUi(document.getElementById('process-10k'));
+createUi(document.getElementById("process-10k"));
 
 const ch = renderLoop(rate);
 for (let i = 0, limit = width * height; i < limit; ++i) {
@@ -76,7 +76,7 @@ for (let i = 0, limit = width * height; i < limit; ++i) {
       // This is what puts the two-element arrays onto the main
       // channel, which eventually get queued and sent to
       // render().
-      await put(ch, [i, Math.floor(Math.random() * 10)]);
+      await ch.put([i, Math.floor(Math.random() * 10)]);
     }
   });
 }

@@ -51,21 +51,21 @@
     go(async () => {
       while (true) {
         await sleep(250);
-        await put(ch, 1);
+        await ch.put(1);
       }
     });
 
     go(async () => {
       while (true) {
         await sleep(1000);
-        await put(ch, 2);
+        await ch.put(2);
       }
     });
 
     go(async () => {
       while (true) {
         await sleep(1500);
-        await put(ch, 3);
+        await ch.put(3);
       }
     });
     </code></pre>
@@ -95,7 +95,7 @@
       const lines = [];
 
       while (true) {
-        const index = await take(ch);
+        const index = await ch.take();
         lines.unshift(`&lt;div class="proc-${index}"&gt;Process ${index}&lt;/div&gt;`);
         if (lines.length > 10) {
           lines.pop();
@@ -112,6 +112,33 @@
       Again, there isn't a whiff of a callback anywhere, and the rendering process has no knowledge or interest in what created the values on the channel or how they got there.
     </p>
 
+    <h2>Liar!</h2>
+    <p>
+      If you look at the source code behind this page, you'll see that...well, the code listed above is actually <strong>not</strong> the code that is running. Which is not to say that it's bad code. It <em>used</em> to be the code that ran this example, but a new, better way has been added, thanks to the continued advancement of JavaScript as a language: async iterators.
+    </p>
+    <p>
+      Every channel is also an async iterator that, when iterated over, will supply all of the values taken from that channel as soon as they're made available. Use a <code>for await...of</code> loop and the code is a little simpler.
+    </p>
+
+    <pre><code class="javascript">
+    go(async () => {
+      const processDiv = document.querySelector('#processes');
+      const lines = [];
+
+      for await (const index of ch) {
+        lines.unshift(`&lt;div class="proc-${index}"&gt;Process ${index}&lt;/div&gt;`);
+        if (lines.length > 10) {
+          lines.pop();
+        }
+        processDiv.innerHTML = lines.join('');
+      }
+    });
+    </code></pre>
+
+    <p>
+      The <code>for await...of</code> loop automatically pauses until a new value is available on the channel, takes that value and assigns it to the loop variable (in this case, <code>index</code>), and runs the loop. It will do this forever, until either the channel is closed or a <code>break</code> statement is executed.
+    </p>
+
     <h2>Taking from multiple channels</h2>
     <p>
       Our first example saw a channel being shared among four different processes. Sometimes it's useful to do the opposite, having a single channel that deals with multiple processes.
@@ -122,7 +149,7 @@
 
     <pre><code class="javascript">
     function listen(el, type, ch = chan()) {
-      el.addEventListener(type, event => putAsync(ch, event));
+      el.addEventListener(type, event => ch.putAsync(event));
       return ch;
     }
     </code></pre>
@@ -151,7 +178,7 @@
       let clickPos = [0, 0];
 
       while (true) {
-        const v = await alts([mouseCh, clickCh]);
+        const v = await Channel.select([mouseCh, clickCh]);
         const event = v.value;
         if (v.channel === mouseCh) {
           mousePos = [event.layerX || event.clientX, event.layerY || event.clientY];
@@ -167,7 +194,7 @@
       Before the familiar continuous loop begins, some setup is done. Two event channels are created, both on the target <code>div</code>, one for the <code>mousemove</code> event and one for the <code>click</code> event. A pair of variables to track the coordinates of the mouse when these events happen is also initialized.
     </p>
     <p>
-      That leaves us with <em>two</em> channels to pay attention to, and we do that with <code>await alts</code>. This function takes an array of channels to take from, and it blocks until the first of these channels produces a value (<code>alts</code> can also perform puts, but that's beyond this simple demo). When it unblocks, it returns an object instead of a value, with the properties <code>value</code> (containing the value taken from a channel) and <code>channel</code> (containing the channel that the value was ultimately taken from). We can then use the <code>channel</code> property to figure out which coordinates we want to update, based on which event channel produced a value. The coordinates are then displayed in the target <code>div</code>.
+      That leaves us with <em>two</em> channels to pay attention to, and we do that with <code>Channel.select</code> (<code>Channel</code> is a module provided by Cispy that has functions that operate on channels). This function takes an array of channels to take from, and it blocks until the first of these channels produces a value (<code>Channel.select</code> can also perform puts, but that's beyond this simple demo). When it unblocks, it returns an object instead of a value, with the properties <code>value</code> (containing the value taken from a channel) and <code>channel</code> (containing the channel that the value was ultimately taken from). We can then use the <code>channel</code> property to figure out which coordinates we want to update, based on which event channel produced a value. The coordinates are then displayed in the target <code>div</code>.
     </p>
     <p>
       The result is below. Mouse over the gray box and see how the mouse coordinates (the numbers before the colon) update. Click on the box and see the numbers on the right of the colon update with the coordinates of the last click.
@@ -183,7 +210,7 @@
       <em>Transducers</em> are generic transformation functions that work on a wide variety of collection types &mdash; the same function is able to handle arrays, strings, and any other object that supports (or can be made to support) transducers. Cispy channels support transducers, which can be passed to the <code>chan</code> function to create a channel that performs transformations on the values put onto the channel before they're made available to be taken off. We can use these transformations to automatically calculate the offset, so that the value is already calculated relative to the top left of the page before it even gets taken off the channel.
     </p>
     <p>
-      We're going to use a <code>map</code> transducer to change what's coming into the channel to what we actually <em>want</em> on the channel. The particular transducer that we'll use is in my <a href="https://barandis.github.io/xduce">xduce</a> library, though the <code>map</code> transducer from any transducer library should work just fine. This transducer, like the regular functional <code>map</code>, requires a function that takes an input and maps it to the output we want. Since our input is going to be the object put onto the channel - an event - we can create a function like this.
+      We're going to use a <code>map</code> transducer to change what's coming into the channel to what we actually <em>want</em> on the channel. The particular transducer that we'll use is in my <a href="https://barandis.github.io/xduce">xduce</a> library. This transducer, like the regular functional <code>map</code>, requires a function that takes an input and maps it to the output we want. Since our input is going to be the object put onto the channel - an event - we can create a function like this.
     </p>
 
     <pre><code class="javascript">
@@ -211,13 +238,21 @@
     <pre><code class="javascript">
     go(async () => {
       const el = document.querySelector('#transducers');
-      const mouseCh = listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) }));
-      const clickCh = listen(el, 'click', chan(1, { transducer: map(coordinates(el)) }));
+      const mouseCh = listen(
+        el, 
+        'mousemove', 
+        chan(1, { transducer: map(coordinates(el)) })
+      );
+      const clickCh = listen(
+        el, 
+        'click', 
+        chan(1, { transducer: map(coordinates(el)) })
+      );
       let mousePos = { x: 0, y: 0 };
       let clickPos = { x: 0, y: 0 };
 
       while (true) {
-        const v = await alts([mouseCh, clickCh])
+        const v = await Channel.select([mouseCh, clickCh])
         if (v.channel === mouseCh) {
           mousePos = v.value;
         } else {
@@ -229,7 +264,7 @@
     </code></pre>
 
     <p>
-      There are three basic differences between this loop and the one we used in our last example: we're storing our coordinates as objects instead of arrays, <code>await alts</code> is returning a plain object instead of an event object, and we're passing a third parameter to <code>listen</code>.
+      There are three basic differences between this loop and the one we used in our last example: we're storing our coordinates as objects instead of arrays, <code>await select</code> is returning a plain object instead of an event object, and we're passing a third parameter to <code>listen</code>.
     <p>
     <p>
       The first two are just nice-to-haves. Our transducer, using the function generated by <code>coordinates</code>, will be causing the values taken from the event channels to be simple objects instead of event objects. Since we can make these objects look however we want by adjusting <code>coordinates</code>, we've chosen to make them coordinates objects, with <code>x</code> and <code>y</code> as their properties. This lends itself very well to an application that is designed to display coordinates, and it means we can write the slightly less cryptic <code>mousePos.x</code> instead of <code>mousePos[0]</code>.
@@ -251,18 +286,21 @@
       One very noticeable issue with both of the last two examples is the sheer number of <code>mousemove</code> events that get fired. As long as the mouse is moving, the events are constantly streaming forth. We might find that there are situations where this can be an issue, particularly if that event (or, say, a window scrolling event) is driving some expensive UI update process. Maybe we only want to see an update to mouse position every 100 milliseconds, for example, or we don't want to know about the window scrolling until it's finished.
     </p>
     <p>
-      Cispy has a number of operation functions that operate on channels, and <code>debounce</code> and <code>throttle</code> are two that work well for these situations.
+      Cispy has a number of operation functions that operate on channels, and <code>Channel.debounce</code> and <code>Channel.throttle</code> are two that work well for these situations. (We have already seen a channel operation in <code>Channel.select</code>.)
     </p>
     <p>
       Debouncing combines several closely-spaced inputs into one input. This would be the perfect operation to use if we didn't want to know about window scroll events until they were all over - all of the scroll events would be ignored except for the last one, which is what we probably want.
     </p>
     <p>
-      In this example, we apply debouncing to the same <code>mousemove</code> channel that we've used in the last couple of examples. This is really easy to accomplish: just wrap that channel with the <code>debounce</code> function, adding the desired debounce delay to the call.
+      In this example, we apply debouncing to the same <code>mousemove</code> channel that we've used in the last couple of examples. This is really easy to accomplish: just wrap that channel with the <code>Channel.debounce</code> function, adding the desired debounce delay to the call.
     </p>
 
     <pre><code class="javascript">
     const el = document.querySelector('#debounce');
-    const mouseCh = debounce(listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) })), 500);
+    const mouseCh = Channel.debounce(
+      listen( el, 'mousemove', chan(1, { transducer: map(coordinates(el)) })), 
+      500
+    );
     </code></pre>
 
     <p>
@@ -275,7 +313,7 @@
     <div id="debounce"></div>
 
     <p>
-      Move your mouse around the gray box above, and notice that nothing happens until the mouse has been stopped (or has moved out of the gray box, which also causes events on that box to stop) for a half second. Since the <code>debounce</code> function is only applied to the <code>mousemove</code> channel, mouse clicks still happen exactly as they had before.
+      Move your mouse around the gray box above, and notice that nothing happens until the mouse has been stopped (or has moved out of the gray box, which also causes events on that box to stop) for a half second. Since the <code>Channel.debounce</code> function is only applied to the <code>mousemove</code> channel, mouse clicks still happen exactly as they had before.
     </p>
     <p>
       Throttling is another option. While debouncing combines inputs together into a single input, throttling leaves the multiple inputs but makes sure that they can only come every so often. This is useful for events that you want to know about while they're happening, but when you don't need to know about <em>all</em> of them. Mouse move events are actually a good example, because there are a large number of them generated, but perhaps you only need to know about them every so often.
@@ -286,7 +324,10 @@
 
     <pre><code class="javascript">
     const el = document.querySelector('#throttle');
-    const mouseCh = throttle(listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) })), 500);
+    const mouseCh = Channel.throttle(
+      listen(el, 'mousemove', chan(1, { transducer: map(coordinates(el)) })), 
+      500
+    );
     </code></pre>
 
     <p>
@@ -297,17 +338,6 @@
     </p>
 
     <div id="throttle"></div>
-
-    <h2>What happened to the old processes?</h2>
-    <p>
-      Cispy was started before async functions were even really known about, much less as common as they are now. It used generator functions as processes, and it controlled every aspect of them, even down to not being able to pass anything with <code>yield</code> (the generator process analogue to <code>await</code>) except for process functions like <code>put</code> and <code>take</code>. Eventually, async functions made an appearance, and as time went on, it became clear that they were just better.
-    </p>
-    <p>
-      The mechanism for running async functions is already a part of the JavaScript engine. Generators required their own engine and all of the attendent code that went with it. It was fun, but these days it's far less practical, has a worse syntax, and makes for a larger library.
-    </p>
-    <p>
-      I had for a time planned to continue forward with both mechanisms available, but then it occurred to me that probably I was the only one who cared much. End users shouldn't care so much what is going on behind the scenes. The extra effort in maintaining a second parallel code base is simply not worth it. Async functions it is.
-    </p>
   </section>
 
   <script src="../js/cispy.js"></script>

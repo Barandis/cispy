@@ -57,7 +57,7 @@
 
     <pre><code class="javascript">
       function listen(el, type, ch = chan()) {
-        el.addEventListener(type, event => putAsync(ch, event));
+        el.addEventListener(type, event => ch.putAsync(event));
         return ch;
       }
     </code></pre>
@@ -66,7 +66,7 @@
       This function takes a DOM element and a type of event (in our case, since we're looking for click events, that type is <code>'click'</code>). It then either uses the channel we pass in as the third parameter or, if there is no third parameter, creates a new channel. Every time the specified event occurs on the specified DOM element, the event object will be put onto this channel.
     </p>
     <p>
-      Thing is, we're not really interested in anything about this event object. We're only interested in knowing which button was clicked. There are a few ways to do this. We could check the <code>target</code> property of the event object. We could use the <code>channel</code> property of the object returned by <code>alts</code> to figure out which channel unblocked the process, knowing that each channel is assigned to one button. Or we could actually manipulate the channel to return a value that tells us which channel it is. We'll use the latter because it's a pretty elegant solution.
+      Thing is, we're not really interested in anything about this event object. We're only interested in knowing which button was clicked. There are a few ways to do this. We could check the <code>target</code> property of the event object. We could use the <code>channel</code> property of the object returned by <code>Channel.select</code> to figure out which channel unblocked the process, knowing that each channel is assigned to one button. Or we could actually manipulate the channel to return a value that tells us which channel it is. We'll use the latter because it's a pretty elegant solution.
     </p>
     <p>
       We don't want to change our code in <code>listen</code>, because it's a generic and highly useful function that we can use over and over again (it was used twice in the three intro examples, for instance). Instead, we'll use the ability of cispy channels to use the transformer functions that come out of a transducer library (there are a few good ones, but you may want to go with <a href="https://barandis.github.io/xduce">xduce</a>). We'll use the <code>map</code> transformer to turn that event object into something we can use better. This is exactly what we did in the third intro example, except this time we don't want coordinates. We want an identifier for the button.
@@ -119,7 +119,7 @@
         let chZ = chan();
 
         while (true) {
-          const alt = await alts([chA, chB, chC, chZ]);
+          const alt = await Channel.select([chA, chB, chC, chZ]);
           clicks.push(alt.value);
           ...
         }
@@ -127,13 +127,13 @@
     </code></pre>
 
     <p>
-      Aside from the constants set up at the beginning (for the amount of time the user has to get the combination right and for the combination itself), the rest of this should look very familiar. It's the setting of some state variables to initial values and then a <code>while</code> loop with an <code>alts</code> invocation right at the beginning. That's exactly the way the last two intro examples were set up, and it's a recurring pattern when using CSP to manage events.
+      Aside from the constants set up at the beginning (for the amount of time the user has to get the combination right and for the combination itself), the rest of this should look very familiar. It's the setting of some state variables to initial values and then a <code>while</code> loop with an <code>Channel.select</code> invocation right at the beginning. That's exactly the way the last two intro examples were set up, and it's a recurring pattern when using CSP to manage events.
     </p>
     <p>
-      Perhaps the most interesting thing in this snippet is that a local channel (<code>chZ</code>) is being checked by <code>alts</code> as well. Since the channel is local, no other process can access and therefore put onto it. Why have it at all? We'll discover that a little later.
+      Perhaps the most interesting thing in this snippet is that a local channel (<code>chZ</code>) is being checked by <code>Channel.select</code> as well. Since the channel is local, no other process can access and therefore put onto it. Why have it at all? We'll discover that a little later.
     </p>
     <p>
-      In the intro examples with event handling, the bulk of the <code>while</code> loop was an <code>if/else</code> statement that performed some action based on what came back from the <code>await alts</code>. Our <code>while</code> loop body here is no different.
+      In the intro examples with event handling, the bulk of the <code>while</code> loop was an <code>if/else</code> statement that performed some action based on what came back from the <code>Channel.select</code>. Our <code>while</code> loop body here is no different.
     </p>
 
     <pre><code class="javascript">
@@ -145,7 +145,7 @@
     </code></pre>
 
     <p>
-      The first branch executes if the channel that caused <code>await alts</code> to unblock was the mysterious channel Z. We still don't know what might be on that channel, but we get some sort of clue from the fact that the displayed message tells the user that he's run out of time (<code>setStatus</code> is another utility function, one that sets the text in the example's div). All of the state variables are set back to their initial states as well, indicating that the user is able to start again.
+      The first branch executes if the channel that caused <code>Channel.select</code> to unblock was the mysterious channel Z. We still don't know what might be on that channel, but we get some sort of clue from the fact that the displayed message tells the user that he's run out of time (<code>setStatus</code> is another utility function, one that sets the text in the example's div). All of the state variables are set back to their initial states as well, indicating that the user is able to start again.
     </p>
 
     <pre><code class="javascript">
@@ -157,14 +157,14 @@
         } else {
           setStatus(clicks);
           if (!chZ.timeout) {
-            chZ = timeout(MAX_TIME);
+            chZ = chan({ timeout: MAX_TIME });
           }
         }
       }
     </code></pre>
 
     <p>
-      The next branch executes if the value returned from <code>await alts</code> matches the value at the same index of the combination. In other words, it's called if the user selects the correct next button. What happens then depends on whether this was the last button (the length of our <code>clicks</code> array, which tracks the buttons that have been clicked so far, is the same as the length of the combination).
+      The next branch executes if the value returned from <code>Channel.select</code> matches the value at the same index of the combination. In other words, it's called if the user selects the correct next button. What happens then depends on whether this was the last button (the length of our <code>clicks</code> array, which tracks the buttons that have been clicked so far, is the same as the length of the combination).
     </p>
     <p>
       If it was, it means the user must have entered the correct combination. If so, a message is displayed to say so, and the state variables are set back to their initial values. Just like in the first branch. Again this means that the user may start again.
@@ -173,13 +173,13 @@
       Far more interesting is what happens if this was <em>not</em> the last button (fewer buttons have been clicked than the length of the combination). Most of the time, we just update the div with all of the buttons that have been clicked so far, and let the <code>while</code> loop continue. But if the <code>timeout</code> property of <code>chZ</code> is false, we reassign <code>chZ</code> to something we have not seen before - a timeout channel.
     </p>
     <p>
-      The <code>timeout</code> function is offered by Cispy, and it creates a new unbuffered channel, just like <code>chan()</code>. The difference is that this channel will automatically close after a delay, specified in milliseconds in the <code>timeout</code> call itself. So now our private, local channel Z turns out to have something to do after all - it can sit around and then close after 5 seconds (5000 milliseconds, the value of <code>MAX_TIME</code>).
+      The <code>timeout</code> option is available to <code>chan()</code>, and if it is used, the channel will automatically close after a delay in milliseconds equal to the value of the <code>timeout</code> option. So now our private, local channel Z turns out to have something to do after all - it can sit around and then close after 5 seconds (5000 milliseconds, the value of <code>MAX_TIME</code>).
     </p>
     <p>
-      How does this help? Well, it turns out that <code>await alts</code> doesn't only unblock if a value is put onto one if its channels. It also unblocks if one of its channels <em>closes</em>. So now we can see that 5 seconds after the first button is pushed, <code>chZ</code> will close, which causes <code>await alts</code> to unblock and set <code>alt.channel</code> to <code>chZ</code>. Which executes the first branch, telling the user that he's failed. The only way this is averted is by getting the right combination, which resets <code>chZ</code> back to a normal, non-timeout channel, meaning that it again sits there and does nothing in the next <code>await alts</code> call.
+      How does this help? Well, it turns out that <code>Channel.select</code> doesn't only unblock if a value is put onto one if its channels. It also unblocks if one of its channels <em>closes</em>. So now we can see that 5 seconds after the first button is pushed, <code>chZ</code> will close, which causes <code>Channel.select</code> to unblock and set <code>alt.channel</code> to <code>chZ</code>. Which executes the first branch, telling the user that he's failed. The only way this is averted is by getting the right combination, which resets <code>chZ</code> back to a normal, non-timeout channel, meaning that it again sits there and does nothing in the next <code>Channel.select</code> call.
     </p>
     <p>
-      By the way, both <code>await put</code> and <code>await take</code> share this behavior, unblocking if the channel passed to them closes.
+      By the way, both <code>put</code> and <code>take</code> share this behavior, unblocking if the channel passed to them closes.
     </p>
     <p>
       For the sake of completeness, let's look at the last branch of the <code>if/else</code>.
@@ -189,14 +189,14 @@
       else {
         setStatus("Wrong combination, try again");
         if (!chZ.timeout) {
-          chZ = timeout(MAX_TIME);
+          chZ = chan({ timeout: MAX_TIME });
         }
         clicks = [];
       }
     </code></pre>
 
     <p>
-      This branch executes if a button was pushed (<code>alt.channel</code> is not <code>chZ</code>) and if that button does not match the next button in the combination. In this case the user is shown a message that the wrong button was clicked, and the list of clicked buttons is cleared (the user has to start over). Channel Z is not reset though; it continues to tick away towards that 5 seconds. Of course, like in the last branch, if this is the first button that's clicked the <code>timeout</code> channel is created to start the countdown.
+      This branch executes if a button was pushed (<code>alt.channel</code> is not <code>chZ</code>) and if that button does not match the next button in the combination. In this case the user is shown a message that the wrong button was clicked, and the list of clicked buttons is cleared (the user has to start over). Channel Z is not reset though; it continues to tick away towards that 5 seconds. Of course, like in the last branch, if this is the first button that's clicked the timeout channel is created to start the countdown.
     </p>
     <p>
       In the end, if a channel is a timeout channel, it has its <code>timeout</code> property set to <code>true</code>, while a regular channel will have a <code>timeout</code> property value of <code>false</code>. Because of that, we're able to use the channel itself as a state variable in our local event loop. If <code>chZ.timeout === false</code> then the timer must not be running, so when the first button is clicked we will reassign <code>chZ</code> to be a timeout channel. If we do something to finish the combination, either by entering it successfully or taking too long to do so, <code>chZ</code> gets reassigned back to a regular channel. Thus we can always tell whether the proverbial clock is ticking by checking the value of <code>chZ.timeout</code>.
