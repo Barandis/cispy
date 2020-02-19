@@ -58,7 +58,7 @@
  * @module cispy/channel
  */
 
-import { queue, fixed, EMPTY } from "modules/buffers";
+import { queue, fixed, isBuffer, EMPTY } from "modules/buffers";
 import { dispatch } from "modules/dispatcher";
 import { protocols as p } from "modules/protocol";
 
@@ -1000,28 +1000,26 @@ const bufferReducer = {
  *     they were in the list of operations passed to `alts` but were not chosen
  *     to run. This provides a chance for a very minor performance tweak and is
  *     best left alone.
- * @param {number|null} [options.timeout=null] The number of milliseconds before
- *     this channel will be automatically closed. A value of `null` indicates
- *     that the channel will not be automatically closed.
  * @param {number} [options.maxQueued=1024] The maximum number of operations
  *     that can be queued up at the same time. This prevents infinite loops from
  *     accidentally eating up all of the available memory.
+ * @param {number} [options.timeout] If this value is present, the channel will
+ *     be a timeout channel that closes automatically after this number of
+ *     milliseconds.
  * @return {module:cispy/channel~Channel} A new channel.
  */
-export function chan(
-  buffer = 0,
-  {
-    transducer = undefined,
-    handler = undefined,
-    maxDirty = MAX_DIRTY,
-    maxQueued = MAX_QUEUED,
-    timeout = null,
-  } = {},
-) {
-  const buf = buffer === 0 ? null : buffer;
-  const b = typeof buf === "number" ? fixed(buf) : buf;
+export function chan(buffer, options) {
+  const defaultOptions = {
+    maxDirty: 64,
+    maxQueued: 1024,
+  };
+  const { buf, transducer, handler, maxDirty, maxQueued, timeout } = parseArgs(
+    buffer,
+    options,
+    defaultOptions,
+  );
 
-  if (transducer && !b) {
+  if (transducer && !buf) {
     throw Error("Only buffered channels can use transformers");
   }
   const xf = wrapTransformer(
@@ -1029,11 +1027,40 @@ export function chan(
     handler,
   );
 
-  const isTimeout = timeout !== null;
+  const isTimeout = typeof timeout === "number";
 
-  const ch = channel(b, xf, isTimeout, maxDirty, maxQueued);
+  const ch = channel(buf, xf, isTimeout, maxDirty, maxQueued);
   if (isTimeout) {
     setTimeout(() => ch.close(), timeout);
   }
   return ch;
+}
+
+function parseArgs(buffer, options, defaultOptions) {
+  let buf;
+  let opts;
+
+  // console.log(buffer ? isBuffer(buffer) : false);
+
+  if (!buffer) {
+    // same for 0, null, or undefined
+    buf = null;
+    opts = options;
+  } else if (typeof buffer === "number") {
+    buf = fixed(buffer);
+    opts = options;
+  } else if (isBuffer(buffer)) {
+    buf = buffer;
+    opts = options;
+  } else {
+    buf = null;
+    opts = buffer;
+  }
+
+  const { transducer, handler, maxDirty, maxQueued, timeout } = Object.assign(
+    {},
+    defaultOptions,
+    opts,
+  );
+  return { buf, transducer, handler, maxDirty, maxQueued, timeout };
 }

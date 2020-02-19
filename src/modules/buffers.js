@@ -45,6 +45,12 @@
  */
 export const EMPTY = Symbol("EMPTY");
 
+const BUFFER = Symbol("BUFFER");
+
+export function isBuffer(buffer) {
+  return Object.getOwnPropertySymbols(buffer).includes(BUFFER);
+}
+
 /**
  * A general purpose, highly efficient JavaScript queue. It is backed by a
  * JavaScript array, but it does not use `unshift` to take elements off the
@@ -323,6 +329,12 @@ export function fixed(size) {
           return this.queue.count >= this.size;
         },
       },
+
+      [BUFFER]: {
+        get() {
+          return true;
+        },
+      },
     }),
     {
       /**
@@ -390,6 +402,12 @@ export function dropping(size) {
          */
         get() {
           return false;
+        },
+      },
+
+      [BUFFER]: {
+        get() {
+          return true;
         },
       },
     }),
@@ -463,6 +481,12 @@ export function sliding(size) {
       full: {
         get() {
           return false;
+        },
+      },
+
+      [BUFFER]: {
+        get() {
+          return true;
         },
       },
     }),

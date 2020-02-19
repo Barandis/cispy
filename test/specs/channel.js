@@ -459,7 +459,7 @@ describe("Channel", () => {
 
     it("creates a channel that closes after a certain amount of time", () => {
       const spy = sinon.spy();
-      const ch = chan(0, { timeout: 500 });
+      const ch = chan({ timeout: 500 });
 
       ch.takeAsync(value => {
         expect(value).to.equal(CLOSED);
@@ -472,12 +472,12 @@ describe("Channel", () => {
     });
 
     it("marks itself as a timeout channel", () => {
-      expect(chan(0, { timeout: 0 }).timeout).to.be.true;
+      expect(chan({ timeout: 0 }).timeout).to.be.true;
     });
 
     it("is useful in limiting how long an alts call will wait", () => {
       const spy = sinon.spy();
-      const chs = [chan(), chan(), chan(0, { timeout: 500 })];
+      const chs = [chan(), chan(), chan({ timeout: 500 })];
 
       selectAsync(chs, () => {
         spy();
